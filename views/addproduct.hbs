@@ -1,0 +1,28 @@
+{{> header title="Ajouter un Produit" }}
+<div class="container" id="add-product-page">
+    <h1>Ajouter un Produit</h1>
+    <form action="/products" method="POST">
+        <div>
+            <label for="name">Nom du produit:</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        <div>
+            <label for="stock">Stock initial:</label>
+            <input type="number" id="stock" name="stock" required>
+        </div>
+        <div>
+            <label for="category_id">Catégorie:</label>
+            <select id="category_id" name="category_id" required>
+                {{#each categories}}
+                <option value="{{this.id}}">{{this.name}}</option>
+                {{/each}}
+            </select>
+        </div>
+        <div>
+            <label for="stock_minimal">Stock minimal:</label>
+            <input type="number" id="stock_minimal" name="stock_minimal" required>
+        </div>
+        <button type="submit">Ajouter le produit</button>
+    </form>
+</div>
+{{> footer}}

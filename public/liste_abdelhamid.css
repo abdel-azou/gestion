@@ -1,0 +1,144 @@
+.liste-abdelhamid-container .category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.liste-abdelhamid-container .category-section {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+}
+
+.liste-abdelhamid-container .category-section h2 {
+    font-size: 22px;
+    color: #020202;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.liste-abdelhamid-container .category-section[data-category="boite"] h2 {
+    background-color: #2a241d;
+    /* Orange */
+}
+
+.liste-abdelhamid-container .category-section[data-category="sachet"] h2 {
+    background-color: #7d3cff;
+    /* Purple */
+}
+
+.liste-abdelhamid-container .category-section[data-category="frigo"] h2 {
+    background-color: #007aff;
+    /* Blue */
+}
+
+.liste-abdelhamid-container .category-section[data-category="farine"] h2 {
+    background-color: #ff2d55;
+    /* Red */
+}
+
+.liste-abdelhamid-container .category-section[data-category="patissier"] h2 {
+    background-color: #4cd964;
+    /* Green */
+}
+
+.liste-abdelhamid-container .category-section[data-category="boisson"] h2 {
+    background-color: #ffcc00;
+    /* Yellow */
+}
+
+.liste-abdelhamid-container .product-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.liste-abdelhamid-container .product-item:last-child {
+    border-bottom: none;
+}
+
+.liste-abdelhamid-container .product-info {
+    flex: 1;
+}
+
+.liste-abdelhamid-container .product-name {
+    font-size: 18px;
+    color: #333;
+    font-weight: bold;
+}
+
+.liste-abdelhamid-container .product-stock {
+    font-size: 16px;
+    color: #555;
+    margin: 0 20px;
+    font-weight: bold;
+}
+
+.liste-abdelhamid-container .stock-input {
+    width: 60px;
+    padding: 5px;
+    margin-right: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.liste-abdelhamid-container .modify-button {
+    background-color: #007aff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.liste-abdelhamid-container .modify-button:hover {
+    background-color: #005bb5;
+}
+
+ .view-products-to-order-btn {
+    display: inline-block;
+    padding: 15px 25px;
+    margin-bottom: 20px;
+    background-color: #ff9500;
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    text-align: center;
+    transition: background-color 0.3s;
+}
+
+.view-products-to-order-btn:hover {
+    background-color: #cc7a00;
+}
+@media (max-width: 600px) {
+    .liste-abdelhamid-container .category-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .liste-abdelhamid-container .product-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .liste-abdelhamid-container .product-info {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .liste-abdelhamid-container .stock-input {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+}
+

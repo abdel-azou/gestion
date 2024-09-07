@@ -1,0 +1,44 @@
+{{> header title="Liste Abdelhamid" page="liste_abdelhamid"}}
+<div class="container" id="liste_abdelhamid-page">
+    <h1 style="text-align: center;;">Liste des Produits</h1>
+    <a href="/products-to-order" class="view-products-to-order-btn">Produits à Commander</a>
+    <div class="search-container">
+        <input type="text" id="category-search" placeholder="Rechercher une catégorie..." onkeyup="filterCategories()">
+        <input type="text" id="product-search" placeholder="Rechercher un produit..." onkeyup="filterProducts()">
+    </div>
+    <div class="category-grid" id="product-list">
+        {{#each productsByCategory}}
+        <div class="category-section" data-category="{{name}}">
+            <h2>{{name}}</h2>
+            {{#if products.length}}
+            <ul>
+                {{#each products}}
+                <li class="product-item" data-id="{{this.id}}" data-name="{{this.name}}">
+                    <div class="product-info">
+                        <span class="product-name">{{this.name}}</span>
+                        <span class="product-stock">{{this.stock}}</span>
+                    </div>
+                </li>
+                {{/each}}
+            </ul>
+            {{else}}
+            <p>Aucun produit dans cette catégorie.</p>
+            {{/if}}
+        </div>
+        {{/each}}
+    </div>
+</div>
+
+<div id="action-bar">
+    <button class="action-btn" onclick="updateSelectedStock(1)">+1</button>
+    <button class="action-btn" onclick="updateSelectedStock(2)">+2</button>
+    <button class="action-btn" onclick="updateSelectedStock(5)">+5</button>
+    <button class="action-btn" onclick="updateSelectedStock(-1)">-1</button>
+    <button class="action-btn" onclick="updateSelectedStock(-2)">-2</button>
+    <button class="action-btn" onclick="updateSelectedStock(-5)">-5</button>
+    <input type="number" id="custom-amount" placeholder="Custom amount">
+    <button class="action-btn" onclick="updateSelectedStockCustom()">Update</button>
+</div>
+
+<script src="/scripts.js"></script>
+{{> footer}}

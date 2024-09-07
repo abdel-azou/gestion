@@ -1,0 +1,31 @@
+<header>
+    <nav class="menu">
+        <ul>
+            <li>
+                <a href="#" class="menu-btn">Menu</a>
+                <ul class="dropdown">
+                    <li><a href="/add-product">Ajouter un Produit</a></li>
+                    <li><a href="/liste_abdelhamid">Liste des Produits</a></li>
+                    <li><a href="/products-to-order">Produits à Commander</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+    <h1>{{title}}</h1>
+</header>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const menuBtn = document.querySelector('.menu-btn');
+        const dropdown = document.querySelector('.menu .dropdown');
+
+        menuBtn.addEventListener('click', function(event) {
+            event.preventDefault();
+            if (dropdown.style.maxHeight) {
+                dropdown.style.maxHeight = null;
+            } else {
+                dropdown.style.maxHeight = dropdown.scrollHeight + "px";
+            }
+        });
+    });
+</script>

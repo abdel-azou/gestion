@@ -1,0 +1,95 @@
+.add-product-btn {
+    display: inline-block;
+    padding: 15px 25px;
+    margin-bottom: 20px;
+    background-color: #ff9500;
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    text-align: center;
+    transition: background-color 0.3s;
+}
+
+.add-product-btn:hover {
+    background-color: #cc7a00;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+ul li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+ul li .product-info {
+    display: flex;
+    align-items: center;
+}
+
+ul li .product-info .product-name {
+    font-size: 20px;
+    color: #333;
+    font-weight: bold;
+    margin-right: 20px;
+}
+
+ul li .product-info .product-stock {
+    font-size: 16px;
+    color: #555;
+    margin: 0 20px;
+    font-weight: bold;
+}
+
+.buttons-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.buttons-group-row {
+    display: flex;
+    gap: 10px;
+}
+
+.buttons-group button {
+    background-color: #007aff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.buttons-group button:hover {
+    background-color: #005bb5;
+}
+
+@media (max-width: 600px) {
+    ul li {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    ul li .buttons-group {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    ul li .buttons-group button {
+        flex: 1 1 calc(50% - 10px);
+        text-align: center;
+    }
+}

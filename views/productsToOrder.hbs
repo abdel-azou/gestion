@@ -1,0 +1,17 @@
+{{> header title="Produits à Commander" }}
+<div class="container">
+    <h1>Produits à Commander</h1>
+    {{#if productsToOrder.length}}
+    <ul>
+        {{#each productsToOrder}}
+        <li>
+            <span>{{this.name}}</span>
+            <span>Quantité à commander: {{this.difference}}</span>
+        </li>
+        {{/each}}
+    </ul>
+    {{else}}
+    <p>Aucun produit à commander.</p>
+    {{/if}}
+</div>
+{{> footer}}
