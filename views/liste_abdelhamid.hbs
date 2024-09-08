@@ -17,6 +17,7 @@
                     <div class="product-info">
                         <span class="product-name">{{this.name}}</span>
                         <span class="product-stock">{{this.stock}}</span>
+                        {{!-- <button class="action-btn" onclick="deleteProduct({{this.id}})">Supprimer</button> --}}
                     </div>
                 </li>
                 {{/each}}
@@ -38,6 +39,9 @@
     <button class="action-btn" onclick="updateSelectedStock(-5)">-5</button>
     <input type="number" id="custom-amount" placeholder="Custom amount">
     <button class="action-btn" onclick="updateSelectedStockCustom()">Update</button>
+    <button class="action-btn" onclick="deleteProduct({{this.id}})">Supprimer</button>
+</form>
+
 </div>
 
 <script src="/scripts.js"></script>

@@ -10,5 +10,8 @@ router.get('/categories', productController.categories);
 router.post('/categories', productController.createCategory);
 router.get('/liste_abdelhamid', productController.listeAbdelhamid);
 router.get('/products-to-order', productController.productsToOrder);
+router.post('/products/delete/:id', productController.deleteProduct);
+
+
 
 module.exports = router;

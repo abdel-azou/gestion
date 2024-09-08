@@ -35,6 +35,17 @@ const Product = {
             WHERE stock < stock_minimal
         `);
         return stmt.all();
+    },
+    delete: (id) => {
+        const parsedId = parseInt(id, 10);  // Force l'ID à être un nombre entier
+        if (isNaN(parsedId)) {
+            throw new Error("Invalid ID for deletion");
+        }
+        console.log(`Deleting product with ID: ${parsedId}`);
+        const stmt = db.prepare(`
+            DELETE FROM products WHERE id = ?
+        `);
+        stmt.run(parsedId);
     }
 };
 

@@ -83,7 +83,32 @@ const productController = {
         const productsToOrder = Product.getProductsToOrder();
         console.log("Products to order:", productsToOrder);
         res.render('productsToOrder', { productsToOrder });
+    },
+    deleteProduct: (req, res) => {
+        const productId = req.params.id;
+        console.log(`Received request to delete product with ID: ${productId}`);  // Log ID reçu
+    
+        if (!productId) {
+            console.log("No product ID provided.");
+            return res.status(400).send('ID de produit manquant.');
+        }
+    
+        try {
+            Product.delete(productId);  // Appel à la méthode de suppression
+            console.log(`Product deletion successful for ID: ${productId}`);  // Log après suppression
+            res.status(200).send('Produit supprimé');  // Confirmation succès
+        } catch (err) {
+            console.error("Error during product deletion:", err);
+            res.status(500).send('Erreur lors de la suppression.');
+        }
     }
+    
+    
+    
+    
+    
+    
+    
 };
 
 module.exports = productController;

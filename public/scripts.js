@@ -51,6 +51,24 @@ function updateSelectedStockCustom() {
         updateSelectedStock(customAmount);
     }
 }
+function deleteProduct() {
+    if (!selectedProductId) {
+        alert('Veuillez sélectionner un produit.');
+        return;
+    }
+    fetch(`/products/delete/${selectedProductId}`, {
+        method: 'POST',
+    }).then(response => {
+        if (response.ok) {
+            window.location.reload();  // Rafraîchir la page après suppression
+        } else {
+            alert('Erreur lors de la suppression du produit');
+        }
+    });
+}
+
+
+
 
 function filterCategories() {
     const searchValue = document.getElementById('category-search').value.toLowerCase();
