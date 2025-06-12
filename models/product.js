@@ -16,6 +16,21 @@ const Product = {
         `);
         stmt.run(name, stock, category_id, stock_minimal);
     },
+     createMany: (productsArray) => {
+        // Prépare l'instruction SQL une seule fois pour une meilleure performance
+        const insertStmt = db.prepare(`
+            INSERT INTO products (name, stock, category_id, stock_minimal)
+            VALUES (?, ?, ?, ?)
+        `);
+
+        // Utilise une transaction pour assurer que toutes les insertions réussissent ou échouent
+        db.transaction((products) => {
+            for (const product of products) {
+                // Exécute l'insertion pour chaque produit dans le tableau
+                insertStmt.run(product.name, product.stock, product.category_id, product.stock_minimal);
+            }
+        })(productsArray); // Passe le tableau de produits à la fonction de transaction
+    },
     updateStock: (id, stock) => {
         const stmt = db.prepare(`
             UPDATE products SET stock = ? WHERE id = ?
