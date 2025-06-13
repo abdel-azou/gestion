@@ -51,23 +51,104 @@ function updateSelectedStockCustom() {
         updateSelectedStock(customAmount);
     }
 }
-function deleteProduct() {
-    if (!selectedProductId) {
-        alert('Veuillez sélectionner un produit.');
-        return;
+function deleteProduct(productId) {
+    // Récupérer le nom du produit pour l'afficher dans la confirmation
+    const productElement = document.querySelector(`.product-item[data-id="${productId}"]`);
+    const productName = productElement ? productElement.getAttribute('data-name') : 'ce produit';
+    
+    // Afficher la boîte de dialogue de confirmation
+    if (confirm(`Êtes-vous sûr de vouloir supprimer "${productName}" ?`)) {
+        // Si l'utilisateur confirme, procéder à la suppression
+        fetch(`/api/products/${productId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                // Suppression réussie, actualiser ou modifier l'interface utilisateur
+                productElement.remove();
+                showNotification('Produit supprimé avec succès', 'success');
+            } else {
+                // Gérer les erreurs
+                showNotification('Erreur lors de la suppression du produit', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            showNotification('Erreur de connexion', 'error');
+        });
+    } else {
+        // L'utilisateur a annulé, ne rien faire
+        showNotification('Suppression annulée', 'info');
     }
-    fetch(`/products/delete/${selectedProductId}`, {
-        method: 'POST',
-    }).then(response => {
-        if (response.ok) {
-            window.location.reload();  // Rafraîchir la page après suppression
-        } else {
-            alert('Erreur lors de la suppression du produit');
-        }
-    });
 }
 
+// Fonction utilitaire pour afficher des notifications
+function showNotification(message, type) {
+    // Vérifier si un élément de notification existe déjà
+    let notification = document.getElementById('notification');
+    
+    // S'il n'existe pas, le créer
+    if (!notification) {
+        notification = document.createElement('div');
+        notification.id = 'notification';
+        document.body.appendChild(notification);
+    }
+    
+    // Définir la classe selon le type
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    
+    // Afficher la notification
+    notification.style.display = 'block';
+    
+    // La faire disparaître après 3 secondes
+    setTimeout(() => {
+        notification.style.display = 'none';
+    }, 3000);
+}
 
+function createMobileNavigation() {
+  if (window.innerWidth < 768) {
+    // Create compact bottom navigation
+    const nav = document.createElement('nav');
+    nav.className = 'mobile-nav';
+    nav.innerHTML = `
+      <ul>
+        <li><a href="/products">Produits</a></li>
+        <li><a href="/categories">Catégories</a></li>
+        <li><a href="/products-to-order">Produits à commander</a></li>
+      </ul>
+    `;
+    document.body.appendChild(nav);
+  }
+}
+function initSwipeGestures() {
+  const productItems = document.querySelectorAll('.product-item');
+  
+  productItems.forEach(item => {
+    let startX, moveX;
+    
+    item.addEventListener('touchstart', (e) => {
+      startX = e.touches[0].clientX;
+    });
+    
+    item.addEventListener('touchmove', (e) => {
+      moveX = e.touches[0].clientX;
+    });
+    
+    item.addEventListener('touchend', (e) => {
+      const diff = startX - moveX;
+      if (diff > 100) { // Right to left swipe
+        updateSelectedStock(-1); // Decrease stock
+      } else if (diff < -100) { // Left to right swipe
+        updateSelectedStock(1); // Increase stock
+      }
+    });
+  });
+}
 
 
 function filterCategories() {

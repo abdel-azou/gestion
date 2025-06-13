@@ -48,7 +48,14 @@
     background-color: #ffcc00;
     /* Yellow */
 }
-
+.liste-abdelhamid-container .category-section[data-category="Divers"] h2 {
+    background-color: #64604f;
+    /* Yellow */
+}
+.liste-abdelhamid-container .category-section[data-category="Congel"] h2 {
+    background-color: #222b66;
+    /* Yellow */
+}
 .liste-abdelhamid-container .product-item {
     display: flex;
     justify-content: space-between;
@@ -139,6 +146,49 @@
         width: 100%;
         margin-right: 0;
         margin-bottom: 10px;
+    }
+}
+
+/* Styles pour les notifications */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: none;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.notification.success {
+    background-color: #4cd964;
+}
+
+.notification.error {
+    background-color: #ff3b30;
+}
+
+.notification.info {
+    background-color: #007aff;
+}
+
+/* Ajustements pour mobile */
+@media (max-width: 600px) {
+    .notification {
+        top: auto;
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+        text-align: center;
     }
 }
 
