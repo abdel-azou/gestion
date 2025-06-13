@@ -62,6 +62,8 @@ const Product = {
         `);
         stmt.run(parsedId);
     }
+   
+
 };
 
 module.exports = Product;
