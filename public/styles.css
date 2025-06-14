@@ -224,73 +224,110 @@ footer {
     background-color: #cc7a00;
 }
 
-#products-page ul {
-    list-style: none;
+/* NOUVELLE IMPLÉMENTATION: affichage des produits en grille */
+#products-page .category-section ul,
+#liste_abdelhamid-page .category-section ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
     padding: 0;
+    list-style: none;
+    justify-content: flex-start;
 }
 
-#products-page ul li {
+#products-page .category-section ul li,
+#liste_abdelhamid-page .category-section ul li {
+    flex: 0 1 calc(25% - 15px); /* 4 produits par ligne avec espacement */
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 0;
-    border-bottom: 1px solid #ddd;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-#products-page ul li .product-info {
-    display: flex;
-    align-items: center;
     flex-direction: column;
-    text-align: center;
+    justify-content: space-between;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+    transition: all 0.3s ease;
+    min-height: 120px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-#products-page ul li .product-info .product-name {
-    font-size: 20px;
-    color: #333;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
-#products-page ul li .product-info .product-stock {
-    font-size: 24px;
-    color: #fff;
-    background-color: #555;
-    padding: 5px 10px;
-    border-radius: 5px;
-}
-
-#products-page .product-item.selected {
+/* États des cartes produit */
+#products-page .category-section ul li.selected,
+#liste_abdelhamid-page .category-section ul li.selected {
     background-color: #007aff;
     color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-#products-page .product-item.product-updated {
+#products-page .category-section ul li.product-updated,
+#liste_abdelhamid-page .category-section ul li.product-updated {
     background-color: #4caf50;
     color: #fff;
 }
 
-@media (max-width: 600px) {
-    #products-page ul li {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    #products-page ul li .buttons-group {
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 10px;
-    }
-
-    #products-page ul li .buttons-group button {
-        flex: 1 1 calc(50% - 10px);
-        text-align: center;
+/* Média queries pour responsive design - MODIFIÉES */
+@media (max-width: 992px) {
+    #products-page .category-section ul li,
+    #liste_abdelhamid-page .category-section ul li {
+        flex: 0 1 calc(33.333% - 15px); /* 3 produits par ligne */
     }
 }
 
-/* Styles for liste_abdelhamid page */
+@media (max-width: 768px) {
+    #products-page .category-section ul li,
+    #liste_abdelhamid-page .category-section ul li {
+        flex: 0 1 calc(50% - 10px); /* 2 produits par ligne */
+    }
+}
+
+/* MODIFICATION: Maintenant 2 produits par ligne même sur petit écran */
+@media (max-width: 480px) {
+    #products-page .category-section ul li,
+    #liste_abdelhamid-page .category-section ul li {
+        flex: 0 1 calc(50% - 8px); /* 2 produits par ligne même sur petit écran */
+    }
+}
+
+/* Conteneur d'informations produit */
+#products-page ul li .product-info,
+#liste_abdelhamid-page ul li .product-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    text-align: center;
+}
+
+/* Nom du produit */
+#products-page ul li .product-info .product-name,
+#liste_abdelhamid-page ul li .product-info .product-name {
+    font-size: 18px;
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    text-align: center;
+    min-height: 2.4em;
+}
+
+/* Style du stock */
+#products-page ul li .product-info .product-stock,
+#liste_abdelhamid-page ul li .product-info .product-stock {
+    font-size: 24px;
+    color: #fff;
+    background-color: #566a70;
+    padding: 5px 15px;
+    border-radius: 5px;
+    margin-top: auto;
+    align-self: center;
+}
+
+/* Styles pour liste_abdelhamid page */
 #liste_abdelhamid-page .add-product-btn,
 #liste_abdelhamid-page .view-list-btn,
 #liste_abdelhamid-page.view-products-to-order-btn {
@@ -313,6 +350,7 @@ footer {
 #liste_abdelhamid-page .view-products-to-order-btn:hover {
     background-color: #cc7a00;
 }
+
 #liste_abdelhamid-page .category-grid {
     display: flex;
     flex-direction: column;
@@ -357,6 +395,7 @@ footer {
 #liste_abdelhamid-page .category-section[data-category="boisson"] h2 {
     background-color: #ffcc00; /* Yellow */
 }
+
 #liste_abdelhamid-page .category-section[data-category="Divers"] h2 {
     background-color: #bc5a9e; /* mauve */
 }
@@ -365,125 +404,46 @@ footer {
     background-color: #6e86f4; /* blue */
 }
 
-/* Structure de la liste de produits */
-#liste_abdelhamid-page .category-section ul {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    padding: 0;
-    list-style: none;
-}
-
-/* Cartes de produit */
-#liste_abdelhamid-page .category-section ul li {
-    flex: 0 1 calc(25% - 10px); /* 4 produits par ligne avec gap */
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-    border: -1px solid #ddd;
-    border-radius: 5px;
-    background-color: #fff;
-    transition: background-color 0.3s;
-    cursor: pointer;
-}
-
-/* États des cartes produit */
-#liste_abdelhamid-page .category-section ul li.selected {
-    background-color: #007aff;
-    color: #fff;
-}
-
-#liste_abdelhamid-page .category-section ul li.product-updated {
-    background-color: #4caf50;
-    color: #fff;
-}
-
-/* Conteneur d'informations produit */
-#liste_abdelhamid-page .category-section ul li .product-info {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-}
-
-/* Nom du produit */
-#liste_abdelhamid-page .category-section ul li .product-name {
-    font-size: 18px;
-    color: #333;
-    font-weight: bold;
-    margin-bottom: 10px;
-    text-align: center;
-    width: 100%;
-    word-break: break-word;
-    line-height: 1.2;
-    min-height: 2.4em; /* Pour contenir environ 2 lignes */
-}
-
-/* Style du stock */
-#liste_abdelhamid-page .category-section ul li .product-stock {
-    font-size: 30px;
-    color: #ebebeb;
-    background-color: #566a70;
-    padding: 0px 4px;
-    border-radius: 5px;
-    margin-top: auto; /* Pousse le stock vers le bas */
-    align-self: flex-start;
-}
-
 /* Correction des couleurs de texte en mode sélectionné */
 #liste_abdelhamid-page .category-section ul li.selected .product-name,
-#liste_abdelhamid-page .category-section ul li.product-updated .product-name {
+#liste_abdelhamid-page .category-section ul li.product-updated .product-name,
+#products-page .category-section ul li.selected .product-name,
+#products-page .category-section ul li.product-updated .product-name {
     color: #fff;
 }
 
-#liste_abdelhamid-page .category-section ul li input {
-    width: 60px;
-    text-align: center;
-    margin-bottom: 10px;
-}
-
-#liste_abdelhamid-page .category-section ul li button {
-    background-color: #007aff;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    padding: 5px 10px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-#liste_abdelhamid-page .category-section ul li button:hover {
-    background-color: #005bb5;
-}
-
+/* ACTION BAR - SIGNIFICATIVEMENT AGRANDIE */
 .compact-action-bar {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
     background: #f8f9fa;
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 -3px 15px rgba(0,0,0,0.15);
     display: flex;
     justify-content: center;
-    padding: 8px;
+    padding: 18px 10px;  /* Padding augmenté */
     z-index: 1000;
 }
 
 .action-group {
     display: flex;
-    margin: 0 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    margin: 0 15px;  /* Marge augmentée */
+    border: 2px solid #ddd; /* Bordure plus épaisse */
+    border-radius: 8px;  /* Rayon augmenté */
     overflow: hidden;
 }
 
 .action-btn {
     border: none;
     background: white;
-    padding: 8px 12px;
+    padding: 15px 20px;  /* Padding significativement augmenté */
     cursor: pointer;
     font-weight: bold;
+    font-size: 20px;  /* Taille de police augmentée */
     transition: background 0.2s;
+    min-width: 60px;  /* Largeur minimale augmentée */
+    min-height: 60px; /* Hauteur minimale ajoutée */
 }
 
 .action-btn:hover {
@@ -493,42 +453,58 @@ footer {
 /* Styles spécifiques */
 .increment {
     color: #28a745;
+    font-size: 24px;  /* Police encore plus grande */
 }
 
 .decrement {
     color: #dc3545;
+    font-size: 24px;  /* Police encore plus grande */
 }
 
 .update {
     background: #007bff;
     color: white;
+    font-size: 20px;
 }
 
 .delete {
     background: #dc3545;
     color: white;
-    border-radius: 4px;
-    padding: 8px 12px;
+    border-radius: 8px;
+    padding: 15px 20px;
+    font-size: 20px;
+    min-width: 60px;
+    min-height: 60px;
 }
 
 #custom-amount {
-    width: 60px;
+    width: 100px;  /* Champ plus large */
     text-align: center;
     border: none;
-    border-right: 1px solid #ddd;
-    padding: 8px;
+    border-right: 2px solid #ddd;  /* Bordure plus épaisse */
+    padding: 15px;
+    font-size: 20px;  /* Police plus grande */
+    min-height: 60px; /* Même hauteur que les boutons */
 }
 
-/* Responsive adjustments */
+/* Responsive adjustments pour l'action bar */
 @media (max-width: 600px) {
     .action-btn {
-        padding: 8px;
+        padding: 15px 18px;
+        font-size: 18px;
+        min-width: 55px;
     }
     
     #custom-amount {
-        width: 40px;
+        width: 80px;
+        font-size: 18px;
+    }
+    
+    .action-group {
+        margin: 0 8px;
     }
 }
+
 /* Styles for addProduct page */
 #add-product-page form {
     display: flex;
@@ -573,74 +549,6 @@ footer {
 #add-product-page form button:hover {
     background-color: #b00710; /* Rouge foncé */
 }
-/* Add to public/styles.css */
-@media (max-width: 768px) {
-  #products-page .category-section ul, 
-  #liste_abdelhamid-page .category-section ul {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .product-item {
-    height: 60px;
-    margin-bottom: 10px;
-  }
-  
-  #action-bar {
-    grid-template-columns: repeat(4, 1fr);
-    padding: 10px 5px;
-  }
-  
-  .search-container {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: white;
-    padding: 10px 0;
-  }
-}
-
-@media (max-width: 600px) {
-    #add-product-page form {
-        flex-direction: column;
-    }
-}
-
-/* Product item consistent sizing and text handling */
-#liste_abdelhamid-page .category-section ul li,
-#products-page .product-item {
-  height: 100px;  /* Fixed height for all product items */
-  width: 100%;    /* Full width on mobile */
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  box-sizing: border-box;
-  padding: 10px;
-  margin-bottom: 8px;
-}
-
-/* Product name text control - limit to 2 lines */
-#liste_abdelhamid-page .product-name,
-#products-page .product-name {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-height: 3.1em;  /* Approximately 2 lines of text */
-  line-height: 1.2;
-  margin-bottom: 8px;
-  text-align: center;
-  width: 100%;
-}
-
-/* Ensure stock display is consistent */
-#liste_abdelhamid-page .product-stock,
-#products-page .product-stock {
-  margin-top: auto;
-  align-self: center;
-}
-
 
 /* Styles pour les notifications */
 .notification {
@@ -672,5 +580,21 @@ footer {
 
 .notification.info {
     background-color: #007aff;
+}
+
+/* Ajustements pour mobile */
+@media (max-width: 600px) {
+    .notification {
+        top: auto;
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+        text-align: center;
+    }
+    
+    /* Ajout d'un padding-bottom pour éviter que le contenu soit caché par l'action bar */
+    body {
+        padding-bottom: 100px;
+    }
 }
 
