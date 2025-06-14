@@ -665,6 +665,6 @@ footer {
 @media (max-width: 480px) {
   #liste_abdelhamid-page .category-section ul,
   #products-page .category-section ul {
-    grid-template-columns: 1fr;
+    grid-template-columns: 4fr;
   }
 }
