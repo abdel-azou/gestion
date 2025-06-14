@@ -650,21 +650,3 @@ footer {
     background-color: #007aff;
 }
 
-/* Ajustements pour mobile */
-@media (max-width: 600px) {
-    .notification {
-        top: auto;
-        bottom: 20px;
-        left: 20px;
-        right: 20px;
-        text-align: center;
-    }
-}
-
-/* For very small screens */
-@media (max-width: 480px) {
-  #liste_abdelhamid-page .category-section ul,
-  #products-page .category-section ul {
-    grid-template-columns: 4fr;
-  }
-}
