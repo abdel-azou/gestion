@@ -293,6 +293,73 @@ footer {
     }
 }
 
+/* CORRECTION SPÉCIFIQUE POUR iPHONE SE ET PETITS ÉCRANS */
+
+/* Forcer 2 produits par ligne même sur très petits écrans */
+@media (max-width: 375px) {
+    #products-page .category-section ul,
+    #liste_abdelhamid-page .category-section ul {
+        gap: 5px; /* Espace minimal entre produits */
+    }
+    
+    #products-page .category-section ul li,
+    #liste_abdelhamid-page .category-section ul li {
+        flex: 0 0 calc(50% - 5px); /* Force exactement 50% moins le gap */
+        padding: 5px;
+        min-width: 0; /* Permet la réduction en dessous de la taille minimale */
+        margin: 0;
+    }
+    
+    /* Réduire la taille du texte pour petit écran */
+    #products-page ul li .product-info .product-name,
+    #liste_abdelhamid-page ul li .product-info .product-name {
+        font-size: 14px;
+        margin-bottom: 5px;
+        min-height: 2em;
+    }
+    
+    #products-page ul li .product-info .product-stock,
+    #liste_abdelhamid-page ul li .product-info .product-stock {
+        font-size: 18px;
+        padding: 3px 8px;
+    }
+}
+
+/* Action bar optimisée pour très petits écrans */
+@media (max-width: 375px) {
+    /* Barre scrollable horizontalement */
+    .compact-action-bar {
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding: 6px 3px;
+        white-space: nowrap;
+    }
+    
+    .action-group {
+        margin: 0 2px;
+        flex-shrink: 0; /* Empêche la réduction */
+    }
+    
+    /* Boutons compacts mais cliquables */
+    .action-btn {
+        min-width: 36px; /* Taille minimale pour touchscreen */
+        min-height: 36px;
+        padding: 6px;
+        font-size: 16px;
+    }
+    
+    #custom-amount {
+        width: 45px;
+        font-size: 16px;
+        min-height: 36px;
+    }
+    
+    /* Augmenter le padding en bas pour éviter le chevauchement */
+    body {
+        padding-bottom: 60px;
+    }
+}
+
 /* Conteneur d'informations produit */
 #products-page ul li .product-info,
 #liste_abdelhamid-page ul li .product-info {
