@@ -365,58 +365,75 @@ footer {
     background-color: #6e86f4; /* blue */
 }
 
+/* Structure de la liste de produits */
 #liste_abdelhamid-page .category-section ul {
     display: flex;
-    flex-direction: row;
     flex-wrap: wrap;
     gap: 10px;
     padding: 0;
     list-style: none;
 }
 
+/* Cartes de produit */
 #liste_abdelhamid-page .category-section ul li {
-    flex: 1 1 auto;
+    flex: 0 1 calc(25% - 10px); /* 4 produits par ligne avec gap */
     display: flex;
     flex-direction: column;
-    align-items: center;
     padding: 10px;
-    border: 1px solid #ddd;
+    border: -1px solid #ddd;
     border-radius: 5px;
     background-color: #fff;
     transition: background-color 0.3s;
     cursor: pointer;
 }
 
+/* États des cartes produit */
 #liste_abdelhamid-page .category-section ul li.selected {
-    background-color: #007aff; /* Bleu pour la sélection */
-    color: #fff; /* Texte en blanc pour la sélection */
+    background-color: #007aff;
+    color: #fff;
 }
 
 #liste_abdelhamid-page .category-section ul li.product-updated {
-    background-color: #4caf50; /* Vert pour les mises à jour */
-    color: #fff; /* Texte en blanc pour les mises à jour */
+    background-color: #4caf50;
+    color: #fff;
 }
 
+/* Conteneur d'informations produit */
 #liste_abdelhamid-page .category-section ul li .product-info {
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 100%;
 }
 
+/* Nom du produit */
 #liste_abdelhamid-page .category-section ul li .product-name {
     font-size: 18px;
     color: #333;
     font-weight: bold;
     margin-bottom: 10px;
+    text-align: center;
+    width: 100%;
+    word-break: break-word;
+    line-height: 1.2;
+    min-height: 2.4em; /* Pour contenir environ 2 lignes */
 }
 
+/* Style du stock */
 #liste_abdelhamid-page .category-section ul li .product-stock {
-    font-size: 24px;
-    color: #fff;
-    background-color: #555;
-    padding: 5px 10px;
+    font-size: 30px;
+    color: #ebebeb;
+    background-color: #566a70;
+    padding: 0px 4px;
     border-radius: 5px;
-    margin-bottom: 10px;
+    margin-top: auto; /* Pousse le stock vers le bas */
+    align-self: flex-start;
+}
+
+/* Correction des couleurs de texte en mode sélectionné */
+#liste_abdelhamid-page .category-section ul li.selected .product-name,
+#liste_abdelhamid-page .category-section ul li.product-updated .product-name {
+    color: #fff;
 }
 
 #liste_abdelhamid-page .category-section ul li input {

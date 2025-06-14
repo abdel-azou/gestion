@@ -16,11 +16,14 @@
                 {{#each products}}
                 <li class="product-item" data-id="{{this.id}}" data-name="{{this.name}}">
                     <div class="product-info">
-                        <span class="product-name">{{this.name}}</span>
+                        <div class="product-name-container">
+                         <span class="product-name">{{this.name}}</span>
+                        </div>
+                        <div class="product-stock-container">
                         <span class="product-stock">{{this.stock}}</span>
-                        {{!-- <button class="action-btn" onclick="deleteProduct({{this.id}})">Supprimer</button> --}}
+                        </div>
                     </div>
-                </li>
+                    </li>
                 {{/each}}
             </ul>
             {{else}}
