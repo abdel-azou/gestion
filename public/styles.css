@@ -456,40 +456,79 @@ footer {
     background-color: #005bb5;
 }
 
-/* Fixed action bar */
-#action-bar {
+.compact-action-bar {
     position: fixed;
     bottom: 0;
     left: 0;
-    width: 100%;
-    background-color: #fff;
-    border-top: 1px solid #ddd;
-    box-shadow: 0 -1px 10px rgba(0, 0, 0, 0.1);
+    right: 0;
+    background: #f8f9fa;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
     display: flex;
     justify-content: center;
-    padding: 10px 0;
-    flex-wrap: wrap;
-    gap: 10px;
+    padding: 8px;
+    z-index: 1000;
 }
 
-#action-bar .action-btn {
-    background-color: #007aff;
-    color: #fff;
+.action-group {
+    display: flex;
+    margin: 0 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.action-btn {
     border: none;
-    border-radius: 5px;
-    padding: 10px 15px;
-    font-size: 18px;
+    background: white;
+    padding: 8px 12px;
     cursor: pointer;
-    transition: background-color 0.3s;
-    min-height: 48px;
-    min-width: 48px;
-    margin: 8px;
+    font-weight: bold;
+    transition: background 0.2s;
 }
 
-#action-bar .action-btn:hover {
-    background-color: #005bb5;
+.action-btn:hover {
+    background: #f0f0f0;
 }
 
+/* Styles spécifiques */
+.increment {
+    color: #28a745;
+}
+
+.decrement {
+    color: #dc3545;
+}
+
+.update {
+    background: #007bff;
+    color: white;
+}
+
+.delete {
+    background: #dc3545;
+    color: white;
+    border-radius: 4px;
+    padding: 8px 12px;
+}
+
+#custom-amount {
+    width: 60px;
+    text-align: center;
+    border: none;
+    border-right: 1px solid #ddd;
+    padding: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .action-btn {
+        padding: 8px;
+    }
+    
+    #custom-amount {
+        width: 40px;
+    }
+}
 /* Styles for addProduct page */
 #add-product-page form {
     display: flex;
@@ -602,21 +641,6 @@ footer {
   align-self: center;
 }
 
-/* Mobile-specific adjustments */
-@media (max-width: 768px) {
-  #liste_abdelhamid-page .category-section ul,
-  #products-page .category-section ul {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-  
-  #liste_abdelhamid-page .category-section ul li,
-  #products-page .product-item {
-    height: 100px;
-    margin: 0;
-  }
-}
 
 /* Styles pour les notifications */
 .notification {
