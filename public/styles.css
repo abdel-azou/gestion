@@ -655,71 +655,79 @@ footer {
     border-top: 2px solid #ddd;
 }
 
-/* Augmenter l'espacement entre les groupes */
-.action-group {
-    margin: 0 10px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    overflow: hidden;
+/* ACTION BAR AVEC TAILLES FIXES - SOLUTION POUR TÉLÉPHONE */
+.compact-action-bar {
+    position: fixed !important;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #f8f9fa;
+    box-shadow: 0 -3px 15px rgba(0,0,0,0.2);
+    display: flex;
+    justify-content: space-between; /* Changé en space-between */
+    padding: 8px 6px;
+    z-index: 9999;
+    border-top: 2px solid #ddd;
+    box-sizing: border-box;
+    width: 100%;
 }
 
-/* ZONES CLIQUABLES BEAUCOUP PLUS GRANDES */
+/* Groupes avec tailles fixes */
+.action-group {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    margin: 0 2px;
+}
+
+/* Groupe d'incrémentation et décrémentation */
+.increment-group,
+.decrement-group {
+    width: 30%; /* Taille fixe 30% */
+}
+
+/* Groupe personnalisé */
+.custom-group {
+    width: 35%; /* Taille fixe 35% */
+}
+
+/* Boutons avec tailles fixes et sans texte qui déborde */
 .action-btn {
     border: none;
     background-color: white;
-    padding: 18px 22px; /* Padding considérablement augmenté */
+    padding: 8px 0;
     cursor: pointer;
     font-weight: bold;
-    font-size: 24px; /* Texte plus grand */
-    transition: background 0.2s;
-    min-width: 70px; /* Largeur minimale augmentée */
-    min-height: 70px; /* Hauteur minimale augmentée */
-    box-sizing: border-box;
+    font-size: 16px;
+    flex: 1;
+    min-width: 0; /* Important pour éviter le débordement */
+    width: 33.333%; /* Chaque bouton prend 1/3 du groupe */
+    text-align: center;
+    white-space: nowrap; /* Empêche le texte de passer à la ligne */
 }
 
-/* Styles spécifiques */
-.increment {
-    color: #28a745;
-    font-size: 30px; /* Encore plus grand */
+/* Champ de saisie personnalisé */
+#custom-amount {
+    width: 60%;
+    text-align: center;
+    border: none;
+    border-right: 1px solid #ddd;
+    padding: 8px 2px;
+    font-size: 16px;
+    min-width: 0;
 }
 
-.decrement {
-    color: #dc3545;
-    font-size: 30px; /* Encore plus grand */
+/* Bouton d'application de la quantité */
+.update {
+    width: 40%;
+    background: #007bff;
+    color: white;
 }
 
-/* Ajuster pour mobile tout en gardant les zones cliquables grandes */
-@media (max-width: 600px) {
-    .action-group {
-        margin: 0 5px;
-    }
-    
-    .action-btn {
-        padding: 15px;
-        min-width: 60px;
-        min-height: 60px;
-        font-size: 22px;
-    }
-    
-    .increment, .decrement {
-        font-size: 26px;
-    }
-    
-    #custom-amount {
-        width: 65px;
-        font-size: 20px;
-        min-height: 60px;
-    }
-    
-    /* Augmenter l'espace en bas pour le contenu */
-    body {
-        padding-bottom: 100px;
-    }
-}
-
-/* Éviter le chevauchement avec d'autres éléments fixes */
-.notification {
-    bottom: 120px;
+/* Plus d'espace en bas du corps */
+body {
+    padding-bottom: 80px;
 }
 
 /* Nom du produit - plus grand et centré */
