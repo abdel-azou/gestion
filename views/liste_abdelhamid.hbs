@@ -36,22 +36,19 @@
 
 <div id="action-bar" class="compact-action-bar">
     <div class="action-group increment-group">
-        <button class="action-btn increment" onclick="updateSelectedStock(1)" title="Ajouter 1">+1</button>
-        <button class="action-btn increment" onclick="updateSelectedStock(2)" title="Ajouter 2">+2</button>
-        <button class="action-btn increment" onclick="updateSelectedStock(5)" title="Ajouter 5">+5</button>
-    </div>
-    
-    <div class="action-group decrement-group">
-        <button class="action-btn decrement" onclick="updateSelectedStock(-1)" title="Retirer 1">-1</button>
-        <button class="action-btn decrement" onclick="updateSelectedStock(-2)" title="Retirer 2">-2</button>
-        <button class="action-btn decrement" onclick="updateSelectedStock(-5)" title="Retirer 5">-5</button>
+        <button class="action-btn increment" onclick="updateSelectedStock(1)">+1</button>
+        <button class="action-btn increment" onclick="updateSelectedStock(2)">+2</button>
+        <button class="action-btn increment" onclick="updateSelectedStock(5)">+5</button>
     </div>
     
     <div class="action-group custom-group">
-        <input type="number" id="custom-amount" placeholder="Qté">
-        <button class="action-btn update" onclick="updateSelectedStockCustom()" title="Mettre à jour avec quantité personnalisée">
-            <i class="fas fa-check"></i>
-        </button>
+        <input type="number" id="custom-amount" placeholder="#" onchange="updateSelectedStockCustom()">
+    </div>
+
+    <div class="action-group decrement-group">
+        <button class="action-btn decrement" onclick="updateSelectedStock(-1)">-1</button>
+        <button class="action-btn decrement" onclick="updateSelectedStock(-2)">-2</button>
+        <button class="action-btn decrement" onclick="updateSelectedStock(-5)">-5</button>
     </div>
     
     <button class="action-btn delete" onclick="deleteProduct({{this.id}})" title="Supprimer le produit">

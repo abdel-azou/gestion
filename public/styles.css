@@ -650,7 +650,7 @@ footer {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 15px 10px;
+    padding: 10px 5px;
     z-index: 9999 !important; /* Valeur très élevée pour être au-dessus de tout */
     border-top: 2px solid #ddd;
 }
@@ -678,7 +678,6 @@ footer {
     border-radius: 6px;
     overflow: hidden;
     display: flex;
-    margin: 0 2px;
 }
 
 /* Groupe d'incrémentation et décrémentation */
@@ -908,5 +907,185 @@ body {
     transform: translateY(-2px);
     box-shadow: 0 5px 10px rgba(0,0,0,0.25);
     transition: all 0.3s ease;
+}
+
+/* ACTION BAR AVEC ICÔNES - OPTIMISÉE POUR MOBILE */
+.compact-action-bar {
+    position: fixed !important;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #f8f9fa;
+    box-shadow: 0 -3px 15px rgba(0,0,0,0.2);
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 5px;
+    z-index: 9999;
+    border-top: 2px solid #ddd;
+    box-sizing: border-box;
+}
+
+/* Groupes avec tailles fixes */
+.action-group {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+}
+
+/* Groupe d'incrémentation et décrémentation */
+.increment-group,
+.decrement-group {
+    width: 30%;
+}
+
+/* Groupe personnalisé */
+.custom-group {
+    width: 36%;
+}
+
+/* Boutons avec icônes */
+.action-btn {
+    border: none;
+    background-color: white;
+    padding: 10px 0;
+    cursor: pointer;
+    font-weight: bold;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 50px;
+}
+
+/* Style des icônes */
+.action-btn i {
+    font-size: 16px;
+    margin-bottom: 2px;
+}
+
+/* Texte sous l'icône */
+.action-btn .btn-text {
+    font-size: 14px;
+}
+
+/* Styles spécifiques */
+.increment i {
+    color: #28a745;
+}
+
+.decrement i {
+    color: #dc3545;
+}
+
+/* Champ de saisie personnalisé */
+#custom-amount {
+    width: 60%;
+    text-align: center;
+    border: none;
+    border-right: 1px solid #ddd;
+    padding: 0 2px;
+    font-size: 18px;
+}
+
+/* Bouton d'application de la quantité */
+.update {
+    width: 40%;
+    background: #007bff;
+    color: white;
+}
+
+.update i {
+    font-size: 20px;
+    color: white;
+    margin: 0;
+}
+
+/* ACTION BAR AVEC CHAMP PERSONNALISÉ OPTIMISÉ */
+.compact-action-bar {
+    position: fixed !important;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #f8f9fa;
+    box-shadow: 0 -3px 15px rgba(0,0,0,0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 5px;
+    z-index: 9999;
+    border-top: 2px solid #ddd;
+}
+
+/* Groupes principaux */
+.action-group {
+    display: flex;
+    margin: 0 4px;
+}
+
+/* Groupes pour les boutons +/- */
+.increment-group, .decrement-group {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+/* Boutons +/- */
+.action-btn {
+    border: none;
+    background-color: white;
+    padding: 0;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 20px;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Styles spécifiques */
+.increment {
+    color: #28a745;
+}
+
+.decrement {
+    color: #dc3545;
+}
+
+/* NOUVEAU CHAMP PERSONNALISÉ: carré et optimisé pour le toucher */
+.custom-group {
+    width: 60px;
+    height: 60px; /* Plus grand en hauteur */
+    border-radius: 8px; /* Légèrement arrondi */
+    overflow: hidden;
+    border: 2px solid #007bff; /* Bordure colorée pour le distinguer */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+#custom-amount {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    border: none;
+    font-size: 22px;
+    font-weight: bold;
+    padding: 0;
+    background-color: #f0f8ff; /* Fond légèrement coloré */
+    color: #007bff;
+    border-radius: 8px;
+}
+
+/* Focus style pour le champ */
+#custom-amount:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #007bff;
+}
+
+/* Espace pour le contenu */
+body {
+    padding-bottom: 80px;
 }
 
