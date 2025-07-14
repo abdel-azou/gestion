@@ -1,4 +1,14 @@
 /* Modern Mobile-First Header Styles */
+* {
+    box-sizing: border-box;
+}
+
+html {
+    overflow-x: hidden;
+    width: 100%;
+    touch-action: pan-y;
+}
+
 .header {
     position: fixed;
     top: 0;
@@ -137,6 +147,9 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     margin: 0;
     padding-top: 60px; /* Space for fixed header */
+    overflow-x: hidden; /* Prevent horizontal scroll */
+    width: 100%;
+    min-height: 100vh;
 }
 
 /* Mobile Styles */
@@ -147,10 +160,15 @@ body {
     
     .header-title {
         font-size: 1.1rem;
+        max-width: calc(100vw - 120px);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
     
     .menu-toggle {
         display: flex;
+        flex-shrink: 0;
     }
     
     .header-nav {
@@ -158,6 +176,7 @@ body {
         top: 60px;
         left: 0;
         right: 0;
+        width: 100vw;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         backdrop-filter: blur(10px);
         transform: translateY(-100%);
@@ -166,6 +185,8 @@ body {
         transition: all 0.3s ease-in-out;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         z-index: 999;
+        max-width: 100vw;
+        overflow-x: hidden;
     }
     
     .header-nav.nav-open {
@@ -235,6 +256,8 @@ body {
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
     margin: 20px;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+    word-wrap: break-word;
 }
 
 header {
@@ -508,6 +531,108 @@ footer {
 
 
 /* Action bar optimisée pour très petits écrans */
+@media (max-width: 480px) {
+    /* Assurer que tous les éléments restent dans l'écran */
+    * {
+        max-width: 100vw;
+        box-sizing: border-box;
+    }
+    
+    /* Styles pour les listes de produits */
+    #products-page ul, #liste_abdelhamid-page ul {
+        padding: 0 5px;
+        margin: 0;
+        width: 100%;
+    }
+    
+    #products-page ul li, #liste_abdelhamid-page ul li {
+        max-width: 100%;
+        padding: 8px;
+        margin: 0 0 8px 0;
+        word-wrap: break-word;
+    }
+    
+    /* Styles pour les boutons */
+    .buttons-group {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .buttons-group button {
+        max-width: 100%;
+        font-size: 14px;
+        padding: 8px 12px;
+        word-wrap: break-word;
+    }
+    
+    /* Styles pour les inputs */
+    input, select, textarea {
+        max-width: 100%;
+        width: 100%;
+        font-size: 16px; /* Évite le zoom sur iOS */
+    }
+    
+    /* Styles pour les cartes */
+    .order-card, .product-item {
+        max-width: 100%;
+        margin: 0 0 10px 0;
+        padding: 12px;
+    }
+    
+    /* Styles pour les tableaux */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        max-width: 100vw;
+    }
+    
+    .table {
+        min-width: 300px;
+        width: 100%;
+    }
+    
+    /* Styles pour les modals */
+    .modal-content {
+        width: 95vw;
+        max-width: 95vw;
+        margin: 5vh auto;
+    }
+    
+    /* Styles pour les textes */
+    .product-name, .card-title {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+        max-width: 100%;
+    }
+}
+
+/* Styles spécifiques pour très petits écrans */
+@media (max-width: 320px) {
+    .header-container {
+        padding: 0 0.25rem;
+    }
+    
+    .header-title {
+        font-size: 0.9rem;
+        max-width: calc(100vw - 80px);
+    }
+    
+    .container {
+        margin: 5px;
+        padding: 10px;
+    }
+    
+    .btn {
+        font-size: 0.8rem;
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .nav-link {
+        font-size: 0.8rem;
+        padding: 0.5rem;
+    }
+}
 @media (max-width: 300px) {
     /* Barre scrollable horizontalement */
     .compact-action-bar {
@@ -1224,6 +1349,101 @@ footer {
     transform: translateX(-100%);
 }
 
+/* Styles globaux pour éviter les débordements horizontaux */
+* {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Assurer que les éléments ne dépassent pas de l'écran */
+.container, .orders-container, .add-product-container {
+    max-width: 100vw;
+    overflow-x: hidden;
+}
+
+/* Styles pour les tableaux responsives */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table {
+    min-width: 100%;
+    width: 100%;
+    table-layout: fixed;
+}
+
+/* Styles pour les inputs et boutons */
+input, button, select, textarea {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Styles pour les cartes de produits */
+.product-item, .order-card {
+    max-width: 100%;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Styles pour les textes longs */
+.product-name, .card-title {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+}
+
+/* Styles pour les modals sur mobile */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        max-width: 95vw;
+        margin: 5% auto;
+    }
+    
+    .modal-body {
+        padding: 15px;
+    }
+}
+
+/* Styles pour éviter les débordements spécifiques sur mobile */
+@media (max-width: 480px) {
+    body {
+        padding-top: 60px;
+        overflow-x: hidden;
+        width: 100%;
+    }
+    
+    .header-container {
+        padding: 0 0.5rem;
+    }
+    
+    .header-title {
+        font-size: 1rem;
+        max-width: calc(100vw - 100px);
+    }
+    
+    .container {
+        margin: 10px;
+        padding: 15px;
+        border-radius: 5px;
+    }
+    
+    .nav-link {
+        font-size: 0.9rem;
+        padding: 0.75rem;
+    }
+    
+    .btn {
+        font-size: 0.9rem;
+        padding: 0.6rem 1rem;
+    }
+    
+    .form-input {
+        font-size: 16px; /* Évite le zoom sur iOS */
+    }
+}
+
 /* ==============================================
    RESPONSIVE DESIGN - TABLET (768px+)
    ============================================== */
@@ -1582,6 +1802,7 @@ body {
     margin-bottom: 15px; /* Plus d'espace entre le nom et le stock */
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
