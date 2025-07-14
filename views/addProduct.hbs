@@ -1,28 +1,493 @@
 {{> header title="Ajouter un Produit" }}
-<div class="container" id="add-product-page">
-    <h1>Ajouter un Produit</h1>
-    <form action="/products" method="POST">
-        <div>
-            <label for="name">Nom du produit:</label>
-            <input type="text" id="name" name="name" required>
+
+<div class="add-product-container">
+    <!-- Header avec titre et navigation -->
+    <div class="add-product-header">
+        <button class="back-btn" onclick="window.history.back()">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1 class="page-title">
+            <i class="fas fa-plus-circle"></i>
+            Nouveau Produit
+        </h1>
+        <div class="header-actions">
+            <button type="button" class="help-btn" onclick="showHelp()">
+                <i class="fas fa-question-circle"></i>
+            </button>
         </div>
-        <div>
-            <label for="stock">Stock initial:</label>
-            <input type="number" id="stock" name="stock" required>
-        </div>
-        <div>
-            <label for="category_id">Catégorie:</label>
-            <select id="category_id" name="category_id" required>
-                {{#each categories}}
-                <option value="{{this.id}}">{{this.name}}</option>
-                {{/each}}
-            </select>
-        </div>
-        <div>
-            <label for="stock_minimal">Stock minimal:</label>
-            <input type="number" id="stock_minimal" name="stock_minimal" required>
-        </div>
-        <button type="submit">Ajouter le produit</button>
-    </form>
+    </div>
+
+    <!-- Conteneur principal du formulaire -->
+    <div class="form-container">
+        <form action="/products" method="POST" id="add-product-form" class="modern-form">
+            
+            <!-- Section Informations générales -->
+            <div class="form-section">
+                <div class="section-header">
+                    <i class="fas fa-info-circle"></i>
+                    <h2>Informations générales</h2>
+                </div>
+                
+                <div class="form-group">
+                    <label for="name" class="form-label">
+                        <i class="fas fa-tag"></i>
+                        Nom du produit
+                    </label>
+                    <input type="text" 
+                           id="name" 
+                           name="name" 
+                           class="form-input" 
+                           placeholder="Entrez le nom du produit..."
+                           required
+                           autocomplete="off">
+                    <div class="input-feedback" id="name-feedback"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="category_id" class="form-label">
+                        <i class="fas fa-folder"></i>
+                        Catégorie
+                    </label>
+                    <div class="select-wrapper">
+                        <select id="category_id" name="category_id" class="form-select" required>
+                            <option value="">Sélectionnez une catégorie</option>
+                            {{#each categories}}
+                            <option value="{{this.id}}">{{this.name}}</option>
+                            {{/each}}
+                        </select>
+                        <i class="fas fa-chevron-down select-arrow"></i>
+                    </div>
+                    <div class="input-feedback" id="category-feedback"></div>
+                </div>
+            </div>
+
+            <!-- Section Stock -->
+            <div class="form-section">
+                <div class="section-header">
+                    <i class="fas fa-boxes"></i>
+                    <h2>Gestion du stock</h2>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="stock" class="form-label">
+                            <i class="fas fa-cube"></i>
+                            Stock initial
+                        </label>
+                        <div class="input-with-controls">
+                            <button type="button" class="qty-btn" onclick="decrementStock()">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <input type="number" 
+                                   id="stock" 
+                                   name="stock" 
+                                   class="form-input qty-input" 
+                                   placeholder="0"
+                                   min="0"
+                                   value="0"
+                                   required>
+                            <button type="button" class="qty-btn" onclick="incrementStock()">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <div class="input-feedback" id="stock-feedback"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="stock_minimal" class="form-label">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Stock minimal
+                        </label>
+                        <div class="input-with-controls">
+                            <button type="button" class="qty-btn" onclick="decrementMinStock()">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <input type="number" 
+                                   id="stock_minimal" 
+                                   name="stock_minimal" 
+                                   class="form-input qty-input" 
+                                   placeholder="0"
+                                   min="0"
+                                   value="0"
+                                   required>
+                            <button type="button" class="qty-btn" onclick="incrementMinStock()">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <div class="input-feedback" id="stock-minimal-feedback"></div>
+                    </div>
+                </div>
+
+                <!-- Indicateur visuel du stock -->
+                <div class="stock-indicator">
+                    <div class="indicator-item">
+                        <div class="indicator-bar">
+                            <div class="indicator-fill" id="stock-fill"></div>
+                            <div class="indicator-min" id="stock-min-line"></div>
+                        </div>
+                        <div class="indicator-labels">
+                            <span class="label-min">Min: <span id="min-display">0</span></span>
+                            <span class="label-current">Actuel: <span id="current-display">0</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions du formulaire -->
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                    <i class="fas fa-undo"></i>
+                    Réinitialiser
+                </button>
+                <button type="submit" class="btn btn-primary btn-submit">
+                    <i class="fas fa-save"></i>
+                    <span class="btn-text">Ajouter le produit</span>
+                    <div class="btn-loader" style="display: none;">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </div>
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
+
+<!-- Modal d'aide -->
+<div id="help-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-info-circle"></i> Aide - Ajout de produit</h3>
+            <button class="close-btn" onclick="closeHelp()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="help-section">
+                <h4><i class="fas fa-tag"></i> Nom du produit</h4>
+                <p>Saisissez un nom descriptif et unique pour votre produit.</p>
+            </div>
+            <div class="help-section">
+                <h4><i class="fas fa-folder"></i> Catégorie</h4>
+                <p>Choisissez la catégorie qui correspond le mieux à votre produit.</p>
+            </div>
+            <div class="help-section">
+                <h4><i class="fas fa-cube"></i> Stock initial</h4>
+                <p>Indiquez la quantité de produit actuellement disponible.</p>
+            </div>
+            <div class="help-section">
+                <h4><i class="fas fa-exclamation-triangle"></i> Stock minimal</h4>
+                <p>Définissez le seuil en dessous duquel vous souhaitez être alerté pour recommander ce produit.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast pour notifications -->
+<div id="notification-toast" class="toast"></div>
+
+<script>
+// Variables globales
+let isSubmitting = false;
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialiser les contrôles
+    initializeControls();
+    
+    // Validation en temps réel
+    setupValidation();
+    
+    // Gestion du formulaire
+    setupFormHandling();
+    
+    // Mettre à jour l'indicateur de stock
+    updateStockIndicator();
+});
+
+// Initialisation des contrôles
+function initializeControls() {
+    // Auto-focus sur le premier champ
+    document.getElementById('name').focus();
+    
+    // Gestionnaire pour la validation en temps réel
+    const inputs = document.querySelectorAll('.form-input, .form-select');
+    inputs.forEach(input => {
+        input.addEventListener('input', function() {
+            validateField(this);
+            if (this.id === 'stock' || this.id === 'stock_minimal') {
+                updateStockIndicator();
+            }
+        });
+        
+        input.addEventListener('blur', function() {
+            validateField(this);
+        });
+    });
+}
+
+// Configuration de la validation
+function setupValidation() {
+    const nameInput = document.getElementById('name');
+    const stockInput = document.getElementById('stock');
+    const stockMinimalInput = document.getElementById('stock_minimal');
+    const categorySelect = document.getElementById('category_id');
+    
+    // Validation nom produit
+    nameInput.addEventListener('input', function() {
+        const value = this.value.trim();
+        const feedback = document.getElementById('name-feedback');
+        
+        if (value.length < 2) {
+            showFieldError(this, feedback, 'Le nom doit contenir au moins 2 caractères');
+        } else if (value.length > 50) {
+            showFieldError(this, feedback, 'Le nom ne peut pas dépasser 50 caractères');
+        } else {
+            showFieldSuccess(this, feedback, 'Nom valide');
+        }
+    });
+    
+    // Validation stock
+    stockInput.addEventListener('input', function() {
+        const value = parseInt(this.value);
+        const feedback = document.getElementById('stock-feedback');
+        
+        if (isNaN(value) || value < 0) {
+            showFieldError(this, feedback, 'Le stock doit être un nombre positif');
+        } else {
+            showFieldSuccess(this, feedback, 'Stock valide');
+        }
+    });
+    
+    // Validation stock minimal
+    stockMinimalInput.addEventListener('input', function() {
+        const value = parseInt(this.value);
+        const stockValue = parseInt(stockInput.value);
+        const feedback = document.getElementById('stock-minimal-feedback');
+        
+        if (isNaN(value) || value < 0) {
+            showFieldError(this, feedback, 'Le stock minimal doit être un nombre positif');
+        } else if (value > stockValue) {
+            showFieldWarning(this, feedback, 'Stock minimal supérieur au stock actuel');
+        } else {
+            showFieldSuccess(this, feedback, 'Stock minimal valide');
+        }
+    });
+}
+
+// Gestion du formulaire
+function setupFormHandling() {
+    const form = document.getElementById('add-product-form');
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (isSubmitting) return;
+        
+        if (validateForm()) {
+            submitForm();
+        }
+    });
+}
+
+// Validation du formulaire
+function validateForm() {
+    const name = document.getElementById('name').value.trim();
+    const stock = parseInt(document.getElementById('stock').value);
+    const stockMinimal = parseInt(document.getElementById('stock_minimal').value);
+    const category = document.getElementById('category_id').value;
+    
+    let isValid = true;
+    
+    if (!name || name.length < 2) {
+        showToast('Veuillez saisir un nom de produit valide', 'error');
+        isValid = false;
+    }
+    
+    if (!category) {
+        showToast('Veuillez sélectionner une catégorie', 'error');
+        isValid = false;
+    }
+    
+    if (isNaN(stock) || stock < 0) {
+        showToast('Veuillez saisir un stock initial valide', 'error');
+        isValid = false;
+    }
+    
+    if (isNaN(stockMinimal) || stockMinimal < 0) {
+        showToast('Veuillez saisir un stock minimal valide', 'error');
+        isValid = false;
+    }
+    
+    return isValid;
+}
+
+// Soumission du formulaire
+function submitForm() {
+    isSubmitting = true;
+    
+    const submitBtn = document.querySelector('.btn-submit');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnLoader = submitBtn.querySelector('.btn-loader');
+    
+    // Afficher le loader
+    btnText.style.display = 'none';
+    btnLoader.style.display = 'inline-block';
+    submitBtn.disabled = true;
+    
+    // Simuler un délai pour l'UX
+    setTimeout(() => {
+        document.getElementById('add-product-form').submit();
+    }, 500);
+}
+
+// Contrôles de quantité
+function incrementStock() {
+    const input = document.getElementById('stock');
+    input.value = parseInt(input.value || 0) + 1;
+    input.dispatchEvent(new Event('input'));
+}
+
+function decrementStock() {
+    const input = document.getElementById('stock');
+    const value = parseInt(input.value || 0);
+    if (value > 0) {
+        input.value = value - 1;
+        input.dispatchEvent(new Event('input'));
+    }
+}
+
+function incrementMinStock() {
+    const input = document.getElementById('stock_minimal');
+    input.value = parseInt(input.value || 0) + 1;
+    input.dispatchEvent(new Event('input'));
+}
+
+function decrementMinStock() {
+    const input = document.getElementById('stock_minimal');
+    const value = parseInt(input.value || 0);
+    if (value > 0) {
+        input.value = value - 1;
+        input.dispatchEvent(new Event('input'));
+    }
+}
+
+// Mise à jour de l'indicateur de stock
+function updateStockIndicator() {
+    const stock = parseInt(document.getElementById('stock').value || 0);
+    const stockMinimal = parseInt(document.getElementById('stock_minimal').value || 0);
+    
+    const stockFill = document.getElementById('stock-fill');
+    const stockMinLine = document.getElementById('stock-min-line');
+    const currentDisplay = document.getElementById('current-display');
+    const minDisplay = document.getElementById('min-display');
+    
+    const maxDisplay = Math.max(stock, stockMinimal, 10); // Minimum 10 pour l'affichage
+    
+    // Mettre à jour les displays
+    currentDisplay.textContent = stock;
+    minDisplay.textContent = stockMinimal;
+    
+    // Mettre à jour les barres
+    const stockPercentage = (stock / maxDisplay) * 100;
+    const minPercentage = (stockMinimal / maxDisplay) * 100;
+    
+    stockFill.style.width = `${stockPercentage}%`;
+    stockMinLine.style.left = `${minPercentage}%`;
+    
+    // Couleur en fonction du niveau
+    if (stock <= stockMinimal) {
+        stockFill.style.background = 'linear-gradient(90deg, #ff4757, #ff6b7a)';
+    } else if (stock <= stockMinimal * 1.5) {
+        stockFill.style.background = 'linear-gradient(90deg, #ffa502, #ffc048)';
+    } else {
+        stockFill.style.background = 'linear-gradient(90deg, #2ed573, #7bed9f)';
+    }
+}
+
+// Fonctions de validation des champs
+function validateField(input) {
+    // Logique de validation personnalisée
+}
+
+function showFieldError(input, feedback, message) {
+    input.classList.add('error');
+    input.classList.remove('success', 'warning');
+    feedback.textContent = message;
+    feedback.className = 'input-feedback error';
+}
+
+function showFieldSuccess(input, feedback, message) {
+    input.classList.add('success');
+    input.classList.remove('error', 'warning');
+    feedback.textContent = message;
+    feedback.className = 'input-feedback success';
+}
+
+function showFieldWarning(input, feedback, message) {
+    input.classList.add('warning');
+    input.classList.remove('error', 'success');
+    feedback.textContent = message;
+    feedback.className = 'input-feedback warning';
+}
+
+// Réinitialisation du formulaire
+function resetForm() {
+    if (confirm('Êtes-vous sûr de vouloir réinitialiser le formulaire ?')) {
+        document.getElementById('add-product-form').reset();
+        document.getElementById('stock').value = 0;
+        document.getElementById('stock_minimal').value = 0;
+        
+        // Réinitialiser les feedbacks
+        const feedbacks = document.querySelectorAll('.input-feedback');
+        feedbacks.forEach(feedback => {
+            feedback.textContent = '';
+            feedback.className = 'input-feedback';
+        });
+        
+        // Réinitialiser les classes des inputs
+        const inputs = document.querySelectorAll('.form-input, .form-select');
+        inputs.forEach(input => {
+            input.classList.remove('error', 'success', 'warning');
+        });
+        
+        updateStockIndicator();
+        document.getElementById('name').focus();
+    }
+}
+
+// Gestion de l'aide
+function showHelp() {
+    document.getElementById('help-modal').style.display = 'block';
+}
+
+function closeHelp() {
+    document.getElementById('help-modal').style.display = 'none';
+}
+
+// Notifications toast
+function showToast(message, type = 'info') {
+    const toast = document.getElementById('notification-toast');
+    toast.textContent = message;
+    toast.className = `toast show ${type}`;
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000);
+}
+
+// Fermer le modal en cliquant à l'extérieur
+window.onclick = function(event) {
+    const modal = document.getElementById('help-modal');
+    if (event.target === modal) {
+        closeHelp();
+    }
+}
+
+// Gestion des touches clavier
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeHelp();
+    }
+});
+</script>
+
 {{> footer}}

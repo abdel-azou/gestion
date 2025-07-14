@@ -37,6 +37,13 @@ const Product = {
         `);
         stmt.run(stock, id);
     },
+
+    updateMinimalStock: (id, stock_minimal) => {
+        const stmt = db.prepare(`
+            UPDATE products SET stock_minimal = ? WHERE id = ?
+        `);
+        stmt.run(stock_minimal, id);
+    },
     getById: (id) => {
         const stmt = db.prepare(`
             SELECT * FROM products WHERE id = ?

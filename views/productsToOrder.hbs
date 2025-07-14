@@ -1,17 +1,690 @@
 {{> header title="Produits à Commander" }}
-<div class="container">
-    <h1>Produits à Commander</h1>
+<div class="container orders-container">
+    <div class="orders-header">
+        <h1 class="orders-title">Produits à Commander</h1>
+        {{#if productsToOrder.length}}
+        <div class="orders-summary">
+            <div class="summary-badge">
+                <span class="badge-number">{{productsToOrder.length}}</span>
+                <span class="badge-text">produits</span>
+            </div>
+        </div>
+        {{/if}}
+    </div>
+
     {{#if productsToOrder.length}}
-    <ul>
+    <!-- Contrôles de filtrage et tri -->
+    <div class="orders-controls">
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Rechercher un produit..." class="search-input">
+            <button class="search-btn" onclick="filterProducts()">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+        <div class="filter-container">
+            <select id="category-filter" class="filter-select" onchange="filterByCategory()">
+                <option value="">Toutes les catégories</option>
+                {{#each productsToOrder}}
+                <option value="{{this.category}}">{{this.category}}</option>
+                {{/each}}
+            </select>
+        </div>
+        <div class="sort-container">
+            <select id="sort-select" class="sort-select" onchange="sortProducts()">
+                <option value="name">Nom A-Z</option>
+                <option value="name-desc">Nom Z-A</option>
+                <option value="stock">Stock croissant</option>
+                <option value="stock-desc">Stock décroissant</option>
+                <option value="needed">Besoin croissant</option>
+                <option value="needed-desc">Besoin décroissant</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Vue mobile : Cards -->
+    <div class="orders-cards mobile-view">
         {{#each productsToOrder}}
-        <li>
-            <span>{{this.name}}</span>
-            <span>Quantité à commander: {{this.difference}}</span>
-        </li>
+        <div class="order-card" data-id="{{this.id}}" data-name="{{this.name}}" data-category="{{this.category}}" data-stock="{{this.currentStock}}" data-needed="{{this.quantityNeeded}}">
+            <div class="card-header">
+                <h3 class="card-title">{{this.name}}</h3>
+                <span class="card-category">{{this.category}}</span>
+            </div>
+            <div class="card-body">
+                <div class="card-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Stock actuel</span>
+                        <span class="stat-value stock-{{this.stockStatus}}">{{this.currentStock}}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Stock minimal</span>
+                        <input type="number" class="stat-input minimal-stock-input" value="{{this.minimalStock}}" min="0" data-product-id="{{this.id}}" onchange="updateMinimalStock({{this.id}}, this.value)">
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">À commander</span>
+                        <input type="number" class="stat-input order-quantity-input" value="{{this.quantityNeeded}}" min="1" data-product-id="{{this.id}}">
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <button class="btn btn-primary btn-small" onclick="markAsOrdered({{this.id}})">
+                        <i class="fas fa-check"></i> Commandé
+                    </button>
+                    <button class="btn btn-secondary btn-small" onclick="addStock({{this.id}})">
+                        <i class="fas fa-plus"></i> Ajouter
+                    </button>
+                    <button class="btn btn-danger btn-small" onclick="confirmDeleteProduct({{this.id}}, '{{this.name}}')">
+                        <i class="fas fa-trash"></i> Supprimer
+                    </button>
+                </div>
+            </div>
+        </div>
         {{/each}}
-    </ul>
+    </div>
+
+    <!-- Vue desktop : Tableau -->
+    <div class="orders-table desktop-view">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th onclick="sortTable(0)">Produit <i class="fas fa-sort"></i></th>
+                    <th onclick="sortTable(1)">Catégorie <i class="fas fa-sort"></i></th>
+                    <th onclick="sortTable(2)">Stock Actuel <i class="fas fa-sort"></i></th>
+                    <th onclick="sortTable(3)">Stock Minimal <i class="fas fa-sort"></i></th>
+                    <th onclick="sortTable(4)">À Commander <i class="fas fa-sort"></i></th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each productsToOrder}}
+                <tr class="table-row" data-id="{{this.id}}" data-name="{{this.name}}" data-category="{{this.category}}" data-stock="{{this.currentStock}}" data-needed="{{this.quantityNeeded}}">
+                    <td class="product-name">{{this.name}}</td>
+                    <td class="product-category">{{this.category}}</td>
+                    <td class="product-stock">
+                        <span class="stock-badge stock-{{this.stockStatus}}">{{this.currentStock}}</span>
+                    </td>
+                    <td class="minimal-stock">
+                        <input type="number" class="table-input minimal-stock-input" value="{{this.minimalStock}}" min="0" data-product-id="{{this.id}}" onchange="updateMinimalStock({{this.id}}, this.value)">
+                    </td>
+                    <td class="order-quantity">
+                        <input type="number" class="table-input order-quantity-input" value="{{this.quantityNeeded}}" min="1" data-product-id="{{this.id}}">
+                    </td>
+                    <td class="table-actions">
+                        <button class="btn btn-primary btn-small" onclick="markAsOrdered({{this.id}})">
+                            <i class="fas fa-check"></i> Commandé
+                        </button>
+                        <button class="btn btn-secondary btn-small" onclick="addStock({{this.id}})">
+                            <i class="fas fa-plus"></i> Ajouter
+                        </button>
+                        <button class="btn btn-danger btn-small" onclick="confirmDeleteProduct({{this.id}}, '{{this.name}}')">
+                            <i class="fas fa-trash"></i> Supprimer
+                        </button>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Actions globales -->
+    <div class="global-actions">
+        <button class="btn btn-success btn-large" onclick="generateOrderList()">
+            <i class="fas fa-file-export"></i> Générer Liste
+        </button>
+        <button class="btn btn-warning btn-large" onclick="updateAllStocks()">
+            <i class="fas fa-sync"></i> Tout Mettre à Jour
+        </button>
+    </div>
+
     {{else}}
-    <p>Aucun produit à commander.</p>
+    <div class="no-orders">
+        <div class="no-orders-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h2>Aucun produit à commander</h2>
+        <p>Tous vos produits ont un stock suffisant !</p>
+        <a href="/liste_abdelhamid" class="btn btn-primary">Retour à la liste</a>
+    </div>
     {{/if}}
 </div>
+
+<!-- Modal pour ajouter du stock -->
+<div id="stock-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Ajouter du Stock</h3>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="stock-form">
+                <input type="hidden" id="modal-product-id">
+                <div class="form-group">
+                    <label for="stock-amount">Quantité à ajouter:</label>
+                    <input type="number" id="stock-amount" class="form-input" min="1" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Ajouter</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Toast pour les notifications -->
+<div id="toast" class="toast"></div>
+
+<!-- Modal de confirmation de suppression -->
+<div id="delete-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Confirmer la suppression</h3>
+            <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="delete-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Êtes-vous sûr de vouloir supprimer le produit :</p>
+                <p id="product-to-delete-name" class="product-name-highlight"></p>
+                <p class="warning-text">Cette action est irréversible !</p>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-danger" onclick="deleteProduct()">
+                    <i class="fas fa-trash"></i> Supprimer
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">
+                    <i class="fas fa-times"></i> Annuler
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Variables globales
+let currentSortColumn = -1;
+let currentSortOrder = 'asc';
+let originalData = [];
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', function() {
+    // Sauvegarder les données originales pour le tri/filtrage
+    const cards = document.querySelectorAll('.order-card');
+    const rows = document.querySelectorAll('.table-row');
+    
+    cards.forEach(card => {
+        originalData.push({
+            element: card,
+            name: card.dataset.name,
+            category: card.dataset.category,
+            stock: parseInt(card.dataset.stock),
+            needed: parseInt(card.dataset.needed)
+        });
+    });
+    
+    // Gestion du modal
+    const modal = document.getElementById('stock-modal');
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            closeModal();
+        }
+    }
+    
+    // Gestion du formulaire modal
+    document.getElementById('stock-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const productId = document.getElementById('modal-product-id').value;
+        const amount = parseInt(document.getElementById('stock-amount').value);
+        
+        fetch('/products/update-stock', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ 
+                id: productId, 
+                amount: amount 
+            })
+        })
+        .then(response => {
+            if (response.ok) {
+                showToast('Stock mis à jour avec succès', 'success');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showToast('Erreur lors de la mise à jour', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            showToast('Erreur de connexion', 'error');
+        });
+        
+        closeModal();
+    });
+    
+    // Gestion des gestes tactiles pour mobile
+    if (window.innerWidth < 768) {
+        initSwipeGestures();
+    }
+});
+
+// Fonctions principales
+function updateMinimalStock(productId, newMinimalStock) {
+    fetch('/products/update-minimal-stock', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+            id: productId, 
+            stock_minimal: parseInt(newMinimalStock) 
+        })
+    })
+    .then(response => {
+        if (response.ok) {
+            showToast('Stock minimal mis à jour', 'success');
+            updateQuantityNeeded(productId);
+        } else {
+            showToast('Erreur lors de la mise à jour', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        showToast('Erreur de connexion', 'error');
+    });
+}
+
+function updateQuantityNeeded(productId) {
+    const card = document.querySelector(`.order-card[data-id="${productId}"]`);
+    const row = document.querySelector(`.table-row[data-id="${productId}"]`);
+    
+    if (card) {
+        const currentStock = parseInt(card.dataset.stock);
+        const minimalStock = parseInt(card.querySelector('.minimal-stock-input').value);
+        const quantityNeeded = Math.max(0, minimalStock - currentStock);
+        
+        card.querySelector('.order-quantity-input').value = quantityNeeded;
+    }
+    
+    if (row) {
+        const currentStock = parseInt(row.dataset.stock);
+        const minimalStock = parseInt(row.querySelector('.minimal-stock-input').value);
+        const quantityNeeded = Math.max(0, minimalStock - currentStock);
+        
+        row.querySelector('.order-quantity-input').value = quantityNeeded;
+    }
+}
+
+function markAsOrdered(productId) {
+    const card = document.querySelector(`.order-card[data-id="${productId}"]`);
+    const row = document.querySelector(`.table-row[data-id="${productId}"]`);
+    
+    const orderQuantity = parseInt(
+        card ? card.querySelector('.order-quantity-input').value : 
+        row.querySelector('.order-quantity-input').value
+    );
+    
+    if (confirm(`Marquer ${orderQuantity} unités comme commandées ?`)) {
+        fetch('/products/mark-as-ordered', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ 
+                id: productId, 
+                quantity: orderQuantity 
+            })
+        })
+        .then(response => {
+            if (response.ok) {
+                showToast('Produit marqué comme commandé', 'success');
+                if (card) card.classList.add('ordered');
+                if (row) row.classList.add('ordered');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showToast('Erreur lors du marquage', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            showToast('Erreur de connexion', 'error');
+        });
+    }
+}
+
+function addStock(productId) {
+    document.getElementById('modal-product-id').value = productId;
+    document.getElementById('stock-modal').style.display = 'block';
+}
+
+function closeModal() {
+    document.getElementById('stock-modal').style.display = 'none';
+    document.getElementById('stock-amount').value = '';
+}
+
+function generateOrderList() {
+    const items = document.querySelectorAll('.order-card:not(.ordered), .table-row:not(.ordered)');
+    let orderList = "LISTE DE COMMANDE\n";
+    orderList += "==================\n\n";
+    orderList += `Date: ${new Date().toLocaleDateString()}\n\n`;
+    
+    items.forEach(item => {
+        const name = item.dataset.name;
+        const category = item.dataset.category;
+        const quantity = item.querySelector('.order-quantity-input').value;
+        
+        orderList += `${name} (${category}): ${quantity} unités\n`;
+    });
+    
+    // Créer un blob et télécharger
+    const blob = new Blob([orderList], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `commande_${new Date().toISOString().split('T')[0]}.txt`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+    
+    showToast('Liste de commande générée', 'success');
+}
+
+function updateAllStocks() {
+    if (confirm('Mettre à jour tous les stocks avec les quantités commandées ?')) {
+        const items = document.querySelectorAll('.order-card:not(.ordered), .table-row:not(.ordered)');
+        const updates = [];
+        
+        items.forEach(item => {
+            const productId = item.dataset.id;
+            const quantity = parseInt(item.querySelector('.order-quantity-input').value);
+            updates.push({ id: productId, amount: quantity });
+        });
+        
+        Promise.all(updates.map(update => 
+            fetch('/products/update-stock', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(update)
+            })
+        ))
+        .then(responses => {
+            if (responses.every(r => r.ok)) {
+                showToast('Tous les stocks ont été mis à jour', 'success');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showToast('Erreur lors de certaines mises à jour', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            showToast('Erreur de connexion', 'error');
+        });
+    }
+}
+
+// Fonctions de tri et filtrage
+function filterProducts() {
+    const searchTerm = document.getElementById('search-input').value.toLowerCase();
+    const items = document.querySelectorAll('.order-card, .table-row');
+    
+    items.forEach(item => {
+        const name = item.dataset.name.toLowerCase();
+        const category = item.dataset.category.toLowerCase();
+        
+        if (name.includes(searchTerm) || category.includes(searchTerm)) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+function filterByCategory() {
+    const selectedCategory = document.getElementById('category-filter').value;
+    const items = document.querySelectorAll('.order-card, .table-row');
+    
+    items.forEach(item => {
+        if (selectedCategory === '' || item.dataset.category === selectedCategory) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+function sortProducts() {
+    const sortBy = document.getElementById('sort-select').value;
+    const container = document.querySelector('.orders-cards');
+    const tableBody = document.querySelector('.table tbody');
+    
+    const cards = Array.from(container.children);
+    const rows = tableBody ? Array.from(tableBody.children) : [];
+    
+    function compare(a, b) {
+        let aVal, bVal;
+        
+        switch(sortBy) {
+            case 'name':
+                aVal = a.dataset.name;
+                bVal = b.dataset.name;
+                break;
+            case 'name-desc':
+                aVal = b.dataset.name;
+                bVal = a.dataset.name;
+                break;
+            case 'stock':
+                aVal = parseInt(a.dataset.stock);
+                bVal = parseInt(b.dataset.stock);
+                break;
+            case 'stock-desc':
+                aVal = parseInt(b.dataset.stock);
+                bVal = parseInt(a.dataset.stock);
+                break;
+            case 'needed':
+                aVal = parseInt(a.dataset.needed);
+                bVal = parseInt(b.dataset.needed);
+                break;
+            case 'needed-desc':
+                aVal = parseInt(b.dataset.needed);
+                bVal = parseInt(a.dataset.needed);
+                break;
+            default:
+                return 0;
+        }
+        
+        return aVal > bVal ? 1 : -1;
+    }
+    
+    cards.sort(compare);
+    rows.sort(compare);
+    
+    cards.forEach(card => container.appendChild(card));
+    rows.forEach(row => tableBody.appendChild(row));
+}
+
+function sortTable(columnIndex) {
+    const table = document.querySelector('.table');
+    const tbody = table.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    
+    const isAsc = currentSortColumn === columnIndex && currentSortOrder === 'asc';
+    currentSortOrder = isAsc ? 'desc' : 'asc';
+    currentSortColumn = columnIndex;
+    
+    rows.sort((a, b) => {
+        const aVal = a.cells[columnIndex].textContent.trim();
+        const bVal = b.cells[columnIndex].textContent.trim();
+        
+        const aNum = parseFloat(aVal);
+        const bNum = parseFloat(bVal);
+        
+        let comparison = 0;
+        if (!isNaN(aNum) && !isNaN(bNum)) {
+            comparison = aNum - bNum;
+        } else {
+            comparison = aVal.localeCompare(bVal);
+        }
+        
+        return currentSortOrder === 'asc' ? comparison : -comparison;
+    });
+    
+    rows.forEach(row => tbody.appendChild(row));
+}
+
+// Gestion des gestes tactiles pour mobile
+function initSwipeGestures() {
+    const cards = document.querySelectorAll('.order-card');
+    
+    cards.forEach(card => {
+        let startX, startY, endX, endY;
+        
+        card.addEventListener('touchstart', function(e) {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        });
+        
+        card.addEventListener('touchend', function(e) {
+            endX = e.changedTouches[0].clientX;
+            endY = e.changedTouches[0].clientY;
+            
+            const diffX = startX - endX;
+            const diffY = startY - endY;
+            
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                if (diffX > 50) {
+                    // Swipe left - Mark as ordered
+                    const productId = card.dataset.id;
+                    markAsOrdered(productId);
+                } else if (diffX < -50) {
+                    // Swipe right - Add stock
+                    const productId = card.dataset.id;
+                    addStock(productId);
+                }
+            }
+        });
+    });
+}
+
+// Fonction toast
+function showToast(message, type = 'info') {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = `toast toast-${type} show`;
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000);
+}
+
+// Gestion du clavier
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeModal();
+    }
+});
+
+// Recherche en temps réel
+document.getElementById('search-input').addEventListener('input', filterProducts);
+
+// Variables globales pour la suppression
+let productToDeleteId = null;
+
+// Fonction pour ouvrir la modal de confirmation de suppression
+function confirmDeleteProduct(productId, productName) {
+    productToDeleteId = productId;
+    document.getElementById('product-to-delete-name').textContent = productName;
+    document.getElementById('delete-modal').style.display = 'block';
+}
+
+// Fonction pour fermer la modal de suppression
+function closeDeleteModal() {
+    document.getElementById('delete-modal').style.display = 'none';
+    productToDeleteId = null;
+}
+
+// Fonction pour supprimer le produit
+function deleteProduct() {
+    if (!productToDeleteId) return;
+    
+    const deleteButton = document.querySelector('#delete-modal .btn-danger');
+    const originalText = deleteButton.innerHTML;
+    
+    // Désactiver le bouton et afficher le loading
+    deleteButton.disabled = true;
+    deleteButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Suppression...';
+    
+    fetch(`/products/delete/${productToDeleteId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.text();
+        }
+        throw new Error('Erreur lors de la suppression');
+    })
+    .then(data => {
+        // Supprimer visuellement le produit de la liste
+        const cardElement = document.querySelector(`[data-id="${productToDeleteId}"]`);
+        if (cardElement) {
+            cardElement.style.opacity = '0';
+            cardElement.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                cardElement.remove();
+                // Vérifier s'il reste des produits
+                checkIfEmpty();
+            }, 300);
+        }
+        
+        showToast('Produit supprimé avec succès', 'success');
+        closeDeleteModal();
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        showToast('Erreur lors de la suppression', 'error');
+        
+        // Réactiver le bouton
+        deleteButton.disabled = false;
+        deleteButton.innerHTML = originalText;
+    });
+}
+
+// Fonction pour vérifier s'il reste des produits après suppression
+function checkIfEmpty() {
+    const remainingCards = document.querySelectorAll('.order-card').length;
+    const remainingRows = document.querySelectorAll('.table-row').length;
+    
+    if (remainingCards === 0 && remainingRows === 0) {
+        // Recharger la page pour afficher le message "Aucun produit à commander"
+        window.location.reload();
+    } else {
+        // Mettre à jour le compteur
+        const badge = document.querySelector('.badge-number');
+        if (badge) {
+            badge.textContent = remainingCards || remainingRows;
+        }
+    }
+}
+
+// Gestion des modals (fermeture avec Escape)
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeModal();
+        closeDeleteModal();
+    }
+});
+
+// Gestion du clic en dehors des modals
+window.onclick = function(event) {
+    const stockModal = document.getElementById('stock-modal');
+    const deleteModal = document.getElementById('delete-modal');
+    
+    if (event.target === stockModal) {
+        closeModal();
+    }
+    if (event.target === deleteModal) {
+        closeDeleteModal();
+    }
+};
+</script>
+
 {{> footer}}

@@ -80,9 +80,23 @@ const productController = {
     },
     productsToOrder: (req, res) => {
         console.log("Fetching products to order");
-        const productsToOrder = Product.getProductsToOrder();
-        console.log("Products to order:", productsToOrder);
-        res.render('productsToOrder', { productsToOrder });
+        const products = Product.getAll();
+        const productsToOrder = products.filter(product => product.stock < product.stock_minimal);
+        
+        // Enrichir les données avec les informations nécessaires pour le tableau interactif
+        const enrichedProducts = productsToOrder.map(product => ({
+            id: product.id,
+            name: product.name,
+            category: product.category,
+            category_id: product.category_id,
+            currentStock: product.stock,
+            minimalStock: product.stock_minimal,
+            quantityNeeded: product.stock_minimal - product.stock,
+            stockStatus: product.stock === 0 ? 'out' : product.stock < product.stock_minimal * 0.2 ? 'critical' : 'low'
+        }));
+        
+        console.log("Products to order:", enrichedProducts);
+        res.render('productsToOrder', { productsToOrder: enrichedProducts });
     },
     deleteProduct: (req, res) => {
         const productId = req.params.id;
@@ -101,14 +115,44 @@ const productController = {
             console.error("Error during product deletion:", err);
             res.status(500).send('Erreur lors de la suppression.');
         }
-    }
-    
-    
-    
-    
-    
-    
-    
+    },
+    // Nouvelle méthode pour mettre à jour le stock minimal
+    updateMinimalStock: (req, res) => {
+        console.log("Updating minimal stock");
+        const { id, stock_minimal } = req.body;
+        console.log("Received data:", { id, stock_minimal });
+        
+        try {
+            Product.updateMinimalStock(id, stock_minimal);
+            console.log("Updated minimal stock:", stock_minimal);
+            res.sendStatus(200);
+        } catch (error) {
+            console.error("Error updating minimal stock:", error);
+            res.status(500).send('Error updating minimal stock');
+        }
+    },
+
+    // Nouvelle méthode pour marquer comme commandé
+    markAsOrdered: (req, res) => {
+        console.log("Marking as ordered");
+        const { id, quantity } = req.body;
+        console.log("Received data:", { id, quantity });
+        
+        try {
+            const product = Product.getById(id);
+            if (product) {
+                const newStock = product.stock + quantity;
+                Product.updateStock(id, newStock);
+                console.log("Updated stock after order:", newStock);
+                res.sendStatus(200);
+            } else {
+                res.status(404).send('Product not found');
+            }
+        } catch (error) {
+            console.error("Error marking as ordered:", error);
+            res.status(500).send('Error marking as ordered');
+        }
+    },
 };
 
 module.exports = productController;

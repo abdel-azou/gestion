@@ -6,6 +6,8 @@ router.get('/products', productController.list);
 router.get('/add-product', productController.form);
 router.post('/products', productController.create);
 router.post('/products/update-stock', productController.updateStock);
+router.post('/products/update-minimal-stock', productController.updateMinimalStock);
+router.post('/products/mark-as-ordered', productController.markAsOrdered);
 router.get('/categories', productController.categories);
 router.post('/categories', productController.createCategory);
 router.get('/liste_abdelhamid', productController.listeAbdelhamid);

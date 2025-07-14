@@ -1,31 +1,96 @@
-<header>
-    <nav class="menu">
-        <ul>
-            <li>
-                <a href="#" class="menu-btn">Menu</a>
-                <ul class="dropdown">
-                    <li><a href="/add-product">Ajouter un Produit</a></li>
-                    <li><a href="/liste_abdelhamid">Liste des Produits</a></li>
-                    <li><a href="/products-to-order">Produits à Commander</a></li>
-                </ul>
-            </li>
-        </ul>
-    </nav>
-    <h1>{{title}}</h1>
-     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<header id="main-header" class="header">
+    <div class="header-container">
+        <div class="header-left">
+            <button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <h1 class="header-title">{{title}}</h1>
+        </div>
+        <nav class="header-nav" id="header-nav">
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="/add-product" class="nav-link">
+                        <i class="fas fa-plus"></i>
+                        <span>Ajouter</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/liste_abdelhamid" class="nav-link">
+                        <i class="fas fa-list"></i>
+                        <span>Liste</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/products-to-order" class="nav-link">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Commander</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </header>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const menuBtn = document.querySelector('.menu-btn');
-        const dropdown = document.querySelector('.menu .dropdown');
+        const menuToggle = document.getElementById('menu-toggle');
+        const headerNav = document.getElementById('header-nav');
+        const mainHeader = document.getElementById('main-header');
+        let lastScrollTop = 0;
+        let scrollTimeout;
 
-        menuBtn.addEventListener('click', function(event) {
-            event.preventDefault();
-            if (dropdown.style.maxHeight) {
-                dropdown.style.maxHeight = null;
-            } else {
-                dropdown.style.maxHeight = dropdown.scrollHeight + "px";
+        // Mobile menu toggle
+        menuToggle.addEventListener('click', function() {
+            headerNav.classList.toggle('nav-open');
+            menuToggle.classList.toggle('active');
+        });
+
+        // Close menu when clicking on a link
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function() {
+                headerNav.classList.remove('nav-open');
+                menuToggle.classList.remove('active');
+            });
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!mainHeader.contains(event.target)) {
+                headerNav.classList.remove('nav-open');
+                menuToggle.classList.remove('active');
+            }
+        });
+
+        // Header hide/show on scroll
+        function handleScroll() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (scrollTop > lastScrollTop && scrollTop > 100) {
+                // Scrolling down
+                mainHeader.classList.add('header-hidden');
+            } else if (scrollTop < lastScrollTop) {
+                // Scrolling up
+                mainHeader.classList.remove('header-hidden');
+            }
+            
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+        }
+
+        // Throttle scroll events
+        window.addEventListener('scroll', function() {
+            if (scrollTimeout) {
+                clearTimeout(scrollTimeout);
+            }
+            scrollTimeout = setTimeout(handleScroll, 10);
+        });
+
+        // Show header when mouse is near top
+        document.addEventListener('mousemove', function(event) {
+            if (event.clientY <= 50) {
+                mainHeader.classList.remove('header-hidden');
             }
         });
     });
