@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listes de Commandes - Gestion des Stocks</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/orders.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .order-lists-container {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-card.total .stat-number { color: #3498db; }
+        .stat-card.draft .stat-number { color: #f39c12; }
+        .stat-card.ordered .stat-number { color: #e74c3c; }
+        .stat-card.completed .stat-number { color: #27ae60; }
+
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .search-section {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            padding: 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            width: 250px;
+            font-size: 14px;
+        }
+
+        .filter-select {
+            padding: 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .lists-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .list-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border-left: 4px solid #3498db;
+            position: relative;
+        }
+
+        .list-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .list-card.draft { border-left-color: #f39c12; }
+        .list-card.ordered { border-left-color: #e74c3c; }
+        .list-card.completed { border-left-color: #27ae60; }
+
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .list-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .list-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status-draft { background: #fef9e7; color: #f39c12; }
+        .status-ordered { background: #fdedec; color: #e74c3c; }
+        .status-completed { background: #d5f4e6; color: #27ae60; }
+
+        .list-description {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .list-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .list-stat {
+            text-align: center;
+        }
+
+        .list-stat-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #3498db;
+            display: block;
+        }
+
+        .list-stat-label {
+            font-size: 0.8em;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .list-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-primary { background: #3498db; color: white; }
+        .btn-success { background: #27ae60; color: white; }
+        .btn-warning { background: #f39c12; color: white; }
+        .btn-danger { background: #e74c3c; color: white; }
+        .btn-secondary { background: #95a5a6; color: white; }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #95a5a6;
+        }
+
+        .empty-state i {
+            font-size: 5em;
+            margin-bottom: 20px;
+            color: #bdc3c7;
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .close {
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #95a5a6;
+        }
+
+        .close:hover {
+            color: #2c3e50;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .product-selector {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .product-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .product-name {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .product-category {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .product-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quantity-input {
+            width: 60px;
+            padding: 5px;
+            border: 1px solid #ecf0f1;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .product-checkbox {
+            transform: scale(1.2);
+        }
+
+        .list-detail-modal .product-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .list-product-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #ecf0f1;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .list-product-info {
+            flex: 1;
+        }
+
+        .list-product-name {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .list-product-details {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .list-product-quantity {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #3498db;
+            margin-right: 15px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .order-lists-container {
+                padding: 15px;
+            }
+
+            .stats-overview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .lists-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-section {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .search-input {
+                width: 100%;
+            }
+
+            .list-actions {
+                justify-content: center;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    {{> header title="Listes de Commandes" }}
+
+    <div class="order-lists-container">
+        <div class="page-header">
+            <h1>📋 Listes de Commandes</h1>
+            <p>Créez et gérez vos listes de commandes personnalisées</p>
+        </div>
+
+        <!-- Statistiques -->
+        <div class="stats-overview">
+            <div class="stat-card total">
+                <div class="stat-number">{{statistics.totalLists}}</div>
+                <div class="stat-label">Total Listes</div>
+            </div>
+            <div class="stat-card draft">
+                <div class="stat-number">{{statistics.draftLists}}</div>
+                <div class="stat-label">Brouillons</div>
+            </div>
+            <div class="stat-card ordered">
+                <div class="stat-number">{{statistics.orderedLists}}</div>
+                <div class="stat-label">Commandées</div>
+            </div>
+            <div class="stat-card completed">
+                <div class="stat-number">{{statistics.completedLists}}</div>
+                <div class="stat-label">Terminées</div>
+            </div>
+        </div>
+
+        <!-- Barre d'actions -->
+        <div class="action-bar">
+            <div class="search-section">
+                <input type="text" class="search-input" id="searchLists" placeholder="Rechercher une liste...">
+                <select class="filter-select" id="statusFilter">
+                    <option value="">Tous les statuts</option>
+                    <option value="draft">Brouillons</option>
+                    <option value="ordered">Commandées</option>
+                    <option value="completed">Terminées</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" onclick="openCreateListModal()">
+                <i class="fas fa-plus"></i> Nouvelle Liste
+            </button>
+        </div>
+
+        <!-- Grille des listes -->
+        <div class="lists-grid" id="listsGrid">
+            {{#if lists.length}}
+                {{#each lists}}
+                <div class="list-card {{status}}" data-list-id="{{id}}" data-status="{{status}}" data-name="{{name}}">
+                    <div class="list-header">
+                        <h3 class="list-title">{{name}}</h3>
+                        <span class="list-status status-{{status}}">{{status}}</span>
+                    </div>
+                    
+                    {{#if description}}
+                    <div class="list-description">{{description}}</div>
+                    {{/if}}
+                    
+                    <div class="list-stats">
+                        <div class="list-stat">
+                            <span class="list-stat-number">{{item_count}}</span>
+                            <span class="list-stat-label">Produits</span>
+                        </div>
+                        <div class="list-stat">
+                            <span class="list-stat-number">{{total_quantity}}</span>
+                            <span class="list-stat-label">Quantité</span>
+                        </div>
+                        <div class="list-stat">
+                            <span class="list-stat-number">{{formatDate created_date}}</span>
+                            <span class="list-stat-label">Créée</span>
+                        </div>
+                    </div>
+                    
+                    <div class="list-actions">
+                        <button class="btn btn-primary" onclick="viewListDetails({{id}})">
+                            <i class="fas fa-eye"></i> Voir
+                        </button>
+                        {{#if (eq status 'draft')}}
+                        <button class="btn btn-warning" onclick="editList({{id}})">
+                            <i class="fas fa-edit"></i> Modifier
+                        </button>
+                        <button class="btn btn-success" onclick="finalizeList({{id}})">
+                            <i class="fas fa-check"></i> Commander
+                        </button>
+                        {{/if}}
+                        <button class="btn btn-secondary" onclick="duplicateList({{id}})">
+                            <i class="fas fa-copy"></i> Dupliquer
+                        </button>
+                        <button class="btn btn-warning" onclick="exportList({{id}})">
+                            <i class="fas fa-file-export"></i> Exporter
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteList({{id}}, '{{name}}')">
+                            <i class="fas fa-trash"></i> Supprimer
+                        </button>
+                    </div>
+                </div>
+                {{/each}}
+            {{else}}
+                <div class="empty-state">
+                    <i class="fas fa-clipboard-list"></i>
+                    <h3>Aucune liste de commandes</h3>
+                    <p>Créez votre première liste pour commencer</p>
+                    <button class="btn btn-primary" onclick="openCreateListModal()">
+                        <i class="fas fa-plus"></i> Créer une liste
+                    </button>
+                </div>
+            {{/if}}
+        </div>
+    </div>
+
+    <!-- Modal Créer/Modifier Liste -->
+    <div id="createListModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="createListTitle">Créer une nouvelle liste</h2>
+                <span class="close" onclick="closeCreateListModal()">&times;</span>
+            </div>
+            <div id="createListAlert"></div>
+            <form id="createListForm">
+                <input type="hidden" id="editListId" name="id">
+                
+                <div class="form-group">
+                    <label for="listName">Nom de la liste</label>
+                    <input type="text" id="listName" name="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="listDescription">Description</label>
+                    <textarea id="listDescription" name="description" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Sélectionner les produits</label>
+                    <div class="product-selector-controls">
+                        <input type="text" id="productSearch" placeholder="Rechercher un produit..." class="search-input">
+                        <select id="categoryFilter" class="filter-select">
+                            <option value="">Toutes les catégories</option>
+                            {{#each categories}}
+                            <option value="{{id}}">{{name}}</option>
+                            {{/each}}
+                        </select>
+                        <div class="selection-actions">
+                            <button type="button" class="btn btn-outline" onclick="selectAllProducts()">
+                                <i class="fas fa-check-double"></i> Tout sélectionner
+                            </button>
+                            <button type="button" class="btn btn-outline" onclick="clearAllProducts()">
+                                <i class="fas fa-times"></i> Tout désélectionner
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="selected-products-summary" id="selectedProductsSummary" style="display: none;">
+                        <div class="summary-header">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span id="selectedCount">0</span> produits sélectionnés
+                        </div>
+                        <div class="summary-actions">
+                            <button type="button" class="btn btn-sm btn-outline" onclick="setQuantityForAll()">
+                                <i class="fas fa-edit"></i> Définir quantité pour tous
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="product-selector" id="productSelector">
+                        {{#each availableProducts}}
+                        <div class="product-item" data-product-id="{{id}}" data-category-id="{{category_id}}" data-product-name="{{name}}">
+                            <div class="product-selection">
+                                <label class="product-checkbox-label">
+                                    <input type="checkbox" class="product-checkbox" data-product-id="{{id}}" onchange="updateProductSelection(this)">
+                                    <span class="checkbox-custom"></span>
+                                </label>
+                            </div>
+                            <div class="product-info">
+                                <div class="product-name">{{name}}</div>
+                                <div class="product-meta">
+                                    <span class="product-category">{{category_name}}</span>
+                                    <span class="product-stock {{#if (lt stock 10)}}low-stock{{/if}}">
+                                        <i class="fas fa-box"></i> Stock: {{stock}}
+                                    </span>
+                                </div>
+                                {{#if description}}
+                                <div class="product-description">{{description}}</div>
+                                {{/if}}
+                            </div>
+                            <div class="product-controls">
+                                <div class="quantity-controls">
+                                    <button type="button" class="quantity-btn" onclick="decreaseQuantity({{id}})">-</button>
+                                    <input type="number" class="quantity-input" min="1" max="{{stock}}" value="1" data-product-id="{{id}}" onchange="validateQuantity(this)" disabled>
+                                    <button type="button" class="quantity-btn" onclick="increaseQuantity({{id}})">+</button>
+                                </div>
+                                <div class="product-priority">
+                                    <select class="priority-select" data-product-id="{{id}}" disabled>
+                                        <option value="normal">Normal</option>
+                                        <option value="urgent">Urgent</option>
+                                        <option value="low">Faible</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        {{/each}}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> Sauvegarder
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateListModal()">
+                        <i class="fas fa-times"></i> Annuler
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Détails Liste -->
+    <div id="listDetailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="listDetailTitle">Détails de la liste</h2>
+                <span class="close" onclick="closeListDetailModal()">&times;</span>
+            </div>
+            <div id="listDetailContent">
+                <!-- Contenu chargé dynamiquement -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let allLists = {{{json lists}}};
+        let availableProducts = {{{json availableProducts}}};
+        let currentEditingListId = null;
+
+        // Gestion de l'interface améliorée de sélection des produits
+        function updateProductSelection(checkbox) {
+            const productId = checkbox.dataset.productId;
+            const productItem = checkbox.closest('.product-item');
+            const quantityInput = productItem.querySelector('.quantity-input');
+            const prioritySelect = productItem.querySelector('.priority-select');
+            
+            if (checkbox.checked) {
+                productItem.classList.add('selected');
+                quantityInput.disabled = false;
+                prioritySelect.disabled = false;
+            } else {
+                productItem.classList.remove('selected');
+                quantityInput.disabled = true;
+                prioritySelect.disabled = true;
+                quantityInput.value = 1;
+                prioritySelect.value = 'normal';
+            }
+            
+            updateSelectedProductsSummary();
+        }
+
+        function updateSelectedProductsSummary() {
+            const selectedProducts = document.querySelectorAll('.product-checkbox:checked');
+            const summaryElement = document.getElementById('selectedProductsSummary');
+            const countElement = document.getElementById('selectedCount');
+            
+            if (selectedProducts.length > 0) {
+                summaryElement.style.display = 'block';
+                countElement.textContent = selectedProducts.length;
+            } else {
+                summaryElement.style.display = 'none';
+            }
+        }
+
+        function selectAllProducts() {
+            const visibleProducts = document.querySelectorAll('.product-item:not([style*="display: none"]) .product-checkbox');
+            visibleProducts.forEach(checkbox => {
+                if (!checkbox.checked) {
+                    checkbox.checked = true;
+                    updateProductSelection(checkbox);
+                }
+            });
+        }
+
+        function clearAllProducts() {
+            const selectedProducts = document.querySelectorAll('.product-checkbox:checked');
+            selectedProducts.forEach(checkbox => {
+                checkbox.checked = false;
+                updateProductSelection(checkbox);
+            });
+        }
+
+        function setQuantityForAll() {
+            const quantity = prompt('Quantité à définir pour tous les produits sélectionnés:');
+            if (quantity && !isNaN(quantity) && quantity > 0) {
+                const selectedProducts = document.querySelectorAll('.product-checkbox:checked');
+                selectedProducts.forEach(checkbox => {
+                    const productItem = checkbox.closest('.product-item');
+                    const quantityInput = productItem.querySelector('.quantity-input');
+                    const maxStock = parseInt(quantityInput.getAttribute('max'));
+                    
+                    if (parseInt(quantity) <= maxStock) {
+                        quantityInput.value = quantity;
+                    } else {
+                        quantityInput.value = maxStock;
+                        showNotification(`Quantité ajustée pour ${productItem.querySelector('.product-name').textContent} (stock max: ${maxStock})`, 'warning');
+                    }
+                });
+            }
+        }
+
+        function increaseQuantity(productId) {
+            const quantityInput = document.querySelector(`.quantity-input[data-product-id="${productId}"]`);
+            const currentValue = parseInt(quantityInput.value);
+            const maxValue = parseInt(quantityInput.getAttribute('max'));
+            
+            if (currentValue < maxValue) {
+                quantityInput.value = currentValue + 1;
+            }
+        }
+
+        function decreaseQuantity(productId) {
+            const quantityInput = document.querySelector(`.quantity-input[data-product-id="${productId}"]`);
+            const currentValue = parseInt(quantityInput.value);
+            
+            if (currentValue > 1) {
+                quantityInput.value = currentValue - 1;
+            }
+        }
+
+        function validateQuantity(input) {
+            const value = parseInt(input.value);
+            const min = parseInt(input.getAttribute('min'));
+            const max = parseInt(input.getAttribute('max'));
+            
+            if (value < min) {
+                input.value = min;
+                showNotification('La quantité ne peut pas être inférieure à 1', 'warning');
+            } else if (value > max) {
+                input.value = max;
+                showNotification(`La quantité ne peut pas être supérieure au stock disponible (${max})`, 'warning');
+            }
+        }
+
+        // Filtrage des produits
+        function filterProducts() {
+            const searchTerm = document.getElementById('productSearch').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const productItems = document.querySelectorAll('.product-item');
+            
+            productItems.forEach(item => {
+                const productName = item.dataset.productName.toLowerCase();
+                const categoryId = item.dataset.categoryId;
+                
+                const matchesSearch = productName.includes(searchTerm);
+                const matchesCategory = !categoryFilter || categoryId === categoryFilter;
+                
+                item.style.display = matchesSearch && matchesCategory ? 'flex' : 'none';
+            });
+        }
+
+        // Event listeners pour le filtrage
+        document.addEventListener('DOMContentLoaded', function() {
+            const productSearch = document.getElementById('productSearch');
+            const categoryFilter = document.getElementById('categoryFilter');
+            
+            if (productSearch) {
+                productSearch.addEventListener('input', filterProducts);
+            }
+            
+            if (categoryFilter) {
+                categoryFilter.addEventListener('change', filterProducts);
+            }
+        });
+
+        // Gestion des modals
+        function openCreateListModal() {
+            document.getElementById('createListModal').style.display = 'block';
+            document.getElementById('createListTitle').textContent = 'Créer une nouvelle liste';
+            document.getElementById('createListForm').reset();
+            document.getElementById('editListId').value = '';
+            currentEditingListId = null;
+            resetProductSelector();
+        }
+
+        function closeCreateListModal() {
+            document.getElementById('createListModal').style.display = 'none';
+            document.getElementById('createListAlert').innerHTML = '';
+        }
+
+        function closeListDetailModal() {
+            document.getElementById('listDetailModal').style.display = 'none';
+        }
+
+        // Réinitialiser le sélecteur de produits
+        function resetProductSelector() {
+            document.querySelectorAll('.product-checkbox').forEach(checkbox => {
+                checkbox.checked = false;
+                const productItem = checkbox.closest('.product-item');
+                productItem.classList.remove('selected');
+                const quantityInput = productItem.querySelector('.quantity-input');
+                const prioritySelect = productItem.querySelector('.priority-select');
+                quantityInput.disabled = true;
+                prioritySelect.disabled = true;
+                quantityInput.value = 1;
+                prioritySelect.value = 'normal';
+            });
+            updateSelectedProductsSummary();
+        }
+        });
+
+        // Créer/Modifier une liste
+        document.getElementById('createListForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const listData = {
+                name: formData.get('name'),
+                description: formData.get('description')
+            };
+
+            const selectedProducts = [];
+            document.querySelectorAll('.product-checkbox:checked').forEach(checkbox => {
+                const productId = checkbox.dataset.productId;
+                const productItem = checkbox.closest('.product-item');
+                const quantity = productItem.querySelector('.quantity-input').value;
+                const priority = productItem.querySelector('.priority-select').value;
+                
+                selectedProducts.push({
+                    productId: parseInt(productId),
+                    quantity: parseInt(quantity),
+                    priority: priority
+                });
+            });
+
+            if (selectedProducts.length === 0) {
+                showAlert('createListAlert', 'Veuillez sélectionner au moins un produit.', 'error');
+                return;
+            }
+
+            try {
+                // Créer la liste avec les produits en une seule opération
+                const response = await fetch('/api/order-lists/create-with-products', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        ...listData,
+                        products: selectedProducts
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('createListAlert', 'Liste créée avec succès !', 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showAlert('createListAlert', result.error, 'error');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showAlert('createListAlert', 'Erreur lors de la création', 'error');
+            }
+        });
+
+        // Voir les détails d'une liste
+        async function viewListDetails(listId) {
+            try {
+                const response = await fetch(`/api/order-lists/${listId}`);
+                const list = await response.json();
+                
+                document.getElementById('listDetailTitle').textContent = list.name;
+                
+                let content = `
+                    <div class="form-group">
+                        <label>Description</label>
+                        <p>${list.description || 'Aucune description'}</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Statut</label>
+                        <span class="list-status status-${list.status}">${list.status}</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Produits (${list.items.length})</label>
+                        <div class="product-list">
+                `;
+                
+                list.items.forEach(item => {
+                    content += `
+                        <div class="list-product-item">
+                            <div class="list-product-info">
+                                <div class="list-product-name">${item.product_name}</div>
+                                <div class="list-product-details">${item.category_name} - Stock: ${item.stock}</div>
+                            </div>
+                            <div class="list-product-quantity">×${item.quantity}</div>
+                        </div>
+                    `;
+                });
+                
+                content += `
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button class="btn btn-secondary" onclick="closeListDetailModal()">
+                            <i class="fas fa-times"></i> Fermer
+                        </button>
+                    </div>
+                `;
+                
+                document.getElementById('listDetailContent').innerHTML = content;
+                document.getElementById('listDetailModal').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur lors du chargement des détails', 'error');
+            }
+        }
+
+        // Finaliser une liste (marquer comme commandée)
+        async function finalizeList(listId) {
+            const notes = prompt('Notes pour cette commande (optionnel):');
+            
+            try {
+                const response = await fetch('/api/order-lists/finalize', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        listId: listId,
+                        notes: notes || ''
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('Liste finalisée avec succès !', 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showNotification(result.error, 'error');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur lors de la finalisation', 'error');
+            }
+        }
+
+        // Dupliquer une liste
+        async function duplicateList(listId) {
+            const newName = prompt('Nom de la nouvelle liste:');
+            if (!newName) return;
+            
+            try {
+                const response = await fetch('/api/order-lists/duplicate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        listId: listId,
+                        newName: newName
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('Liste dupliquée avec succès !', 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showNotification(result.error, 'error');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur lors de la duplication', 'error');
+            }
+        }
+
+        // Supprimer une liste
+        async function deleteList(listId, listName) {
+            if (confirm(`Êtes-vous sûr de vouloir supprimer la liste "${listName}" ?`)) {
+                try {
+                    const response = await fetch(`/api/order-lists/${listId}`, {
+                        method: 'DELETE'
+                    });
+
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showNotification('Liste supprimée avec succès !', 'success');
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1500);
+                    } else {
+                        showNotification(result.error, 'error');
+                    }
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    showNotification('Erreur lors de la suppression', 'error');
+                }
+            }
+        }
+
+        // Exporter une liste
+        function exportList(listId) {
+            const exportMenu = document.createElement('div');
+            exportMenu.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: white;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                z-index: 1000;
+                text-align: center;
+            `;
+            
+            exportMenu.innerHTML = `
+                <h3>Exporter la liste</h3>
+                <div style="margin: 20px 0;">
+                    <a href="/api/order-lists/${listId}/export?format=print" target="_blank" class="btn btn-primary" style="margin: 5px;">
+                        <i class="fas fa-print"></i> Imprimer
+                    </a>
+                    <a href="/api/order-lists/${listId}/export?format=csv" class="btn btn-success" style="margin: 5px;">
+                        <i class="fas fa-file-csv"></i> CSV
+                    </a>
+                    <a href="/api/order-lists/${listId}/export?format=json" class="btn btn-info" style="margin: 5px;">
+                        <i class="fas fa-file-code"></i> JSON
+                    </a>
+                </div>
+                <button onclick="this.parentElement.remove()" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Fermer
+                </button>
+            `;
+            
+            document.body.appendChild(exportMenu);
+            
+            // Fermer en cliquant à l'extérieur
+            setTimeout(() => {
+                document.addEventListener('click', function closeMenu(e) {
+                    if (!exportMenu.contains(e.target)) {
+                        exportMenu.remove();
+                        document.removeEventListener('click', closeMenu);
+                    }
+                });
+            }, 100);
+        }
+
+        // Filtrage des listes
+        function filterLists() {
+            const searchTerm = document.getElementById('searchLists').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            document.querySelectorAll('.list-card').forEach(card => {
+                const name = card.dataset.name.toLowerCase();
+                const status = card.dataset.status;
+                
+                const matchesSearch = name.includes(searchTerm);
+                const matchesStatus = !statusFilter || status === statusFilter;
+                
+                card.style.display = matchesSearch && matchesStatus ? 'block' : 'none';
+            });
+        }
+
+        // Fonctions pour l'interface améliorée de sélection des produits
+        function updateProductSelection(checkbox) {
+            const productId = checkbox.dataset.productId;
+            const productItem = checkbox.closest('.product-item');
+            const quantityInput = productItem.querySelector('.quantity-input');
+            const prioritySelect = productItem.querySelector('.priority-select');
+            
+            if (checkbox.checked) {
+                productItem.classList.add('selected');
+                quantityInput.disabled = false;
+                prioritySelect.disabled = false;
+                quantityInput.focus();
+            } else {
+                productItem.classList.remove('selected');
+                quantityInput.disabled = true;
+                prioritySelect.disabled = true;
+                quantityInput.value = 1;
+                prioritySelect.value = 'normal';
+            }
+            
+            updateSelectedProductsSummary();
+        }
+
+        function updateSelectedProductsSummary() {
+            const selectedProducts = document.querySelectorAll('.product-checkbox:checked');
+            const summaryElement = document.getElementById('selectedProductsSummary');
+            const countElement = document.getElementById('selectedCount');
+            
+            countElement.textContent = selectedProducts.length;
+            
+            if (selectedProducts.length > 0) {
+                summaryElement.style.display = 'flex';
+            } else {
+                summaryElement.style.display = 'none';
+            }
+        }
+
+        function selectAllProducts() {
+            const visibleProducts = document.querySelectorAll('.product-item:not([style*="display: none"]) .product-checkbox');
+            visibleProducts.forEach(checkbox => {
+                if (!checkbox.checked) {
+                    checkbox.checked = true;
+                    updateProductSelection(checkbox);
+                }
+            });
+        }
+
+        function clearAllProducts() {
+            const selectedProducts = document.querySelectorAll('.product-checkbox:checked');
+            selectedProducts.forEach(checkbox => {
+                checkbox.checked = false;
+                updateProductSelection(checkbox);
+            });
+        }
+
+        function setQuantityForAll() {
+            const quantity = prompt('Entrez la quantité à appliquer à tous les produits sélectionnés:');
+            if (quantity && !isNaN(quantity) && quantity > 0) {
+                const selectedProducts = document.querySelectorAll('.product-checkbox:checked');
+                selectedProducts.forEach(checkbox => {
+                    const productItem = checkbox.closest('.product-item');
+                    const quantityInput = productItem.querySelector('.quantity-input');
+                    const maxStock = parseInt(quantityInput.getAttribute('max'));
+                    
+                    if (parseInt(quantity) <= maxStock) {
+                        quantityInput.value = quantity;
+                    } else {
+                        quantityInput.value = maxStock;
+                        showNotification(`Quantité réduite à ${maxStock} pour ${productItem.dataset.productName} (stock limité)`, 'warning');
+                    }
+                });
+            }
+        }
+
+        function increaseQuantity(productId) {
+            const quantityInput = document.querySelector(`input[data-product-id="${productId}"]`);
+            const currentValue = parseInt(quantityInput.value);
+            const maxValue = parseInt(quantityInput.getAttribute('max'));
+            
+            if (currentValue < maxValue) {
+                quantityInput.value = currentValue + 1;
+            } else {
+                showNotification('Quantité maximale atteinte (stock limité)', 'warning');
+            }
+        }
+
+        function decreaseQuantity(productId) {
+            const quantityInput = document.querySelector(`input[data-product-id="${productId}"]`);
+            const currentValue = parseInt(quantityInput.value);
+            
+            if (currentValue > 1) {
+                quantityInput.value = currentValue - 1;
+            }
+        }
+
+        function validateQuantity(input) {
+            const value = parseInt(input.value);
+            const min = parseInt(input.getAttribute('min'));
+            const max = parseInt(input.getAttribute('max'));
+            
+            if (value < min) {
+                input.value = min;
+                showNotification('Quantité minimum: ' + min, 'warning');
+            } else if (value > max) {
+                input.value = max;
+                showNotification('Quantité maximum: ' + max + ' (stock limité)', 'warning');
+            }
+        }
+
+        function filterProducts() {
+            const searchTerm = document.getElementById('productSearch').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            
+            document.querySelectorAll('.product-item').forEach(item => {
+                const productName = item.dataset.productName.toLowerCase();
+                const categoryId = item.dataset.categoryId;
+                
+                const matchesSearch = productName.includes(searchTerm);
+                const matchesCategory = !categoryFilter || categoryId === categoryFilter;
+                
+                if (matchesSearch && matchesCategory) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Event listeners pour la recherche et le filtrage
+        document.addEventListener('DOMContentLoaded', function() {
+            const productSearch = document.getElementById('productSearch');
+            const categoryFilter = document.getElementById('categoryFilter');
+            
+            if (productSearch) {
+                productSearch.addEventListener('input', filterProducts);
+            }
+            
+            if (categoryFilter) {
+                categoryFilter.addEventListener('change', filterProducts);
+            }
+        });
+
+        // Amélioration de la fonction de soumission du formulaire
+        async function submitCreateListForm(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const selectedProducts = [];
+            
+            // Collecter les produits sélectionnés avec leurs quantités et priorités
+            document.querySelectorAll('.product-checkbox:checked').forEach(checkbox => {
+                const productId = checkbox.dataset.productId;
+                const productItem = checkbox.closest('.product-item');
+                const quantityInput = productItem.querySelector('.quantity-input');
+                const prioritySelect = productItem.querySelector('.priority-select');
+                
+                selectedProducts.push({
+                    productId: parseInt(productId),
+                    quantity: parseInt(quantityInput.value),
+                    priority: prioritySelect.value
+                });
+            });
+            
+            if (selectedProducts.length === 0) {
+                showNotification('Veuillez sélectionner au moins un produit', 'error');
+                return;
+            }
+            
+            const requestData = {
+                name: formData.get('name'),
+                description: formData.get('description'),
+                products: selectedProducts
+            };
+            
+            try {
+                const response = await fetch('/api/order-lists', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('Liste créée avec succès !', 'success');
+                    closeCreateListModal();
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showNotification(result.error, 'error');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur lors de la création de la liste', 'error');
+            }
+        }
+
+        // Modifier la fonction d'ouverture du modal pour attacher le nouvel event listener
+        function openCreateListModal() {
+            document.getElementById('createListModal').style.display = 'block';
+            document.getElementById('listName').focus();
+        // Fonctions utilitaires
+        function showAlert(containerId, message, type) {
+            const container = document.getElementById(containerId);
+            if (container) {
+                container.innerHTML = `
+                    <div class="alert alert-${type === 'success' ? 'success' : 'error'}">
+                        ${message}
+                    </div>
+                `;
+                
+                // Faire disparaître l'alerte après 5 secondes
+                setTimeout(() => {
+                    container.innerHTML = '';
+                }, 5000);
+            }
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Faire disparaître après 4 secondes
+            setTimeout(() => {
+                notification.remove();
+            }, 4000);
+        }
+
+        // Éditer une liste
+        async function editList(listId) {
+            try {
+                const response = await fetch(`/api/order-lists/${listId}`);
+                const list = await response.json();
+                
+                document.getElementById('createListTitle').textContent = 'Modifier la liste';
+                document.getElementById('editListId').value = listId;
+                document.getElementById('listName').value = list.name;
+                document.getElementById('listDescription').value = list.description || '';
+                
+                currentEditingListId = listId;
+                
+                // Réinitialiser les sélections
+                resetProductSelector();
+                
+                // Pré-sélectionner les produits de la liste
+                if (list.products && list.products.length > 0) {
+                    list.products.forEach(product => {
+                        const checkbox = document.querySelector(`input[data-product-id="${product.product_id}"]`);
+                        if (checkbox) {
+                            checkbox.checked = true;
+                            updateProductSelection(checkbox);
+                            
+                            const quantityInput = document.querySelector(`.quantity-input[data-product-id="${product.product_id}"]`);
+                            if (quantityInput) {
+                                quantityInput.value = product.quantity;
+                            }
+                        }
+                    });
+                }
+                
+                document.getElementById('createListModal').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur lors du chargement de la liste', 'error');
+            }
+        }
+
+        // Event listeners pour le filtrage
+        document.addEventListener('DOMContentLoaded', function() {
+            const productSearch = document.getElementById('productSearch');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const searchLists = document.getElementById('searchLists');
+            const statusFilter = document.getElementById('statusFilter');
+            
+            if (productSearch) {
+                productSearch.addEventListener('input', filterProducts);
+            }
+            
+            if (categoryFilter) {
+                categoryFilter.addEventListener('change', filterProducts);
+            }
+            
+            if (searchLists) {
+                searchLists.addEventListener('input', filterLists);
+            }
+            
+            if (statusFilter) {
+                statusFilter.addEventListener('change', filterLists);
+            }
+            
+            // Attacher le nouvel event listener
+            const form = document.getElementById('createListForm');
+            form.removeEventListener('submit', submitCreateListForm);
+            form.addEventListener('submit', submitCreateListForm);
+        });
+
+        // Fermer les modals en cliquant à l'extérieur
+        window.onclick = function(event) {
+            const createModal = document.getElementById('createListModal');
+            const detailModal = document.getElementById('listDetailModal');
+            
+            if (event.target == createModal) {
+                closeCreateListModal();
+            }
+            if (event.target == detailModal) {
+                closeListDetailModal();
+            }
+        }
+    </script>
+</body>
+</html>

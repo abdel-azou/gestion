@@ -11,7 +11,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-// Configurer Handlebars avec le helper if_eq
+// Importer les helpers Handlebars
+const handlebarsHelpers = require('./helpers/handlebars-helpers');
+
+// Configurer Handlebars avec tous les helpers
 const hbs = exphbs.create({
     extname: 'hbs',
     defaultLayout: 'main',
@@ -23,7 +26,8 @@ const hbs = exphbs.create({
                 return options.fn(this);
             }
             return options.inverse(this);
-        }
+        },
+        ...handlebarsHelpers
     }
 });
 

@@ -68,8 +68,54 @@ const Product = {
             DELETE FROM products WHERE id = ?
         `);
         stmt.run(parsedId);
+    },
+    
+    // Méthodes pour l'espace admin
+    update: (id, name, stock, category_id, stock_minimal) => {
+        const stmt = db.prepare(`
+            UPDATE products 
+            SET name = ?, stock = ?, category_id = ?, stock_minimal = ?
+            WHERE id = ?
+        `);
+        stmt.run(name, stock, category_id, stock_minimal, id);
+    },
+    
+    getByCategory: (category_id = null) => {
+        let stmt;
+        if (category_id) {
+            stmt = db.prepare(`
+                SELECT products.*, categories.name as category
+                FROM products
+                JOIN categories ON products.category_id = categories.id
+                WHERE products.category_id = ?
+            `);
+            return stmt.all(category_id);
+        } else {
+            return Product.getAll();
+        }
+    },
+    
+    getBelowMinimalStock: () => {
+        const stmt = db.prepare(`
+            SELECT products.*, categories.name as category
+            FROM products
+            JOIN categories ON products.category_id = categories.id
+            WHERE products.stock < products.stock_minimal
+        `);
+        return stmt.all();
+    },
+    
+    getStatistics: () => {
+        const totalProducts = db.prepare('SELECT COUNT(*) as count FROM products').get().count;
+        const lowStockProducts = db.prepare('SELECT COUNT(*) as count FROM products WHERE stock < stock_minimal').get().count;
+        const outOfStockProducts = db.prepare('SELECT COUNT(*) as count FROM products WHERE stock = 0').get().count;
+        
+        return {
+            totalProducts,
+            lowStockProducts,
+            outOfStockProducts
+        };
     }
-   
 
 };
 

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste de Commandes - {{list.name}}</title>
+    <style>
+        @media print {
+            body {
+                margin: 0;
+                font-size: 12pt;
+                line-height: 1.3;
+            }
+            
+            .no-print {
+                display: none;
+            }
+            
+            .print-header {
+                border-bottom: 2px solid #000;
+                padding-bottom: 10px;
+                margin-bottom: 20px;
+            }
+            
+            .print-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            
+            .print-table th,
+            .print-table td {
+                border: 1px solid #000;
+                padding: 8px;
+                text-align: left;
+            }
+            
+            .print-table th {
+                background-color: #f0f0f0;
+                font-weight: bold;
+            }
+            
+            .print-footer {
+                position: fixed;
+                bottom: 20px;
+                left: 0;
+                right: 0;
+                text-align: center;
+                font-size: 10pt;
+                color: #666;
+            }
+            
+            .page-break {
+                page-break-before: always;
+            }
+        }
+        
+        @media screen {
+            body {
+                font-family: Arial, sans-serif;
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #f5f5f5;
+            }
+            
+            .print-container {
+                background: white;
+                padding: 30px;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+            
+            .print-header {
+                border-bottom: 2px solid #3498db;
+                padding-bottom: 15px;
+                margin-bottom: 25px;
+            }
+            
+            .print-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+            }
+            
+            .print-table th,
+            .print-table td {
+                border: 1px solid #ddd;
+                padding: 12px;
+                text-align: left;
+            }
+            
+            .print-table th {
+                background-color: #f8f9fa;
+                font-weight: bold;
+                color: #2c3e50;
+            }
+            
+            .print-table tr:nth-child(even) {
+                background-color: #f9f9f9;
+            }
+            
+            .print-table tr:hover {
+                background-color: #f1f1f1;
+            }
+            
+            .print-actions {
+                margin-bottom: 20px;
+                text-align: center;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 14px;
+                margin: 0 5px;
+                text-decoration: none;
+                display: inline-block;
+            }
+            
+            .btn-primary {
+                background-color: #3498db;
+                color: white;
+            }
+            
+            .btn-secondary {
+                background-color: #95a5a6;
+                color: white;
+            }
+            
+            .btn:hover {
+                opacity: 0.8;
+            }
+        }
+        
+        .company-info {
+            margin-bottom: 20px;
+        }
+        
+        .company-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .list-title {
+            font-size: 20px;
+            color: #3498db;
+            margin: 10px 0;
+        }
+        
+        .list-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .list-description {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+        
+        .summary-section {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .summary-item.total {
+            font-weight: bold;
+            border-top: 1px solid #ddd;
+            padding-top: 5px;
+        }
+        
+        .signature-section {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .signature-box {
+            width: 200px;
+            text-align: center;
+        }
+        
+        .signature-line {
+            border-top: 1px solid #000;
+            margin-top: 50px;
+            padding-top: 5px;
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .status-draft {
+            background-color: #fef9e7;
+            color: #f39c12;
+        }
+        
+        .status-ordered {
+            background-color: #fdedec;
+            color: #e74c3c;
+        }
+        
+        .status-completed {
+            background-color: #d5f4e6;
+            color: #27ae60;
+        }
+        
+        .quantity-column {
+            text-align: center;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .stock-warning {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        .notes-column {
+            font-style: italic;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="print-container">
+        <div class="no-print print-actions">
+            <button class="btn btn-primary" onclick="window.print()">
+                <i class="fas fa-print"></i> Imprimer
+            </button>
+            <button class="btn btn-secondary" onclick="window.close()">
+                <i class="fas fa-times"></i> Fermer
+            </button>
+            <a href="/api/order-lists/{{list.id}}/export?format=csv" class="btn btn-secondary">
+                <i class="fas fa-download"></i> Télécharger CSV
+            </a>
+        </div>
+        
+        <div class="print-header">
+            <div class="company-info">
+                <div class="company-name">📦 Système de Gestion des Stocks</div>
+                <div style="font-size: 14px; color: #666;">Bon de Commande</div>
+            </div>
+            
+            <div class="list-title">{{list.name}}</div>
+            
+            <div class="list-meta">
+                <div>
+                    <strong>Statut:</strong> 
+                    <span class="status-badge status-{{list.status}}">{{list.status}}</span>
+                </div>
+                <div>
+                    <strong>Date de création:</strong> {{formatDate list.created_date}}
+                </div>
+                <div>
+                    <strong>Date d'impression:</strong> {{formatDate "now"}}
+                </div>
+            </div>
+            
+            {{#if list.description}}
+            <div class="list-description">
+                <strong>Description:</strong> {{list.description}}
+            </div>
+            {{/if}}
+        </div>
+        
+        <table class="print-table">
+            <thead>
+                <tr>
+                    <th style="width: 5%;">#</th>
+                    <th style="width: 30%;">Produit</th>
+                    <th style="width: 15%;">Catégorie</th>
+                    <th style="width: 10%;">Quantité</th>
+                    <th style="width: 10%;">Stock</th>
+                    <th style="width: 10%;">Stock Min.</th>
+                    <th style="width: 20%;">Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each list.items}}
+                <tr>
+                    <td>{{add @index 1}}</td>
+                    <td>{{product_name}}</td>
+                    <td>{{category_name}}</td>
+                    <td class="quantity-column">{{quantity}}</td>
+                    <td class="{{#if (lt stock stock_minimal)}}stock-warning{{/if}}">{{stock}}</td>
+                    <td>{{stock_minimal}}</td>
+                    <td class="notes-column">{{notes}}</td>
+                </tr>
+                {{/each}}
+                {{#unless list.items.length}}
+                <tr>
+                    <td colspan="7" style="text-align: center; color: #666; font-style: italic;">
+                        Aucun produit dans cette liste
+                    </td>
+                </tr>
+                {{/unless}}
+            </tbody>
+        </table>
+        
+        <div class="summary-section">
+            <div class="summary-item">
+                <span>Nombre de produits différents:</span>
+                <span>{{list.items.length}}</span>
+            </div>
+            <div class="summary-item">
+                <span>Quantité totale à commander:</span>
+                <span>{{#each list.items}}{{#if @first}}{{quantity}}{{else}}{{add ../total quantity}}{{/if}}{{/each}}</span>
+            </div>
+            <div class="summary-item">
+                <span>Produits en stock faible:</span>
+                <span>{{#each list.items}}{{#if (lt stock stock_minimal)}}{{#if @first}}1{{else}}{{add ../lowStock 1}}{{/if}}{{/if}}{{/each}}</span>
+            </div>
+            <div class="summary-item total">
+                <span>Statut de la commande:</span>
+                <span class="status-badge status-{{list.status}}">{{list.status}}</span>
+            </div>
+        </div>
+        
+        <div class="signature-section">
+            <div class="signature-box">
+                <div>Préparé par:</div>
+                <div class="signature-line">Signature</div>
+            </div>
+            <div class="signature-box">
+                <div>Vérifié par:</div>
+                <div class="signature-line">Signature</div>
+            </div>
+            <div class="signature-box">
+                <div>Reçu par:</div>
+                <div class="signature-line">Signature</div>
+            </div>
+        </div>
+        
+        <div class="print-footer">
+            <p>Document généré automatiquement le {{formatDate "now"}} - Système de Gestion des Stocks</p>
+        </div>
+    </div>
+    
+    <script>
+        // Calculer automatiquement les totaux
+        window.addEventListener('load', function() {
+            // Calculer la quantité totale
+            const quantities = Array.from(document.querySelectorAll('.quantity-column'))
+                .map(el => parseInt(el.textContent) || 0);
+            const totalQuantity = quantities.reduce((sum, qty) => sum + qty, 0);
+            
+            // Calculer le nombre de produits en stock faible
+            const lowStockCount = Array.from(document.querySelectorAll('.stock-warning')).length;
+            
+            // Mettre à jour les totaux dans le résumé
+            const summaryItems = document.querySelectorAll('.summary-item');
+            summaryItems[1].querySelector('span:last-child').textContent = totalQuantity;
+            summaryItems[2].querySelector('span:last-child').textContent = lowStockCount;
+        });
+        
+        // Imprimer automatiquement si demandé
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('autoprint') === 'true') {
+            window.addEventListener('load', function() {
+                setTimeout(() => {
+                    window.print();
+                }, 500);
+            });
+        }
+    </script>
+</body>
+</html>
