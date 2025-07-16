@@ -1,6 +1,7 @@
 let selectedProductId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialiser les sélections de produits
     document.querySelectorAll('.product-item').forEach(item => {
         item.addEventListener('click', () => {
             document.querySelectorAll('.product-item').forEach(p => p.classList.remove('selected'));
@@ -8,6 +9,42 @@ document.addEventListener('DOMContentLoaded', () => {
             selectedProductId = item.getAttribute('data-id');
         });
     });
+    
+    // Initialiser les états des catégories
+    const categories = document.querySelectorAll('.category-section');
+    categories.forEach(section => {
+        const categoryName = section.getAttribute('data-category');
+        categoryStates[categoryName] = 'expanded';
+        categoryModifications[categoryName] = [];
+    });
+    
+    // Ajouter des événements de clic aux en-têtes de catégorie
+    document.querySelectorAll('.category-header').forEach(header => {
+        header.addEventListener('click', (e) => {
+            e.preventDefault();
+            const categorySection = header.closest('.category-section');
+            const categoryName = categorySection.getAttribute('data-category');
+            
+            // Essayer d'abord avec les styles CSS, puis fallback vers les styles inline
+            toggleCategory(categoryName);
+            
+            // Si après 500ms les styles ne sont pas appliqués, utiliser les styles inline
+            setTimeout(() => {
+                const categoryProducts = categorySection.querySelector('.category-products');
+                const isCollapsed = categorySection.classList.contains('collapsed');
+                const computedMaxHeight = window.getComputedStyle(categoryProducts).maxHeight;
+                
+                // Si la catégorie est supposée être pliée mais max-height n'est pas 0px
+                if (isCollapsed && computedMaxHeight !== '0px') {
+                    console.log('CSS styles not working, falling back to inline styles');
+                    toggleCategoryWithInlineStyles(categoryName);
+                }
+            }, 500);
+        });
+    });
+    
+    // Vérifier les check marks stockés
+    checkStoredCheckMarks();
 });
 
 async function updateSelectedStock(amount) {
@@ -34,6 +71,9 @@ async function updateSelectedStock(amount) {
                 stockElement.textContent = newStock;
                 productElement.classList.add('product-updated');
                 setTimeout(() => productElement.classList.remove('product-updated'), 2000); // Retirer la couleur de mise à jour après 2 secondes
+                
+                // Enregistrer la modification pour le système de validation
+                trackProductModification(productElement);
             } else {
                 console.error('Failed to update stock');
             }
@@ -49,6 +89,8 @@ function updateSelectedStockCustom() {
     const customAmount = parseInt(document.getElementById('custom-amount').value, 10);
     if (!isNaN(customAmount)) {
         updateSelectedStock(customAmount);
+        // Réinitialiser le champ après utilisation
+        document.getElementById('custom-amount').value = '';
     }
 }
 function deleteProduct(productId) {
@@ -169,4 +211,169 @@ function filterProducts() {
         const productName = product.getAttribute('data-name').toLowerCase();
         product.style.display = productName.includes(searchValue) ? '' : 'none';
     });
+}
+
+// Gestion des catégories pliables et système de validation
+let categoryStates = {};
+let categoryModifications = {};
+
+// Fonction de débogage pour vérifier les styles CSS
+function debugCategoryStyles(categoryName) {
+    const categorySection = document.querySelector(`.category-section[data-category="${categoryName}"]`);
+    const categoryProducts = categorySection.querySelector('.category-products');
+    
+    console.log('=== DEBUG STYLES ===');
+    console.log('Category section classes:', categorySection.classList.toString());
+    console.log('Category products computed styles:');
+    const computedStyles = window.getComputedStyle(categoryProducts);
+    console.log('max-height:', computedStyles.maxHeight);
+    console.log('opacity:', computedStyles.opacity);
+    console.log('overflow:', computedStyles.overflow);
+    console.log('transition:', computedStyles.transition);
+    console.log('==================');
+}
+
+// Fonction pour basculer l'affichage d'une catégorie
+function toggleCategory(categoryName) {
+    console.log('Toggling category:', categoryName); // Debug
+    const categorySection = document.querySelector(`.category-section[data-category="${categoryName}"]`);
+    
+    if (!categorySection) {
+        console.error('Category section not found:', categoryName);
+        return;
+    }
+    
+    const isCollapsed = categorySection.classList.contains('collapsed');
+    console.log('Is collapsed:', isCollapsed); // Debug
+    
+    if (isCollapsed) {
+        // Déplier la catégorie
+        categorySection.classList.remove('collapsed');
+        categoryStates[categoryName] = 'expanded';
+        console.log('Category expanded:', categoryName);
+    } else {
+        // Plier la catégorie
+        categorySection.classList.add('collapsed');
+        categoryStates[categoryName] = 'collapsed';
+        console.log('Category collapsed:', categoryName);
+        
+        // Vérifier s'il y a eu des modifications dans cette catégorie
+        if (categoryModifications[categoryName] && categoryModifications[categoryName].length > 0) {
+            showCheckMark(categoryName);
+        }
+    }
+    
+    // Debug des styles après changement
+    setTimeout(() => debugCategoryStyles(categoryName), 100);
+}
+
+// Version alternative avec styles inline si le CSS ne fonctionne pas
+function toggleCategoryWithInlineStyles(categoryName) {
+    const categorySection = document.querySelector(`.category-section[data-category="${categoryName}"]`);
+    const categoryProducts = categorySection.querySelector('.category-products');
+    const toggleArrow = categorySection.querySelector('.toggle-arrow');
+    
+    if (!categorySection) {
+        console.error('Category section not found:', categoryName);
+        return;
+    }
+    
+    const isCollapsed = categorySection.classList.contains('collapsed');
+    
+    if (isCollapsed) {
+        // Déplier la catégorie
+        categorySection.classList.remove('collapsed');
+        categoryProducts.style.maxHeight = '2000px';
+        categoryProducts.style.opacity = '1';
+        categoryProducts.style.marginTop = '10px';
+        categoryProducts.style.paddingTop = '';
+        toggleArrow.style.transform = 'rotate(0deg)';
+        categoryStates[categoryName] = 'expanded';
+        console.log('Category expanded with inline styles:', categoryName);
+    } else {
+        // Plier la catégorie
+        categorySection.classList.add('collapsed');
+        categoryProducts.style.maxHeight = '0';
+        categoryProducts.style.opacity = '0';
+        categoryProducts.style.marginTop = '0';
+        categoryProducts.style.paddingTop = '0';
+        toggleArrow.style.transform = 'rotate(-90deg)';
+        categoryStates[categoryName] = 'collapsed';
+        console.log('Category collapsed with inline styles:', categoryName);
+        
+        // Vérifier s'il y a eu des modifications dans cette catégorie
+        if (categoryModifications[categoryName] && categoryModifications[categoryName].length > 0) {
+            showCheckMark(categoryName);
+        }
+    }
+}
+
+// Fonction pour afficher le check mark pendant 1 heure
+function showCheckMark(categoryName) {
+    const checkMark = document.querySelector(`.category-section[data-category="${categoryName}"] .check-mark`);
+    if (checkMark) {
+        checkMark.style.display = 'flex';
+        
+        // Sauvegarder l'heure d'affichage
+        const showTime = Date.now();
+        localStorage.setItem(`checkMark_${categoryName}`, showTime.toString());
+        
+        // Masquer après 1 heure (3600000 millisecondes)
+        setTimeout(() => {
+            checkMark.style.display = 'none';
+            localStorage.removeItem(`checkMark_${categoryName}`);
+            // Réinitialiser les modifications pour cette catégorie
+            categoryModifications[categoryName] = [];
+        }, 3600000);
+    }
+}
+
+// Fonction pour vérifier les check marks au chargement de la page
+function checkStoredCheckMarks() {
+    const categories = document.querySelectorAll('.category-section');
+    
+    categories.forEach(section => {
+        const categoryName = section.getAttribute('data-category');
+        const storedTime = localStorage.getItem(`checkMark_${categoryName}`);
+        
+        if (storedTime) {
+            const showTime = parseInt(storedTime);
+            const currentTime = Date.now();
+            const elapsedTime = currentTime - showTime;
+            
+            // Si moins d'1 heure s'est écoulée, afficher le check mark
+            if (elapsedTime < 3600000) {
+                const checkMark = section.querySelector('.check-mark');
+                if (checkMark) {
+                    checkMark.style.display = 'flex';
+                    
+                    // Programmer la disparition pour le temps restant
+                    const remainingTime = 3600000 - elapsedTime;
+                    setTimeout(() => {
+                        checkMark.style.display = 'none';
+                        localStorage.removeItem(`checkMark_${categoryName}`);
+                        categoryModifications[categoryName] = [];
+                    }, remainingTime);
+                }
+            } else {
+                // Plus d'1 heure s'est écoulée, supprimer de localStorage
+                localStorage.removeItem(`checkMark_${categoryName}`);
+            }
+        }
+    });
+}
+
+// Fonction pour enregistrer les modifications de produits
+function trackProductModification(productElement) {
+    const categorySection = productElement.closest('.category-section');
+    const categoryName = categorySection.getAttribute('data-category');
+    const productId = productElement.getAttribute('data-id');
+    
+    if (!categoryModifications[categoryName]) {
+        categoryModifications[categoryName] = [];
+    }
+    
+    if (!categoryModifications[categoryName].includes(productId)) {
+        categoryModifications[categoryName].push(productId);
+    }
 }

@@ -649,7 +649,7 @@ footer {
     
     /* Boutons compacts mais cliquables */
     .action-btn {
-        min-width: 36px; /* Taille minimale pour touchscreen */
+        min-width: 36px;
         min-height: 36px;
         padding: 6px;
         font-size: 16px;
@@ -2649,579 +2649,101 @@ body {
     background: var(--warning-color);
 }
 
-/* ==============================================
-   RESPONSIVE DESIGN - TABLET (768px+)
-   ============================================== */
-@media (min-width: 768px) {
-    .orders-container {
-        padding: 30px;
-        max-width: 1200px;
-    }
-    
-    .orders-title {
-        font-size: 32px;
-    }
-    
-    .orders-controls {
-        flex-direction: row;
-        align-items: center;
-        gap: 15px;
-    }
-    
-    .search-container {
-        flex: 2;
-    }
-    
-    .filter-container,
-    .sort-container {
-        flex: 1;
-    }
-    
-    .card-stats {
-        grid-template-columns: repeat(3, 1fr);
-    }
-    
-    .card-actions {
-        justify-content: flex-end;
-    }
-    
-    .btn-small {
-        flex: none;
-        min-width: 120px;
-    }
-    
-    .global-actions {
-        flex-direction: row;
-        justify-content: center;
-    }
-    
-    .btn-large {
-        width: auto;
-        margin-bottom: 0;
-        margin: 0 10px;
-    }
-    
-    .modal-content {
-        margin: 15% auto;
-        width: 70%;
-    }
-}
-
-/* ==============================================
-   RESPONSIVE DESIGN - DESKTOP (1024px+)
-   ============================================== */
-@media (min-width: 1024px) {
-    /* Masquer les cards et montrer le tableau */
-    .orders-cards {
-        display: none;
-    }
-    
-    .orders-table {
-        display: block;
-        margin-bottom: 30px;
-        overflow-x: auto;
-        border-radius: var(--border-radius);
-        box-shadow: var(--card-shadow);
-    }
-    
-    .table {
-        width: 100%;
-        border-collapse: collapse;
-        background: white;
-        border-radius: var(--border-radius);
-        overflow: hidden;
-    }
-    
-    .table th {
-        background: var(--bg-gradient);
-        color: white;
-        padding: 18px 15px;
-        text-align: left;
-        font-weight: 600;
-        font-size: 14px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        cursor: pointer;
-        transition: var(--transition);
-        position: relative;
-    }
-    
-    .table th:hover {
-        background: linear-gradient(135deg, #5a6fd8, #6b42a0);
-    }
-    
-    .table th i {
-        margin-left: 8px;
-        opacity: 0.7;
-    }
-    
-    .table td {
-        padding: 15px;
-        border-bottom: 1px solid #eee;
-        vertical-align: middle;
-    }
-    
-    .table-row:hover {
-        background-color: #f8f9ff;
-    }
-    
-    .table-row.ordered {
-        background-color: #e8f5e8;
-        opacity: 0.7;
-    }
-    
-    .product-name {
-        font-weight: 600;
-        color: #333;
-        font-size: 16px;
-    }
-    
-    .product-category {
-        color: #666;
-        font-size: 14px;
-        text-transform: capitalize;
-    }
-    
-    .product-stock {
-        text-align: center;
-    }
-    
-    .stock-badge {
-        display: inline-block;
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 14px;
-        color: white;
-        min-width: 40px;
-        text-align: center;
-    }
-    
-    .table-input {
-        width: 80px;
-        padding: 8px 12px;
-        border: 2px solid #ddd;
-        border-radius: 6px;
-        text-align: center;
-        font-weight: 600;
-        font-size: 14px;
-        transition: var(--transition);
-    }
-    
-    .table-input:focus {
-        outline: none;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-    
-    .table-actions {
-        display: flex;
-        gap: 8px;
-        justify-content: center;
-    }
-    
-    .table-actions .btn-small {
-        padding: 6px 12px;
-        font-size: 12px;
-        min-width: 100px;
-    }
-}
-
-/* ==============================================
-   RESPONSIVE DESIGN - LARGE DESKTOP (1440px+)
-   ============================================== */
-@media (min-width: 1440px) {
-    .orders-container {
-        max-width: 1400px;
-    }
-    
-    .table th {
-        padding: 20px;
-        font-size: 15px;
-    }
-    
-    .table td {
-        padding: 18px 20px;
-    }
-    
-    .table-input {
-        width: 100px;
-        padding: 10px 15px;
-    }
-    
-    .table-actions .btn-small {
-        padding: 8px 16px;
-        font-size: 13px;
-        min-width: 120px;
-    }
-    
-    /* Assurer la visibilité du stock actuel sur grands écrans */
-    .product-stock {
-        text-align: center;
-        min-width: 100px;
-    }
-    
-    .stock-badge {
-        display: inline-block;
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 15px;
-        color: white;
-        min-width: 60px;
-        text-align: center;
-        white-space: nowrap;
-    }
-}
-
-/* ==============================================
-   RESPONSIVE DESIGN - EXTRA LARGE DESKTOP (1920px+)
-   ============================================== */
-@media (min-width: 1920px) {
-    .orders-container {
-        max-width: 1800px;
-    }
-    
-    .table th {
-        padding: 24px;
-        font-size: 16px;
-    }
-    
-    .table td {
-        padding: 20px 24px;
-    }
-    
-    .table-input {
-        width: 120px;
-        padding: 12px 18px;
-        font-size: 16px;
-    }
-    
-    .table-actions .btn-small {
-        padding: 10px 20px;
-        font-size: 14px;
-        min-width: 140px;
-    }
-    
-    /* Stock actuel encore plus visible sur très grands écrans */
-    .product-stock {
-        text-align: center;
-        min-width: 120px;
-    }
-    
-    .stock-badge {
-        display: inline-block;
-        padding: 10px 20px;
-        border-radius: 25px;
-        font-weight: 700;
-        font-size: 16px;
-        color: white;
-        min-width: 80px;
-        text-align: center;
-        white-space: nowrap;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    
-    .product-name {
-        font-size: 18px;
-    }
-    
-    .product-category {
-        font-size: 16px;
-    }
-}
-
-/* ==============================================
-   CORRECTION POUR TOUS LES ÉCRANS
-   ============================================== */
-@media (min-width: 768px) {
-    /* S'assurer que le stock actuel est toujours visible */
-    .table td:nth-child(3) { /* Colonne Stock Actuel */
-        min-width: 100px;
-        text-align: center;
-    }
-    
-    .product-stock {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    
-    .stock-badge {
-        flex-shrink: 0;
-    }
-}
-
-@media (min-width: 1024px) {
-    .table td:nth-child(3) { /* Colonne Stock Actuel */
-        min-width: 120px;
-    }
-}
-
-@media (min-width: 1440px) {
-    .table td:nth-child(3) { /* Colonne Stock Actuel */
-        min-width: 140px;
-    }
-}
-
-@media (min-width: 1920px) {
-    .table td:nth-child(3) { /* Colonne Stock Actuel */
-        min-width: 160px;
-    }
-}
-
-/* ==============================================
-   ANIMATIONS ET TRANSITIONS
-   ============================================== */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.order-card,
-.table-row {
-    animation: fadeIn 0.3s ease;
-}
-
-/* Focus states pour l'accessibilité */
-.btn:focus,
-.search-input:focus,
-.filter-select:focus,
-.sort-select:focus,
-.stat-input:focus,
-.table-input:focus,
-.form-input:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-}
-
-/* États de chargement */
-.loading {
-    opacity: 0.6;
-    pointer-events: none;
-}
-
-.loading::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 20px;
-    height: 20px;
-    margin: -10px 0 0 -10px;
-    border: 2px solid #f3f3f3;
-    border-top: 2px solid var(--primary-color);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Support pour les appareils avec hover */
-@media (hover: hover) {
-    .order-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    }
-    
-    .btn:hover {
-        transform: translateY(-2px);
-    }
-}
-
-/* Support pour les appareils tactiles */
-@media (hover: none) {
-    .order-card:active {
-        transform: scale(0.98);
-    }
-    
-    .btn:active {
-        transform: scale(0.95);
-    }
-}
-
-/* Accessibilité - Réduction du mouvement */
-@media (prefers-reduced-motion: reduce) {
-    * {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
-}
-
-/* Print styles */
-@media print {
-    .orders-controls,
-    .global-actions,
-    .modal,
-    .toast {
-        display: none !important;
-    }
-    
-    .orders-table {
-        display: block !important;
-        box-shadow: none;
-    }
-    
-    .order-card {
-        box-shadow: none;
-        border: 1px solid #ddd;
-    }
-}
-
-/* ==============================================
-   STYLES SPÉCIFIQUES POUR LA PAGE PRODUITS À COMMANDER
-   ============================================== */
-
-/* Styles pour assurer la visibilité du stock actuel dans le tableau */
-.orders-table .table {
-    table-layout: fixed;
-    width: 100%;
-}
-
-.orders-table .table th:nth-child(1) { /* Nom produit */
-    width: 25%;
-}
-
-.orders-table .table th:nth-child(2) { /* Catégorie */
-    width: 15%;
-}
-
-.orders-table .table th:nth-child(3) { /* Stock actuel */
-    width: 15%;
-    min-width: 120px;
-}
-
-.orders-table .table th:nth-child(4) { /* Stock minimal */
-    width: 15%;
-}
-
-.orders-table .table th:nth-child(5) { /* Quantité à commander */
-    width: 15%;
-}
-
-.orders-table .table th:nth-child(6) { /* Actions */
-    width: 15%;
-}
-
-/* Styles pour la colonne stock actuel */
-.orders-table .product-stock {
+/* ===== STYLES POUR LA PAGE LISTE_ABDELHAMID ===== */
+#liste_abdelhamid-page .category-header {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    height: 100%;
-    min-height: 50px;
+    transition: background-color 0.3s ease;
+    color: #fff;
 }
 
-.orders-table .stock-badge {
-    display: inline-flex;
+#liste_abdelhamid-page .category-header:hover {
+    opacity: 0.8;
+}
+
+#liste_abdelhamid-page .category-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#liste_abdelhamid-page .toggle-arrow {
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    transition: transform 0.3s ease;
+}
+
+#liste_abdelhamid-page .category-section.collapsed .toggle-arrow {
+    transform: rotate(-90deg);
+}
+
+#liste_abdelhamid-page .check-mark {
+    font-size: 18px;
+    font-weight: bold;
+    color: #4cd964;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    display: flex;
     align-items: center;
     justify-content: center;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-weight: 600;
-    font-size: 14px;
-    color: white;
-    min-width: 50px;
-    text-align: center;
-    white-space: nowrap;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    animation: checkAnimation 0.5s ease-in-out;
 }
 
-/* Couleurs pour les badges de stock */
-.orders-table .stock-badge.stock-critical {
-    background: linear-gradient(135deg, #ff4757, #ff3742);
+@keyframes checkAnimation {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
 }
 
-.orders-table .stock-badge.stock-low {
-    background: linear-gradient(135deg, #ffa502, #ff6348);
-}
-
-.orders-table .stock-badge.stock-ok {
-    background: linear-gradient(135deg, #2ed573, #20bf6b);
-}
-
-/* Responsive pour les colonnes du tableau */
-@media (max-width: 1200px) {
-    .orders-table .table th:nth-child(1) { width: 30%; }
-    .orders-table .table th:nth-child(2) { width: 20%; }
-    .orders-table .table th:nth-child(3) { width: 20%; min-width: 100px; }
-    .orders-table .table th:nth-child(4) { width: 15%; }
-    .orders-table .table th:nth-child(5) { width: 15%; }
-    .orders-table .table th:nth-child(6) { width: 20%; }
-}
-
-@media (min-width: 1200px) {
-    .orders-table .table th:nth-child(3) { /* Stock actuel */
-        min-width: 140px;
-    }
-    
-    .orders-table .stock-badge {
-        font-size: 15px;
-        padding: 10px 20px;
-        min-width: 60px;
-    }
-}
-
-@media (min-width: 1440px) {
-    .orders-table .table th:nth-child(3) { /* Stock actuel */
-        min-width: 160px;
-    }
-    
-    .orders-table .stock-badge {
-        font-size: 16px;
-        padding: 12px 24px;
-        min-width: 70px;
-    }
-}
-
-@media (min-width: 1920px) {
-    .orders-table .table th:nth-child(3) { /* Stock actuel */
-        min-width: 180px;
-    }
-    
-    .orders-table .stock-badge {
-        font-size: 18px;
-        padding: 14px 28px;
-        min-width: 80px;
-    }
-}
-
-/* Force la visibilité du stock sur tous les écrans */
-.orders-table .table td:nth-child(3) {
-    position: relative;
-    overflow: visible;
-}
-
-.orders-table .table td:nth-child(3) .stock-badge {
-    position: relative;
-    z-index: 1;
-}
-
-/* Éviter la coupure du texte */
-.orders-table .table td {
-    white-space: nowrap;
+#liste_abdelhamid-page .category-products {
+    transition: all 0.3s ease;
     overflow: hidden;
-    text-overflow: ellipsis;
+    max-height: 2000px;
+    opacity: 1;
 }
 
-.orders-table .table td:nth-child(3) {
-    white-space: normal;
-    overflow: visible;
+#liste_abdelhamid-page .category-section.collapsed .category-products {
+    max-height: 0 !important;
+    opacity: 0 !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
 }
 
-/* Styles pour le mode debug - à supprimer en production */
-.orders-table .table td:nth-child(3) {
-    border: 1px solid #ddd !important;
-    background-color: #f9f9f9 !important;
+/* Responsive design pour les catégories */
+@media (max-width: 600px) {
+    #liste_abdelhamid-page .category-header {
+        font-size: 18px;
+        padding: 8px;
+    }
+    
+    #liste_abdelhamid-page .category-indicator {
+        gap: 5px;
+    }
+    
+    #liste_abdelhamid-page .toggle-arrow {
+        font-size: 14px;
+    }
+    
+    #liste_abdelhamid-page .check-mark {
+        width: 20px;
+        height: 20px;
+        font-size: 14px;
+    }
+    
+    #liste_abdelhamid-page .category-section.collapsed .category-products {
+        max-height: 0 !important;
+        opacity: 0 !important;
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
 }
 

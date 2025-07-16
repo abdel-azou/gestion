@@ -13,7 +13,7 @@
 
 .liste-abdelhamid-container .category-section h2 {
     font-size: 22px;
-    color: #020202;
+    color: #fff;
     padding: 10px;
     border-radius: 5px;
     margin-bottom: 10px;
@@ -189,6 +189,103 @@
         left: 20px;
         right: 20px;
         text-align: center;
+    }
+}
+
+/* Styles pour les catégories cliquables */
+.category-header {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.3s ease;
+}
+
+.category-header:hover {
+    opacity: 0.8;
+}
+
+.category-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.toggle-arrow {
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    transition: transform 0.3s ease;
+}
+
+.category-section.collapsed .toggle-arrow {
+    transform: rotate(-90deg);
+}
+
+.check-mark {
+    font-size: 18px;
+    font-weight: bold;
+    color: #4cd964;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: checkAnimation 0.5s ease-in-out;
+}
+
+@keyframes checkAnimation {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.category-products {
+    transition: all 0.3s ease;
+    overflow: hidden;
+    max-height: 2000px;
+    opacity: 1;
+}
+
+.category-section.collapsed .category-products {
+    max-height: 0 !important;
+    opacity: 0 !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+/* Responsive design pour les catégories */
+@media (max-width: 600px) {
+    .category-header {
+        font-size: 18px;
+        padding: 8px;
+    }
+    
+    .category-indicator {
+        gap: 5px;
+    }
+    
+    .toggle-arrow {
+        font-size: 14px;
+    }
+    
+    .check-mark {
+        width: 20px;
+        height: 20px;
+        font-size: 14px;
+    }
+    
+    .category-section.collapsed .category-products {
+        max-height: 0 !important;
+        opacity: 0 !important;
+        margin-top: 0 !important;
+        padding-top: 0 !important;
     }
 }
 
