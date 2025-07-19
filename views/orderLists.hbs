@@ -650,9 +650,186 @@
 
     <script>
         // Variables globales
-        let allLists = {{{json lists}}};
-        let availableProducts = {{{json availableProducts}}};
+        let allLists = {{{json lists}}} || [];
+        let availableProducts = {{{json availableProducts}}} || [];
         let currentEditingListId = null;
+
+        // Test de fonctionnement du JavaScript
+        console.log('JavaScript loaded successfully');
+        console.log('Available products:', availableProducts.length);
+        console.log('All lists:', allLists.length);
+
+        // Déclaration des fonctions au niveau global pour éviter les erreurs
+        window.openCreateListModal = function() {
+            document.getElementById('createListModal').style.display = 'block';
+            document.getElementById('createListTitle').textContent = 'Créer une nouvelle liste';
+            document.getElementById('createListForm').reset();
+            document.getElementById('editListId').value = '';
+            currentEditingListId = null;
+            resetProductSelector();
+        };
+
+        window.closeCreateListModal = function() {
+            document.getElementById('createListModal').style.display = 'none';
+            document.getElementById('createListAlert').innerHTML = '';
+        };
+
+        window.closeListDetailModal = function() {
+            document.getElementById('listDetailModal').style.display = 'none';
+        };
+
+        window.viewListDetails = async function(listId) {
+            try {
+                const response = await fetch(`/api/order-lists/${listId}`);
+                const list = await response.json();
+                
+                document.getElementById('listDetailTitle').textContent = list.name;
+                
+                let content = `
+                    <div class="form-group">
+                        <label>Description</label>
+                        <p>${list.description || 'Aucune description'}</p>
+                    </div>
+                `;
+                
+                if (list.products && list.products.length > 0) {
+                    content += '<div class="form-group"><label>Produits</label><ul>';
+                    list.products.forEach(product => {
+                        content += `<li>${product.name} - Quantité: ${product.quantity}</li>`;
+                    });
+                    content += '</ul></div>';
+                }
+                
+                document.getElementById('listDetailContent').innerHTML = content;
+                document.getElementById('listDetailModal').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors du chargement des détails de la liste');
+            }
+        };
+
+        window.editList = async function(listId) {
+            try {
+                const response = await fetch(`/api/order-lists/${listId}`);
+                const list = await response.json();
+                
+                document.getElementById('createListTitle').textContent = 'Modifier la liste';
+                document.getElementById('editListId').value = listId;
+                document.getElementById('listName').value = list.name;
+                document.getElementById('listDescription').value = list.description || '';
+                
+                currentEditingListId = listId;
+                
+                // Réinitialiser les sélections
+                resetProductSelector();
+                
+                // Pré-sélectionner les produits de la liste
+                if (list.products && list.products.length > 0) {
+                    list.products.forEach(product => {
+                        const checkbox = document.querySelector(`input[data-product-id="${product.product_id}"]`);
+                        if (checkbox) {
+                            checkbox.checked = true;
+                            updateProductSelection(checkbox);
+                            
+                            const quantityInput = document.querySelector(`.quantity-input[data-product-id="${product.product_id}"]`);
+                            if (quantityInput) {
+                                quantityInput.value = product.quantity;
+                            }
+                        }
+                    });
+                }
+                
+                document.getElementById('createListModal').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors du chargement de la liste');
+            }
+        };
+
+        window.finalizeList = async function(listId) {
+            const notes = prompt('Notes pour cette commande (optionnel):');
+            
+            try {
+                const response = await fetch('/api/order-lists/finalize', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        listId: listId,
+                        notes: notes || ''
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Liste finalisée avec succès !');
+                    location.reload();
+                } else {
+                    alert('Erreur: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la finalisation');
+            }
+        };
+
+        window.duplicateList = async function(listId) {
+            const newName = prompt('Nom de la nouvelle liste:');
+            if (!newName) return;
+            
+            try {
+                const response = await fetch('/api/order-lists/duplicate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        listId: listId,
+                        newName: newName
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Liste dupliquée avec succès !');
+                    location.reload();
+                } else {
+                    alert('Erreur: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la duplication');
+            }
+        };
+
+        window.deleteList = async function(listId, listName) {
+            if (!confirm(`Êtes-vous sûr de vouloir supprimer la liste "${listName}" ?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/order-lists/${listId}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Liste supprimée avec succès !');
+                    location.reload();
+                } else {
+                    alert('Erreur: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la suppression');
+            }
+        };
 
         // Gestion de l'interface améliorée de sélection des produits
         function updateProductSelection(checkbox) {
@@ -788,312 +965,17 @@
             if (categoryFilter) {
                 categoryFilter.addEventListener('change', filterProducts);
             }
+            
+            // Test de fonctionnement des fonctions
+            console.log('DOM loaded, testing functions:');
+            console.log('openCreateListModal:', typeof window.openCreateListModal);
+            console.log('editList:', typeof window.editList);
+            console.log('viewListDetails:', typeof window.viewListDetails);
+            console.log('finalizeList:', typeof window.finalizeList);
+            console.log('duplicateList:', typeof window.duplicateList);
         });
 
-        // Gestion des modals
-        function openCreateListModal() {
-            document.getElementById('createListModal').style.display = 'block';
-            document.getElementById('createListTitle').textContent = 'Créer une nouvelle liste';
-            document.getElementById('createListForm').reset();
-            document.getElementById('editListId').value = '';
-            currentEditingListId = null;
-            resetProductSelector();
-        }
-
-        function closeCreateListModal() {
-            document.getElementById('createListModal').style.display = 'none';
-            document.getElementById('createListAlert').innerHTML = '';
-        }
-
-        function closeListDetailModal() {
-            document.getElementById('listDetailModal').style.display = 'none';
-        }
-
-        // Réinitialiser le sélecteur de produits
-        function resetProductSelector() {
-            document.querySelectorAll('.product-checkbox').forEach(checkbox => {
-                checkbox.checked = false;
-                const productItem = checkbox.closest('.product-item');
-                productItem.classList.remove('selected');
-                const quantityInput = productItem.querySelector('.quantity-input');
-                const prioritySelect = productItem.querySelector('.priority-select');
-                quantityInput.disabled = true;
-                prioritySelect.disabled = true;
-                quantityInput.value = 1;
-                prioritySelect.value = 'normal';
-            });
-            updateSelectedProductsSummary();
-        }
-        });
-
-        // Créer/Modifier une liste
-        document.getElementById('createListForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            const listData = {
-                name: formData.get('name'),
-                description: formData.get('description')
-            };
-
-            const selectedProducts = [];
-            document.querySelectorAll('.product-checkbox:checked').forEach(checkbox => {
-                const productId = checkbox.dataset.productId;
-                const productItem = checkbox.closest('.product-item');
-                const quantity = productItem.querySelector('.quantity-input').value;
-                const priority = productItem.querySelector('.priority-select').value;
-                
-                selectedProducts.push({
-                    productId: parseInt(productId),
-                    quantity: parseInt(quantity),
-                    priority: priority
-                });
-            });
-
-            if (selectedProducts.length === 0) {
-                showAlert('createListAlert', 'Veuillez sélectionner au moins un produit.', 'error');
-                return;
-            }
-
-            try {
-                // Créer la liste avec les produits en une seule opération
-                const response = await fetch('/api/order-lists/create-with-products', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        ...listData,
-                        products: selectedProducts
-                    })
-                });
-
-                const result = await response.json();
-                
-                if (result.success) {
-                    showAlert('createListAlert', 'Liste créée avec succès !', 'success');
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1500);
-                } else {
-                    showAlert('createListAlert', result.error, 'error');
-                }
-            } catch (error) {
-                console.error('Erreur:', error);
-                showAlert('createListAlert', 'Erreur lors de la création', 'error');
-            }
-        });
-
-        // Voir les détails d'une liste
-        async function viewListDetails(listId) {
-            try {
-                const response = await fetch(`/api/order-lists/${listId}`);
-                const list = await response.json();
-                
-                document.getElementById('listDetailTitle').textContent = list.name;
-                
-                let content = `
-                    <div class="form-group">
-                        <label>Description</label>
-                        <p>${list.description || 'Aucune description'}</p>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Statut</label>
-                        <span class="list-status status-${list.status}">${list.status}</span>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Produits (${list.items.length})</label>
-                        <div class="product-list">
-                `;
-                
-                list.items.forEach(item => {
-                    content += `
-                        <div class="list-product-item">
-                            <div class="list-product-info">
-                                <div class="list-product-name">${item.product_name}</div>
-                                <div class="list-product-details">${item.category_name} - Stock: ${item.stock}</div>
-                            </div>
-                            <div class="list-product-quantity">×${item.quantity}</div>
-                        </div>
-                    `;
-                });
-                
-                content += `
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <button class="btn btn-secondary" onclick="closeListDetailModal()">
-                            <i class="fas fa-times"></i> Fermer
-                        </button>
-                    </div>
-                `;
-                
-                document.getElementById('listDetailContent').innerHTML = content;
-                document.getElementById('listDetailModal').style.display = 'block';
-                
-            } catch (error) {
-                console.error('Erreur:', error);
-                showNotification('Erreur lors du chargement des détails', 'error');
-            }
-        }
-
-        // Finaliser une liste (marquer comme commandée)
-        async function finalizeList(listId) {
-            const notes = prompt('Notes pour cette commande (optionnel):');
-            
-            try {
-                const response = await fetch('/api/order-lists/finalize', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        listId: listId,
-                        notes: notes || ''
-                    })
-                });
-
-                const result = await response.json();
-                
-                if (result.success) {
-                    showNotification('Liste finalisée avec succès !', 'success');
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1500);
-                } else {
-                    showNotification(result.error, 'error');
-                }
-            } catch (error) {
-                console.error('Erreur:', error);
-                showNotification('Erreur lors de la finalisation', 'error');
-            }
-        }
-
-        // Dupliquer une liste
-        async function duplicateList(listId) {
-            const newName = prompt('Nom de la nouvelle liste:');
-            if (!newName) return;
-            
-            try {
-                const response = await fetch('/api/order-lists/duplicate', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        listId: listId,
-                        newName: newName
-                    })
-                });
-
-                const result = await response.json();
-                
-                if (result.success) {
-                    showNotification('Liste dupliquée avec succès !', 'success');
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1500);
-                } else {
-                    showNotification(result.error, 'error');
-                }
-            } catch (error) {
-                console.error('Erreur:', error);
-                showNotification('Erreur lors de la duplication', 'error');
-            }
-        }
-
-        // Supprimer une liste
-        async function deleteList(listId, listName) {
-            if (confirm(`Êtes-vous sûr de vouloir supprimer la liste "${listName}" ?`)) {
-                try {
-                    const response = await fetch(`/api/order-lists/${listId}`, {
-                        method: 'DELETE'
-                    });
-
-                    const result = await response.json();
-                    
-                    if (result.success) {
-                        showNotification('Liste supprimée avec succès !', 'success');
-                        setTimeout(() => {
-                            location.reload();
-                        }, 1500);
-                    } else {
-                        showNotification(result.error, 'error');
-                    }
-                } catch (error) {
-                    console.error('Erreur:', error);
-                    showNotification('Erreur lors de la suppression', 'error');
-                }
-            }
-        }
-
-        // Exporter une liste
-        function exportList(listId) {
-            const exportMenu = document.createElement('div');
-            exportMenu.style.cssText = `
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: white;
-                padding: 20px;
-                border-radius: 10px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-                z-index: 1000;
-                text-align: center;
-            `;
-            
-            exportMenu.innerHTML = `
-                <h3>Exporter la liste</h3>
-                <div style="margin: 20px 0;">
-                    <a href="/api/order-lists/${listId}/export?format=print" target="_blank" class="btn btn-primary" style="margin: 5px;">
-                        <i class="fas fa-print"></i> Imprimer
-                    </a>
-                    <a href="/api/order-lists/${listId}/export?format=csv" class="btn btn-success" style="margin: 5px;">
-                        <i class="fas fa-file-csv"></i> CSV
-                    </a>
-                    <a href="/api/order-lists/${listId}/export?format=json" class="btn btn-info" style="margin: 5px;">
-                        <i class="fas fa-file-code"></i> JSON
-                    </a>
-                </div>
-                <button onclick="this.parentElement.remove()" class="btn btn-secondary">
-                    <i class="fas fa-times"></i> Fermer
-                </button>
-            `;
-            
-            document.body.appendChild(exportMenu);
-            
-            // Fermer en cliquant à l'extérieur
-            setTimeout(() => {
-                document.addEventListener('click', function closeMenu(e) {
-                    if (!exportMenu.contains(e.target)) {
-                        exportMenu.remove();
-                        document.removeEventListener('click', closeMenu);
-                    }
-                });
-            }, 100);
-        }
-
-        // Filtrage des listes
-        function filterLists() {
-            const searchTerm = document.getElementById('searchLists').value.toLowerCase();
-            const statusFilter = document.getElementById('statusFilter').value;
-            
-            document.querySelectorAll('.list-card').forEach(card => {
-                const name = card.dataset.name.toLowerCase();
-                const status = card.dataset.status;
-                
-                const matchesSearch = name.includes(searchTerm);
-                const matchesStatus = !statusFilter || status === statusFilter;
-                
-                card.style.display = matchesSearch && matchesStatus ? 'block' : 'none';
-            });
-        }
-
-        // Fonctions pour l'interface améliorée de sélection des produits
+        // Gestion de l'interface améliorée de sélection des produits
         function updateProductSelection(checkbox) {
             const productId = checkbox.dataset.productId;
             const productItem = checkbox.closest('.product-item');
@@ -1221,19 +1103,114 @@
             });
         }
 
-        // Event listeners pour la recherche et le filtrage
-        document.addEventListener('DOMContentLoaded', function() {
-            const productSearch = document.getElementById('productSearch');
-            const categoryFilter = document.getElementById('categoryFilter');
+        // Filtrage des listes
+        function filterLists() {
+            const searchTerm = document.getElementById('searchLists').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
             
-            if (productSearch) {
-                productSearch.addEventListener('input', filterProducts);
+            document.querySelectorAll('.list-card').forEach(card => {
+                const name = card.dataset.name.toLowerCase();
+                const status = card.dataset.status;
+                
+                const matchesSearch = name.includes(searchTerm);
+                const matchesStatus = !statusFilter || status === statusFilter;
+                
+                card.style.display = matchesSearch && matchesStatus ? 'block' : 'none';
+            });
+        }
+
+        // Réinitialiser le sélecteur de produits
+        function resetProductSelector() {
+            document.querySelectorAll('.product-checkbox').forEach(checkbox => {
+                checkbox.checked = false;
+                const productItem = checkbox.closest('.product-item');
+                productItem.classList.remove('selected');
+                const quantityInput = productItem.querySelector('.quantity-input');
+                const prioritySelect = productItem.querySelector('.priority-select');
+                quantityInput.disabled = true;
+                prioritySelect.disabled = true;
+                quantityInput.value = 1;
+                prioritySelect.value = 'normal';
+            });
+            updateSelectedProductsSummary();
+        }
+
+        // Fonctions utilitaires
+        function showAlert(containerId, message, type) {
+            const container = document.getElementById(containerId);
+            if (container) {
+                container.innerHTML = `
+                    <div class="alert alert-${type === 'success' ? 'success' : 'error'}">
+                        ${message}
+                    </div>
+                `;
+                
+                // Faire disparaître l'alerte après 5 secondes
+                setTimeout(() => {
+                    container.innerHTML = '';
+                }, 5000);
             }
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
             
-            if (categoryFilter) {
-                categoryFilter.addEventListener('change', filterProducts);
-            }
-        });
+            document.body.appendChild(notification);
+            
+            // Faire disparaître après 4 secondes
+            setTimeout(() => {
+                notification.remove();
+            }, 4000);
+        }
+
+        // Exporter une liste
+        function exportList(listId) {
+            const exportMenu = document.createElement('div');
+            exportMenu.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: white;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                z-index: 1000;
+                text-align: center;
+            `;
+            
+            exportMenu.innerHTML = `
+                <h3>Exporter la liste</h3>
+                <div style="margin: 20px 0;">
+                    <a href="/api/order-lists/${listId}/export?format=print" target="_blank" class="btn btn-primary" style="margin: 5px;">
+                        <i class="fas fa-print"></i> Imprimer
+                    </a>
+                    <a href="/api/order-lists/${listId}/export?format=csv" class="btn btn-success" style="margin: 5px;">
+                        <i class="fas fa-file-csv"></i> CSV
+                    </a>
+                    <a href="/api/order-lists/${listId}/export?format=json" class="btn btn-info" style="margin: 5px;">
+                        <i class="fas fa-file-code"></i> JSON
+                    </a>
+                </div>
+                <button onclick="this.parentElement.remove()" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Fermer
+                </button>
+            `;
+            
+            document.body.appendChild(exportMenu);
+            
+            // Fermer en cliquant à l'extérieur
+            setTimeout(() => {
+                document.addEventListener('click', function closeMenu(e) {
+                    if (!exportMenu.contains(e.target)) {
+                        exportMenu.remove();
+                        document.removeEventListener('click', closeMenu);
+                    }
+                });
+            }, 100);
+        }
 
         // Amélioration de la fonction de soumission du formulaire
         async function submitCreateListForm(event) {
@@ -1280,7 +1257,7 @@
                 
                 if (result.success) {
                     showNotification('Liste créée avec succès !', 'success');
-                    closeCreateListModal();
+                    window.closeCreateListModal();
                     setTimeout(() => {
                         location.reload();
                     }, 1500);
@@ -1290,80 +1267,6 @@
             } catch (error) {
                 console.error('Erreur:', error);
                 showNotification('Erreur lors de la création de la liste', 'error');
-            }
-        }
-
-        // Modifier la fonction d'ouverture du modal pour attacher le nouvel event listener
-        function openCreateListModal() {
-            document.getElementById('createListModal').style.display = 'block';
-            document.getElementById('listName').focus();
-        // Fonctions utilitaires
-        function showAlert(containerId, message, type) {
-            const container = document.getElementById(containerId);
-            if (container) {
-                container.innerHTML = `
-                    <div class="alert alert-${type === 'success' ? 'success' : 'error'}">
-                        ${message}
-                    </div>
-                `;
-                
-                // Faire disparaître l'alerte après 5 secondes
-                setTimeout(() => {
-                    container.innerHTML = '';
-                }, 5000);
-            }
-        }
-
-        function showNotification(message, type) {
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.textContent = message;
-            
-            document.body.appendChild(notification);
-            
-            // Faire disparaître après 4 secondes
-            setTimeout(() => {
-                notification.remove();
-            }, 4000);
-        }
-
-        // Éditer une liste
-        async function editList(listId) {
-            try {
-                const response = await fetch(`/api/order-lists/${listId}`);
-                const list = await response.json();
-                
-                document.getElementById('createListTitle').textContent = 'Modifier la liste';
-                document.getElementById('editListId').value = listId;
-                document.getElementById('listName').value = list.name;
-                document.getElementById('listDescription').value = list.description || '';
-                
-                currentEditingListId = listId;
-                
-                // Réinitialiser les sélections
-                resetProductSelector();
-                
-                // Pré-sélectionner les produits de la liste
-                if (list.products && list.products.length > 0) {
-                    list.products.forEach(product => {
-                        const checkbox = document.querySelector(`input[data-product-id="${product.product_id}"]`);
-                        if (checkbox) {
-                            checkbox.checked = true;
-                            updateProductSelection(checkbox);
-                            
-                            const quantityInput = document.querySelector(`.quantity-input[data-product-id="${product.product_id}"]`);
-                            if (quantityInput) {
-                                quantityInput.value = product.quantity;
-                            }
-                        }
-                    });
-                }
-                
-                document.getElementById('createListModal').style.display = 'block';
-                
-            } catch (error) {
-                console.error('Erreur:', error);
-                showNotification('Erreur lors du chargement de la liste', 'error');
             }
         }
 
@@ -1390,10 +1293,20 @@
                 statusFilter.addEventListener('change', filterLists);
             }
             
+            // Test de fonctionnement des fonctions
+            console.log('DOM loaded, testing functions:');
+            console.log('openCreateListModal:', typeof window.openCreateListModal);
+            console.log('editList:', typeof window.editList);
+            console.log('viewListDetails:', typeof window.viewListDetails);
+            console.log('finalizeList:', typeof window.finalizeList);
+            console.log('duplicateList:', typeof window.duplicateList);
+            
             // Attacher le nouvel event listener
             const form = document.getElementById('createListForm');
-            form.removeEventListener('submit', submitCreateListForm);
-            form.addEventListener('submit', submitCreateListForm);
+            if (form) {
+                form.removeEventListener('submit', submitCreateListForm);
+                form.addEventListener('submit', submitCreateListForm);
+            }
         });
 
         // Fermer les modals en cliquant à l'extérieur
@@ -1402,10 +1315,10 @@
             const detailModal = document.getElementById('listDetailModal');
             
             if (event.target == createModal) {
-                closeCreateListModal();
+                window.closeCreateListModal();
             }
             if (event.target == detailModal) {
-                closeListDetailModal();
+                window.closeListDetailModal();
             }
         }
     </script>

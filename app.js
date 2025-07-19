@@ -51,6 +51,10 @@ app.get('/debug', (req, res) => {
 const productRoutes = require('./routes/productRoutes');
 app.use('/', productRoutes);
 
+// Importer et utiliser les routes des listes de commandes
+const orderListRoutes = require('./routes/orderListRoutes');
+app.use('/', orderListRoutes);
+
 // Route pour afficher directement les produits
 const productController = require('./controllers/productController');
 app.get('/', productController.list);

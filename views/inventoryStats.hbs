@@ -1,0 +1,508 @@
+<div class="container">
+    {{!-- Page Header --}}
+    <div class="page-header">
+        <h1>
+            <i class="fas fa-chart-line"></i>
+            Statistiques des Inventaires
+        </h1>
+        <p class="subtitle">Analyse détaillée de vos données d'inventaire</p>
+    </div>
+
+    {{!-- Retour vers les inventaires --}}
+    <div class="navigation-breadcrumb">
+        <a href="/inventory" class="breadcrumb-link">
+            <i class="fas fa-arrow-left"></i>
+            Retour aux inventaires
+        </a>
+    </div>
+
+    {{!-- Filtres de période --}}
+    <div class="stats-section">
+        <div class="stats-header">
+            <h2>
+                <i class="fas fa-filter"></i>
+                Filtres par Période
+            </h2>
+        </div>
+        <div class="stats-card">
+            <div class="filter-controls">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label for="periodFilter">Période prédéfinie :</label>
+                        <select id="periodFilter" class="filter-select">
+                            <option value="all" {{#if (eq stats.filters.period 'all')}}selected{{/if}}>Toutes les données</option>
+                            <option value="week" {{#if (eq stats.filters.period 'week')}}selected{{/if}}>Cette semaine</option>
+                            <option value="month" {{#if (eq stats.filters.period 'month')}}selected{{/if}}>Ce mois</option>
+                            <option value="year" {{#if (eq stats.filters.period 'year')}}selected{{/if}}>Cette année</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="yearFilter">Année :</label>
+                        <select id="yearFilter" class="filter-select">
+                            <option value="">Toutes</option>
+                            {{#each availableYears}}
+                            <option value="{{this}}" {{#if (eq this ../stats.filters.year)}}selected{{/if}}>{{this}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="monthFilter">Mois :</label>
+                        <select id="monthFilter" class="filter-select">
+                            <option value="">Tous</option>
+                            <option value="1" {{#if (eq stats.filters.month 1)}}selected{{/if}}>Janvier</option>
+                            <option value="2" {{#if (eq stats.filters.month 2)}}selected{{/if}}>Février</option>
+                            <option value="3" {{#if (eq stats.filters.month 3)}}selected{{/if}}>Mars</option>
+                            <option value="4" {{#if (eq stats.filters.month 4)}}selected{{/if}}>Avril</option>
+                            <option value="5" {{#if (eq stats.filters.month 5)}}selected{{/if}}>Mai</option>
+                            <option value="6" {{#if (eq stats.filters.month 6)}}selected{{/if}}>Juin</option>
+                            <option value="7" {{#if (eq stats.filters.month 7)}}selected{{/if}}>Juillet</option>
+                            <option value="8" {{#if (eq stats.filters.month 8)}}selected{{/if}}>Août</option>
+                            <option value="9" {{#if (eq stats.filters.month 9)}}selected{{/if}}>Septembre</option>
+                            <option value="10" {{#if (eq stats.filters.month 10)}}selected{{/if}}>Octobre</option>
+                            <option value="11" {{#if (eq stats.filters.month 11)}}selected{{/if}}>Novembre</option>
+                            <option value="12" {{#if (eq stats.filters.month 12)}}selected{{/if}}>Décembre</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="weekFilter">Semaine :</label>
+                        <input type="number" id="weekFilter" class="filter-input" min="1" max="53" 
+                               value="{{stats.filters.week}}" placeholder="1-53">
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button id="applyFilters" class="btn btn-primary">
+                        <i class="fas fa-search"></i>
+                        Appliquer les filtres
+                    </button>
+                    <button id="clearFilters" class="btn btn-secondary">
+                        <i class="fas fa-times"></i>
+                        Réinitialiser
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{!-- Vue d'ensemble --}}
+    <div class="stats-overview">
+        {{#unless (eq stats.filters.period 'all')}}
+        <div class="filter-status">
+            <i class="fas fa-filter"></i>
+            Filtres actifs : 
+            {{#if (eq stats.filters.period 'week')}}Cette semaine{{/if}}
+            {{#if (eq stats.filters.period 'month')}}Ce mois{{/if}}
+            {{#if (eq stats.filters.period 'year')}}Cette année{{/if}}
+            {{#if stats.filters.year}}Année {{stats.filters.year}}{{/if}}
+            {{#if stats.filters.month}}{{getMonthName stats.filters.month}}{{/if}}
+            {{#if stats.filters.week}}Semaine {{stats.filters.week}}{{/if}}
+        </div>
+        {{/unless}}
+        
+        <div class="overview-card">
+            <div class="overview-icon">
+                <i class="fas fa-warehouse"></i>
+            </div>
+            <div class="overview-content">
+                <h3>{{stats.totalInventories}}</h3>
+                <p>Inventaires réalisés</p>
+            </div>
+        </div>
+        <div class="overview-card">
+            <div class="overview-icon">
+                <i class="fas fa-boxes"></i>
+            </div>
+            <div class="overview-content">
+                <h3>{{stats.totalProducts}}</h3>
+                <p>Produits suivis</p>
+            </div>
+        </div>
+        <div class="overview-card">
+            <div class="overview-icon">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="overview-content">
+                <h3>{{stats.inventoryFrequency.frequency}}</h3>
+                <p>Fréquence moyenne</p>
+            </div>
+        </div>
+    </div>
+
+    {{!-- Section 1: Fréquence des inventaires --}}
+    <div class="stats-section">
+        <div class="stats-header">
+            <h2>
+                <i class="fas fa-clock"></i>
+                Fréquence des Inventaires
+            </h2>
+        </div>
+        <div class="stats-card">
+            <div class="frequency-display">
+                <div class="frequency-main">
+                    <span class="frequency-number">{{stats.inventoryFrequency.averageDays}}</span>
+                    <span class="frequency-unit">jours</span>
+                </div>
+                <div class="frequency-label">Intervalle moyen entre inventaires</div>
+                <div class="frequency-badge frequency-{{stats.inventoryFrequency.frequency}}">
+                    {{stats.inventoryFrequency.frequency}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{!-- Section 2: Modifications des produits --}}
+    <div class="stats-section">
+        <div class="stats-header">
+            <h2>
+                <i class="fas fa-edit"></i>
+                Analyse des Modifications
+            </h2>
+        </div>
+        <div class="stats-grid">
+            <div class="stats-card">
+                <h3>Produits Stables</h3>
+                <div class="stat-number success">{{stats.productModificationStats.neverModified}}</div>
+                <p>produits jamais modifiés</p>
+                <div class="stat-progress">
+                    <div class="progress-bar" style="width: {{calc stats.productModificationStats.neverModified stats.productModificationStats.totalProducts}}%"></div>
+                </div>
+            </div>
+            <div class="stats-card">
+                <h3>Produits Volatiles</h3>
+                <div class="stat-number warning">{{stats.productModificationStats.oftenAdjusted.length}}</div>
+                <p>produits souvent ajustés</p>
+            </div>
+        </div>
+        
+        {{#if stats.productModificationStats.oftenAdjusted.length}}
+        <div class="stats-card">
+            <h3>Top des Produits les Plus Modifiés</h3>
+            <div class="product-list">
+                {{#each stats.productModificationStats.oftenAdjusted}}
+                <div class="product-item">
+                    <span class="product-name">{{this.name}}</span>
+                    <div class="product-stats">
+                        <span class="modification-count">{{this.modifications}} modifications</span>
+                        <span class="change-amount">±{{this.totalChange}} unités</span>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+        </div>
+        {{/if}}
+    </div>
+
+    {{!-- Section 3: Évolution des ruptures --}}
+    <div class="stats-section">
+        <div class="stats-header">
+            <h2>
+                <i class="fas fa-exclamation-triangle"></i>
+                Évolution des Ruptures
+            </h2>
+        </div>
+        {{#if stats.ruptureEvolution.length}}
+        <div class="stats-card">
+            <div class="chart-container">
+                <canvas id="ruptureChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+        {{else}}
+        <div class="stats-card empty-state">
+            <i class="fas fa-chart-line"></i>
+            <p>Pas assez de données pour afficher l'évolution</p>
+        </div>
+        {{/if}}
+    </div>
+
+    {{!-- Section 4: Ruptures chroniques --}}
+    <div class="stats-section">
+        <div class="stats-header">
+            <h2>
+                <i class="fas fa-exclamation-circle"></i>
+                Produits Chroniquement en Rupture
+            </h2>
+        </div>
+        {{#if stats.chronicRuptures.length}}
+        <div class="stats-card">
+            <div class="chronic-ruptures-list">
+                {{#each stats.chronicRuptures}}
+                <div class="rupture-item">
+                    <div class="rupture-info">
+                        <span class="product-name">{{this.name}}</span>
+                        <span class="rupture-rate danger">{{formatPercentage this.ruptureRate}}% de ruptures</span>
+                    </div>
+                    <div class="rupture-bar">
+                        <div class="rupture-progress" style="width: {{this.ruptureRate}}%"></div>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+        </div>
+        {{else}}
+        <div class="stats-card empty-state success">
+            <i class="fas fa-check-circle"></i>
+            <p>Aucun produit chroniquement en rupture ! 🎉</p>
+        </div>
+        {{/if}}
+    </div>
+
+    {{!-- Section 5: Catégories problématiques --}}
+    <div class="stats-section">
+        <div class="stats-header">
+            <h2>
+                <i class="fas fa-tags"></i>
+                Catégories les Plus Problématiques
+            </h2>
+        </div>
+        <div class="stats-card">
+            <div class="categories-list">
+                {{#each stats.problematicCategories}}
+                <div class="category-item">
+                    <div class="category-header">
+                        <span class="category-name">{{this.name}}</span>
+                        <span class="category-average">±{{formatNumber this.averageChange}} unités/inventaire</span>
+                    </div>
+                    <div class="category-details">
+                        <span>{{this.totalProducts}} produits suivis</span>
+                    </div>
+                    <div class="category-severity">
+                        <div class="severity-bar" style="width: {{calc this.averageChange 10}}%"></div>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+        </div>
+    </div>
+
+    {{!-- Section 6: Répartition des stocks --}}
+    <div class="stats-section">
+        <div class="stats-header">
+            <h2>
+                <i class="fas fa-pie-chart"></i>
+                Répartition des Stocks par Catégorie
+            </h2>
+        </div>
+        <div class="stats-grid">
+            {{#each stats.stockDistribution}}
+            <div class="stats-card stock-card">
+                <h3>{{this.name}}</h3>
+                <div class="stock-metrics">
+                    <div class="metric">
+                        <span class="metric-value">{{this.totalStock}}</span>
+                        <span class="metric-label">unités totales</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-value">{{this.productCount}}</span>
+                        <span class="metric-label">produits</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-value">{{this.averageStock}}</span>
+                        <span class="metric-label">moyenne/produit</span>
+                    </div>
+                </div>
+                {{#if this.lowStockCount}}
+                <div class="alert-badge">
+                    ⚠️ {{this.lowStockCount}} produits sous minimum ({{this.lowStockPercentage}}%)
+                </div>
+                {{else}}
+                <div class="success-badge">
+                    ✅ Tous les stocks OK
+                </div>
+                {{/if}}
+            </div>
+            {{/each}}
+        </div>
+    </div>
+</div>
+
+{{!-- Chart.js pour les graphiques --}}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Graphique d'évolution des ruptures
+document.addEventListener('DOMContentLoaded', function() {
+    const ruptureData = {{{json stats.ruptureEvolution}}};
+    
+    if (ruptureData && ruptureData.length > 0) {
+        const ctx = document.getElementById('ruptureChart').getContext('2d');
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ruptureData.map(item => {
+                    const date = new Date(item.date);
+                    return date.toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' });
+                }),
+                datasets: [{
+                    label: 'Nombre de ruptures',
+                    data: ruptureData.map(item => item.count),
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Gestionnaire des filtres
+    setupFilters();
+});
+
+// Configuration des filtres
+function setupFilters() {
+    const periodFilter = document.getElementById('periodFilter');
+    const yearFilter = document.getElementById('yearFilter');
+    const monthFilter = document.getElementById('monthFilter');
+    const weekFilter = document.getElementById('weekFilter');
+    const applyButton = document.getElementById('applyFilters');
+    const clearButton = document.getElementById('clearFilters');
+
+    // Générer les années disponibles dynamiquement
+    populateYearFilter();
+
+    // Gestionnaire pour les filtres prédéfinis
+    periodFilter.addEventListener('change', function() {
+        if (this.value !== 'all') {
+            yearFilter.value = '';
+            monthFilter.value = '';
+            weekFilter.value = '';
+        }
+    });
+
+    // Gestionnaire pour les filtres personnalisés
+    [yearFilter, monthFilter, weekFilter].forEach(filter => {
+        filter.addEventListener('change', function() {
+            if (this.value) {
+                periodFilter.value = 'all';
+            }
+        });
+    });
+
+    // Appliquer les filtres
+    applyButton.addEventListener('click', function() {
+        applyFilters();
+    });
+
+    // Réinitialiser les filtres
+    clearButton.addEventListener('click', function() {
+        clearFilters();
+    });
+
+    // Appliquer les filtres avec Entrée
+    [periodFilter, yearFilter, monthFilter, weekFilter].forEach(filter => {
+        filter.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                applyFilters();
+            }
+        });
+    });
+}
+
+// Peupler le sélecteur d'années
+function populateYearFilter() {
+    const yearFilter = document.getElementById('yearFilter');
+    const currentYear = new Date().getFullYear();
+    
+    // Ajouter les 5 dernières années
+    for (let year = currentYear; year >= currentYear - 5; year--) {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = year;
+        if (year === {{stats.filters.year}}) {
+            option.selected = true;
+        }
+        yearFilter.appendChild(option);
+    }
+}
+
+// Appliquer les filtres
+function applyFilters() {
+    const period = document.getElementById('periodFilter').value;
+    const year = document.getElementById('yearFilter').value;
+    const month = document.getElementById('monthFilter').value;
+    const week = document.getElementById('weekFilter').value;
+
+    // Construire l'URL avec les paramètres
+    const params = new URLSearchParams();
+    
+    if (period && period !== 'all') {
+        params.set('period', period);
+    }
+    
+    if (year) {
+        params.set('year', year);
+    }
+    
+    if (month) {
+        params.set('month', month);
+    }
+    
+    if (week) {
+        params.set('week', week);
+    }
+
+    // Rediriger avec les nouveaux filtres
+    const url = '/inventory/stats' + (params.toString() ? '?' + params.toString() : '');
+    
+    // Afficher un indicateur de chargement
+    showLoadingIndicator();
+    
+    window.location.href = url;
+}
+
+// Réinitialiser les filtres
+function clearFilters() {
+    showLoadingIndicator();
+    window.location.href = '/inventory/stats';
+}
+
+// Afficher un indicateur de chargement
+function showLoadingIndicator() {
+    const applyButton = document.getElementById('applyFilters');
+    const originalText = applyButton.innerHTML;
+    
+    applyButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Chargement...';
+    applyButton.disabled = true;
+    
+    // Restaurer après 5 secondes au cas où
+    setTimeout(() => {
+        applyButton.innerHTML = originalText;
+        applyButton.disabled = false;
+    }, 5000);
+}
+
+// Helpers pour les calculs
+function formatPercentage(value) {
+    return Math.round(value);
+}
+
+function formatNumber(value) {
+    return Math.round(value * 100) / 100;
+}
+</script>
+
+<link rel="stylesheet" href="/inventory-mobile.css">
+<link rel="stylesheet" href="/stats.css">
+{{> footer}}

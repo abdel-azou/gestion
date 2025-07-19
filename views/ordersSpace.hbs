@@ -141,6 +141,8 @@
         .btn-primary:hover { background: #2980b9; }
         .btn-success { background: #27ae60; color: white; }
         .btn-success:hover { background: #229954; }
+        .btn-info { background: #17a2b8; color: white; }
+        .btn-info:hover { background: #138496; }
         .btn-warning { background: #f39c12; color: white; }
         .btn-warning:hover { background: #e67e22; }
         .btn-danger { background: #e74c3c; color: white; }
@@ -421,6 +423,201 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* Styles pour le modal d'ajout à la liste */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+
+        .close {
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            opacity: 0.8;
+        }
+
+        .close:hover {
+            opacity: 1;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .product-info-modal {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .product-info-modal h4 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+        }
+
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quantity-selector input {
+            width: 80px;
+            padding: 8px;
+            border: 2px solid #ecf0f1;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .list-selector h4 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .option-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .option-btn {
+            flex: 1;
+            padding: 15px;
+            font-size: 1em;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .form-section h4 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ecf0f1;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .existing-lists {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
+        .list-item {
+            background: white;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .list-item:hover {
+            border-color: #3498db;
+            transform: translateY(-2px);
+        }
+
+        .list-item.selected {
+            border-color: #27ae60;
+            background: #d5f4e6;
+        }
+
+        .list-item-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .list-item-meta {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .list-item-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status-draft {
+            background: #fef9e7;
+            color: #f39c12;
+        }
+
+        .status-ordered {
+            background: #fdedec;
+            color: #e74c3c;
+        }
+
+        .status-completed {
+            background: #d5f4e6;
+            color: #27ae60;
+        }
     </style>
 </head>
 <body>
@@ -548,6 +745,9 @@
                             <button class="btn btn-primary btn-sm" onclick="quickUpdate({{id}})">
                                 <i class="fas fa-edit"></i> Modifier
                             </button>
+                            <button class="btn btn-info btn-sm" onclick="addToOrderList({{id}}, '{{name}}', {{quantityNeeded}})">
+                                <i class="fas fa-list-alt"></i> Ajouter à la liste
+                            </button>
                             <button class="btn btn-warning btn-sm" onclick="viewHistory({{id}})">
                                 <i class="fas fa-history"></i> Historique
                             </button>
@@ -578,6 +778,64 @@
                     <div class="history-list" id="historyList">
                         <!-- Contenu chargé dynamiquement -->
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal pour ajouter à une liste de commandes -->
+    <div id="addToListModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Ajouter à une liste de commandes</h2>
+                <span class="close" onclick="closeAddToListModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="product-info-modal">
+                    <h4 id="selectedProductName">Produit sélectionné</h4>
+                    <div class="quantity-selector">
+                        <label for="modalQuantity">Quantité:</label>
+                        <input type="number" id="modalQuantity" min="1" value="1">
+                    </div>
+                </div>
+                
+                <div class="list-selector">
+                    <h4>Choisir une option:</h4>
+                    <div class="option-buttons">
+                        <button class="btn btn-primary option-btn" onclick="showNewListForm()">
+                            <i class="fas fa-plus"></i> Créer une nouvelle liste
+                        </button>
+                        <button class="btn btn-success option-btn" onclick="showExistingLists()">
+                            <i class="fas fa-list"></i> Ajouter à une liste existante
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Formulaire nouvelle liste -->
+                <div id="newListForm" class="form-section" style="display: none;">
+                    <h4>Nouvelle liste de commandes</h4>
+                    <div class="form-group">
+                        <label for="newListName">Nom de la liste:</label>
+                        <input type="text" id="newListName" class="form-input" placeholder="Ex: Commande urgente Janvier" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newListDescription">Description (optionnel):</label>
+                        <textarea id="newListDescription" class="form-input" placeholder="Description de la liste..."></textarea>
+                    </div>
+                    <button class="btn btn-success" onclick="createNewListWithProduct()">
+                        <i class="fas fa-save"></i> Créer et ajouter
+                    </button>
+                </div>
+                
+                <!-- Sélection liste existante -->
+                <div id="existingListsForm" class="form-section" style="display: none;">
+                    <h4>Listes existantes</h4>
+                    <div class="existing-lists" id="existingListsContainer">
+                        <!-- Chargé dynamiquement -->
+                    </div>
+                    <button class="btn btn-success" onclick="addToSelectedList()" id="addToListBtn" disabled>
+                        <i class="fas fa-plus"></i> Ajouter à la liste sélectionnée
+                    </button>
                 </div>
             </div>
         </div>
@@ -780,6 +1038,245 @@
             // Afficher l'historique du produit spécifique
             showTab('history');
             // Filtrer par produit (à implémenter)
+        }
+
+        // ===== FONCTIONS POUR AJOUTER À UNE LISTE DE COMMANDES =====
+        
+        let currentProductToAdd = null;
+        let selectedListId = null;
+
+        // Ouvrir le modal pour ajouter un produit à une liste
+        function addToOrderList(productId, productName, defaultQuantity) {
+            currentProductToAdd = { id: productId, name: productName };
+            
+            document.getElementById('selectedProductName').textContent = productName;
+            document.getElementById('modalQuantity').value = defaultQuantity || 1;
+            document.getElementById('addToListModal').style.display = 'block';
+            
+            // Réinitialiser les formulaires
+            hideAllForms();
+        }
+
+        // Fermer le modal
+        function closeAddToListModal() {
+            document.getElementById('addToListModal').style.display = 'none';
+            hideAllForms();
+            currentProductToAdd = null;
+            selectedListId = null;
+        }
+
+        // Masquer tous les formulaires
+        function hideAllForms() {
+            document.getElementById('newListForm').style.display = 'none';
+            document.getElementById('existingListsForm').style.display = 'none';
+            document.getElementById('newListName').value = '';
+            document.getElementById('newListDescription').value = '';
+        }
+
+        // Afficher le formulaire nouvelle liste
+        function showNewListForm() {
+            hideAllForms();
+            document.getElementById('newListForm').style.display = 'block';
+        }
+
+        // Afficher la sélection de listes existantes
+        async function showExistingLists() {
+            hideAllForms();
+            document.getElementById('existingListsForm').style.display = 'block';
+            
+            try {
+                const response = await fetch('/api/order-lists');
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayExistingLists(result.data);
+                } else {
+                    showNotification('Erreur lors du chargement des listes', 'error');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur de connexion', 'error');
+            }
+        }
+
+        // Afficher les listes existantes
+        function displayExistingLists(lists) {
+            const container = document.getElementById('existingListsContainer');
+            
+            if (lists.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #666;">
+                        <i class="fas fa-list" style="font-size: 2em; margin-bottom: 10px;"></i>
+                        <p>Aucune liste de commandes trouvée.</p>
+                        <button class="btn btn-primary" onclick="showNewListForm()">
+                            <i class="fas fa-plus"></i> Créer une nouvelle liste
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = lists.map(list => `
+                <div class="list-item" onclick="selectList(${list.id})" data-list-id="${list.id}">
+                    <div class="list-item-name">${list.name}</div>
+                    <div class="list-item-meta">
+                        <span class="list-item-status status-${list.status}">${list.status}</span>
+                        ${list.item_count || 0} produits - 
+                        Créée le ${new Date(list.created_date).toLocaleDateString('fr-FR')}
+                    </div>
+                    ${list.description ? `<div style="margin-top: 5px; font-size: 0.9em; color: #666;">${list.description}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Sélectionner une liste
+        function selectList(listId) {
+            // Désélectionner toutes les listes
+            document.querySelectorAll('.list-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // Sélectionner la liste cliquée
+            document.querySelector(`[data-list-id="${listId}"]`).classList.add('selected');
+            selectedListId = listId;
+            
+            // Activer le bouton d'ajout
+            document.getElementById('addToListBtn').disabled = false;
+        }
+
+        // Créer une nouvelle liste avec le produit
+        async function createNewListWithProduct() {
+            const name = document.getElementById('newListName').value.trim();
+            const description = document.getElementById('newListDescription').value.trim();
+            const quantity = parseInt(document.getElementById('modalQuantity').value);
+            
+            if (!name) {
+                showNotification('Le nom de la liste est requis', 'error');
+                return;
+            }
+            
+            if (!currentProductToAdd) {
+                showNotification('Aucun produit sélectionné', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/order-lists', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        description: description,
+                        products: [{
+                            productId: currentProductToAdd.id,
+                            quantity: quantity,
+                            priority: 'normal'
+                        }]
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification(`Liste "${name}" créée et produit ajouté !`, 'success');
+                    closeAddToListModal();
+                } else {
+                    showNotification(result.error || 'Erreur lors de la création', 'error');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur de connexion', 'error');
+            }
+        }
+
+        // Ajouter à la liste sélectionnée
+        async function addToSelectedList() {
+            if (!selectedListId || !currentProductToAdd) {
+                showNotification('Aucune liste ou produit sélectionné', 'error');
+                return;
+            }
+            
+            const quantity = parseInt(document.getElementById('modalQuantity').value);
+            
+            try {
+                // D'abord, récupérer la liste existante
+                const getResponse = await fetch(`/api/order-lists/${selectedListId}`);
+                const existingList = await getResponse.json();
+                
+                if (!existingList) {
+                    showNotification('Liste non trouvée', 'error');
+                    return;
+                }
+                
+                console.log('Existing list:', existingList); // Debug
+                
+                // Préparer les produits existants plus le nouveau
+                const existingProducts = existingList.products || []; // Utiliser 'products' maintenant
+                const newProducts = [];
+                
+                // Convertir les produits existants au bon format
+                existingProducts.forEach(item => {
+                    newProducts.push({
+                        productId: item.product_id,
+                        quantity: item.quantity,
+                        priority: item.notes || 'normal'
+                    });
+                });
+                
+                // Vérifier si le produit existe déjà dans la liste
+                const existingProductIndex = newProducts.findIndex(p => p.productId == currentProductToAdd.id);
+                
+                if (existingProductIndex >= 0) {
+                    // Augmenter la quantité si le produit existe déjà
+                    newProducts[existingProductIndex].quantity += quantity;
+                    showNotification(`Quantité mise à jour pour ${currentProductToAdd.name}`, 'info');
+                } else {
+                    // Ajouter le nouveau produit
+                    newProducts.push({
+                        productId: currentProductToAdd.id,
+                        quantity: quantity,
+                        priority: 'normal'
+                    });
+                }
+                
+                console.log('New products array:', newProducts); // Debug
+                
+                // Mettre à jour la liste
+                const updateResponse = await fetch(`/api/order-lists/${selectedListId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: existingList.name,
+                        description: existingList.description,
+                        products: newProducts
+                    })
+                });
+
+                const result = await updateResponse.json();
+                console.log('Update result:', result); // Debug
+                
+                if (result.success) {
+                    showNotification(`Produit ajouté à la liste "${existingList.name}" !`, 'success');
+                    closeAddToListModal();
+                } else {
+                    showNotification(result.error || 'Erreur lors de l\'ajout', 'error');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur de connexion', 'error');
+            }
+        }
+
+        // Fermer le modal en cliquant à l'extérieur
+        window.onclick = function(event) {
+            const modal = document.getElementById('addToListModal');
+            if (event.target == modal) {
+                closeAddToListModal();
+            }
         }
 
         // Event listeners

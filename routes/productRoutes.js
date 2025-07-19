@@ -13,6 +13,7 @@ router.get('/categories', productController.categories);
 router.post('/categories', productController.createCategory);
 router.get('/liste_abdelhamid', productController.listeAbdelhamid);
 router.get('/products-to-order', productController.productsToOrder);
+router.get('/inventory', productController.inventoryDashboard);
 router.post('/products/delete/:id', productController.deleteProduct);
 router.get('/orders', productController.ordersSpace);
 router.get('/api/orders/history', productController.getOrderHistory);
@@ -39,5 +40,16 @@ router.post('/api/order-lists/finalize', productController.finalizeOrderList);
 router.post('/api/order-lists/duplicate', productController.duplicateOrderList);
 router.delete('/api/order-lists/:id', productController.deleteOrderList);
 router.get('/api/order-lists/:id/export', productController.exportOrderList);
+
+// Routes pour les inventaires
+router.get('/inventory', productController.inventoryDashboard);
+router.get('/inventory/stats', productController.inventoryStats);
+router.post('/api/inventory/create', productController.createInventory);
+router.get('/api/inventory/all', productController.getAllInventories);
+router.get('/api/inventory/:id', productController.getInventory);
+router.post('/api/inventory/update-stock', productController.updateInventoryProductStock);
+router.post('/api/inventory/:id/finalize', productController.finalizeInventory);
+router.post('/api/inventory/:id/create-order-list', productController.createOrderListFromInventory);
+router.delete('/api/inventory/:id', productController.deleteInventory);
 
 module.exports = router;

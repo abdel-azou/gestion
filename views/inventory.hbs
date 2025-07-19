@@ -1,0 +1,420 @@
+{{> header title="Gestion des Inventaires" page="inventory"}}
+
+{{!-- Inventory Dashboard --}}
+<div class="container">
+    {{!-- Page Header --}}
+    <div class="page-header">
+        <h1>
+            <i class="fas fa-warehouse"></i>
+            Gestion des Inventaires
+        </h1>
+        <p class="subtitle">Suivez et gérez vos stocks efficacement</p>
+    </div>
+
+    {{!-- Filtres de période --}}
+    <div class="filter-section">
+        <div class="filter-header">
+            <h2>
+                <i class="fas fa-filter"></i>
+                Filtrer les inventaires
+            </h2>
+        </div>
+        <div class="filter-controls">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="periodFilter">Période :</label>
+                    <select id="periodFilter" class="filter-select">
+                        <option value="all" {{#if (eq filters.period 'all')}}selected{{/if}}>Tous les inventaires</option>
+                        <option value="week" {{#if (eq filters.period 'week')}}selected{{/if}}>Cette semaine</option>
+                        <option value="month" {{#if (eq filters.period 'month')}}selected{{/if}}>Ce mois</option>
+                        <option value="year" {{#if (eq filters.period 'year')}}selected{{/if}}>Cette année</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="yearFilter">Année :</label>
+                    <select id="yearFilter" class="filter-select">
+                        <option value="">Toutes</option>
+                        {{#each availableYears}}
+                        <option value="{{this}}" {{#if (eq this ../filters.year)}}selected{{/if}}>{{this}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="monthFilter">Mois :</label>
+                    <select id="monthFilter" class="filter-select">
+                        <option value="">Tous</option>
+                        <option value="1" {{#if (eq filters.month 1)}}selected{{/if}}>Janvier</option>
+                        <option value="2" {{#if (eq filters.month 2)}}selected{{/if}}>Février</option>
+                        <option value="3" {{#if (eq filters.month 3)}}selected{{/if}}>Mars</option>
+                        <option value="4" {{#if (eq filters.month 4)}}selected{{/if}}>Avril</option>
+                        <option value="5" {{#if (eq filters.month 5)}}selected{{/if}}>Mai</option>
+                        <option value="6" {{#if (eq filters.month 6)}}selected{{/if}}>Juin</option>
+                        <option value="7" {{#if (eq filters.month 7)}}selected{{/if}}>Juillet</option>
+                        <option value="8" {{#if (eq filters.month 8)}}selected{{/if}}>Août</option>
+                        <option value="9" {{#if (eq filters.month 9)}}selected{{/if}}>Septembre</option>
+                        <option value="10" {{#if (eq filters.month 10)}}selected{{/if}}>Octobre</option>
+                        <option value="11" {{#if (eq filters.month 11)}}selected{{/if}}>Novembre</option>
+                        <option value="12" {{#if (eq filters.month 12)}}selected{{/if}}>Décembre</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="weekFilter">Semaine :</label>
+                    <input type="number" id="weekFilter" class="filter-input" min="1" max="53" 
+                           value="{{filters.week}}" placeholder="1-53">
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button id="applyFilters" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                    Appliquer
+                </button>
+                <button id="clearFilters" class="btn btn-secondary">
+                    <i class="fas fa-times"></i>
+                    Réinitialiser
+                </button>
+            </div>
+        </div>
+        
+        {{!-- Indicateur de filtres actifs --}}
+        {{#unless (eq filters.period 'all')}}
+        <div class="active-filters">
+            <span class="filter-badge">
+                <i class="fas fa-filter"></i>
+                Filtres actifs :
+                {{#if (eq filters.period 'week')}}Cette semaine{{/if}}
+                {{#if (eq filters.period 'month')}}Ce mois{{/if}}
+                {{#if (eq filters.period 'year')}}Cette année{{/if}}
+                {{#if filters.year}}{{filters.year}}{{/if}}
+                {{#if filters.month}}
+                    {{#if (eq filters.month 1)}}Janvier{{/if}}
+                    {{#if (eq filters.month 2)}}Février{{/if}}
+                    {{#if (eq filters.month 3)}}Mars{{/if}}
+                    {{#if (eq filters.month 4)}}Avril{{/if}}
+                    {{#if (eq filters.month 5)}}Mai{{/if}}
+                    {{#if (eq filters.month 6)}}Juin{{/if}}
+                    {{#if (eq filters.month 7)}}Juillet{{/if}}
+                    {{#if (eq filters.month 8)}}Août{{/if}}
+                    {{#if (eq filters.month 9)}}Septembre{{/if}}
+                    {{#if (eq filters.month 10)}}Octobre{{/if}}
+                    {{#if (eq filters.month 11)}}Novembre{{/if}}
+                    {{#if (eq filters.month 12)}}Décembre{{/if}}
+                {{/if}}
+                {{#if filters.week}}Semaine {{filters.week}}{{/if}}
+            </span>
+        </div>
+        {{/unless}}
+    </div>
+
+    {{!-- Quick Actions --}}
+    <div class="quick-actions">
+        <div class="action-card">
+            <div class="action-card-content">
+                <h3>
+                    <i class="fas fa-plus-circle" style="color: var(--primary-color);"></i>
+                    Nouvel Inventaire
+                </h3>
+                <p>Créer un nouveau comptage de stock pour votre magasin</p>
+                <button class="btn btn-primary" onclick="startNewInventory()">
+                    <i class="fas fa-plus"></i>
+                    Créer un inventaire
+                </button>
+            </div>
+        </div>
+
+        <div class="action-card">
+            <div class="action-card-content">
+                <h3>
+                    <i class="fas fa-chart-line" style="color: var(--success-color);"></i>
+                    Statistiques
+                </h3>
+                <p>Consultez les statistiques de vos inventaires</p>
+                <a href="/inventory/stats" class="btn btn-success">
+                    <i class="fas fa-chart-bar"></i>
+                    Voir les stats
+                </a>
+            </div>
+        </div>
+
+        <div class="action-card">
+            <div class="action-card-content">
+                <h3>
+                    <i class="fas fa-shopping-cart" style="color: var(--warning-color);"></i>
+                    Produits à Commander
+                </h3>
+                <p>Liste des produits sous le stock minimum</p>
+                <a href="/productsToOrder" class="btn btn-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Voir la liste
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {{!-- Active Inventory Alert --}}
+    {{#if activeInventory}}
+    <div style="background: linear-gradient(135deg, #fef3c7, #fde68a); border: 1px solid #f59e0b; border-radius: 12px; padding: 20px; margin-bottom: 32px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+            <i class="fas fa-clipboard-list" style="color: #f59e0b; font-size: 1.5rem;"></i>
+            <div>
+                <h3 style="margin: 0; color: #92400e;">Inventaire en cours</h3>
+                <p style="margin: 4px 0 0 0; color: #b45309;">Vous avez un inventaire non finalisé: <strong>{{activeInventory.name}}</strong></p>
+                {{#if activeInventory.notes}}
+                <p style="margin: 4px 0 0 0; font-size: 14px; color: #92400e;">{{activeInventory.notes}}</p>
+                {{/if}}
+            </div>
+        </div>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <a href="/liste_abdelhamid" class="btn btn-success">
+                <i class="fas fa-edit"></i>
+                Continuer l'inventaire
+            </a>
+            <button class="btn btn-danger" onclick="cancelInventory({{activeInventory.id}})">
+                <i class="fas fa-times"></i>
+                Annuler
+            </button>
+        </div>
+    </div>
+    {{/if}}
+
+    {{!-- Inventories Section --}}
+    <div class="inventories-section">
+        <h2>
+            <i class="fas fa-list"></i>
+            Inventaires Existants
+        </h2>
+
+        {{#if inventories.length}}
+        <div class="inventories-grid">
+            {{#each inventories}}
+            <div class="inventory-card">
+                <div class="inventory-card-header">
+                    <h3 class="inventory-card-title">{{this.name}}</h3>
+                </div>
+                <div class="inventory-card-content">
+                    <div class="inventory-card-meta">
+                        <p><strong>Statut:</strong> 
+                            <span class="status-badge status-{{this.status}}">
+                                {{#if (eq this.status 'draft')}}Brouillon{{else}}Finalisé{{/if}}
+                            </span>
+                        </p>
+                        <p><strong>Date:</strong> {{formatDate this.created_date}}</p>
+                        {{#if this.finalized_date}}
+                        <p><strong>Finalisé:</strong> {{formatDate this.finalized_date}}</p>
+                        {{/if}}
+                        <p><strong>Produits:</strong> {{this.items_count}} articles</p>
+                        {{#if this.modified_items_count}}
+                        <p><strong>Modifications:</strong> {{this.modified_items_count}} produits modifiés</p>
+                        {{/if}}
+                    </div>
+                    <div class="inventory-card-actions">
+                        <button class="btn btn-primary" onclick="viewInventory({{this.id}})">
+                            <i class="fas fa-eye"></i> Voir
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteInventory({{this.id}})">
+                            <i class="fas fa-trash"></i> Supprimer
+                        </button>
+                        <button class="btn btn-warning" onclick="createOrderListFromInventory({{this.id}})">
+                            <i class="fas fa-shopping-cart"></i> Commandes
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+        {{else}}
+        <div class="empty-state">
+            <i class="fas fa-warehouse"></i>
+            <h3>Aucun inventaire créé</h3>
+            <p>Commencez par créer votre premier inventaire pour suivre vos stocks.</p>
+            <button class="btn btn-primary" onclick="startNewInventory()" style="margin-top: 20px;">
+                <i class="fas fa-plus"></i>
+                Créer mon premier inventaire
+            </button>
+        </div>
+        {{/if}}
+    </div>
+</div>
+
+{{!-- Modal pour créer un nouvel inventaire --}}
+<div id="newInventoryModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Créer un Nouvel Inventaire</h2>
+            <button class="modal-close" onclick="closeModal('newInventoryModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="newInventoryForm" style="padding: 24px;">
+                <div class="form-group">
+                    <label for="inventoryName" class="form-label">Nom de l'inventaire</label>
+                    <input type="text" id="inventoryName" name="name" class="form-control" 
+                           placeholder="Ex: Inventaire mensuel décembre 2024" required>
+                </div>
+                <div class="form-group">
+                    <label for="inventoryNotes" class="form-label">Notes (optionnel)</label>
+                    <textarea id="inventoryNotes" name="notes" class="form-control" rows="3" 
+                              placeholder="Ajoutez des notes sur cet inventaire..."></textarea>
+                </div>
+                <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('newInventoryModal')">
+                        <i class="fas fa-times"></i> Annuler
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Créer l'inventaire
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{!-- Modal pour voir les détails d'un inventaire --}}
+<div id="inventoryDetailsModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="inventoryDetailsTitle" class="modal-title">Détails de l'inventaire</h2>
+            <button class="modal-close" onclick="closeModal('inventoryDetailsModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="inventoryDetailsContent">
+                {{!-- Le contenu sera injecté par JavaScript --}}
+            </div>
+        </div>
+    </div>
+</div>
+
+{{!-- Modal de confirmation pour les actions --}}
+<div id="confirmModal" class="modal">
+    <div class="modal-content" style="max-width: 400px;">
+        <div class="modal-header">
+            <h2 id="confirmTitle" class="modal-title">Confirmation</h2>
+            <button class="modal-close" onclick="closeModal('confirmModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div style="padding: 24px; text-align: center;">
+                <p id="confirmMessage">Êtes-vous sûr de vouloir effectuer cette action ?</p>
+                <div style="display: flex; gap: 12px; justify-content: center; margin-top: 24px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('confirmModal')">
+                        <i class="fas fa-times"></i> Annuler
+                    </button>
+                    <button type="button" id="confirmButton" class="btn btn-danger">
+                        <i class="fas fa-check"></i> Confirmer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{!-- Scripts --}}
+<script src="/inventory.js"></script>
+<script>
+// Fonctions pour les filtres d'inventaires
+document.addEventListener('DOMContentLoaded', function() {
+    setupInventoryFilters();
+});
+
+function setupInventoryFilters() {
+    const periodFilter = document.getElementById('periodFilter');
+    const yearFilter = document.getElementById('yearFilter');
+    const monthFilter = document.getElementById('monthFilter');
+    const weekFilter = document.getElementById('weekFilter');
+    const applyButton = document.getElementById('applyFilters');
+    const clearButton = document.getElementById('clearFilters');
+
+    if (!periodFilter) return; // Si les éléments n'existent pas, sortir
+
+    // Gestionnaire pour les filtres prédéfinis
+    periodFilter.addEventListener('change', function() {
+        if (this.value !== 'all') {
+            yearFilter.value = '';
+            monthFilter.value = '';
+            weekFilter.value = '';
+        }
+    });
+
+    // Gestionnaire pour les filtres personnalisés
+    [yearFilter, monthFilter, weekFilter].forEach(filter => {
+        filter.addEventListener('change', function() {
+            if (this.value) {
+                periodFilter.value = 'all';
+            }
+        });
+    });
+
+    // Appliquer les filtres
+    applyButton.addEventListener('click', function() {
+        applyInventoryFilters();
+    });
+
+    // Réinitialiser les filtres
+    clearButton.addEventListener('click', function() {
+        clearInventoryFilters();
+    });
+
+    // Appliquer les filtres avec Entrée
+    [periodFilter, yearFilter, monthFilter, weekFilter].forEach(filter => {
+        filter.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                applyInventoryFilters();
+            }
+        });
+    });
+}
+
+function applyInventoryFilters() {
+    const period = document.getElementById('periodFilter').value;
+    const year = document.getElementById('yearFilter').value;
+    const month = document.getElementById('monthFilter').value;
+    const week = document.getElementById('weekFilter').value;
+
+    // Construire l'URL avec les paramètres
+    const params = new URLSearchParams();
+    
+    if (period && period !== 'all') {
+        params.set('period', period);
+    }
+    
+    if (year) {
+        params.set('year', year);
+    }
+    
+    if (month) {
+        params.set('month', month);
+    }
+    
+    if (week) {
+        params.set('week', week);
+    }
+
+    // Rediriger avec les nouveaux filtres
+    const url = '/inventory' + (params.toString() ? '?' + params.toString() : '');
+    
+    // Afficher un indicateur de chargement
+    showInventoryLoadingIndicator();
+    
+    window.location.href = url;
+}
+
+function clearInventoryFilters() {
+    showInventoryLoadingIndicator();
+    window.location.href = '/inventory';
+}
+
+function showInventoryLoadingIndicator() {
+    const applyButton = document.getElementById('applyFilters');
+    if (!applyButton) return;
+    
+    const originalText = applyButton.innerHTML;
+    
+    applyButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Chargement...';
+    applyButton.disabled = true;
+    
+    // Restaurer après 5 secondes au cas où
+    setTimeout(() => {
+        applyButton.innerHTML = originalText;
+        applyButton.disabled = false;
+    }, 5000);
+}
+</script>
+<link rel="stylesheet" href="/inventory-mobile.css">
+{{> footer}}

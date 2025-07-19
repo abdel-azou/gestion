@@ -75,5 +75,21 @@ module.exports = {
     stockPercentage: (stock, minimalStock) => {
         if (minimalStock === 0) return 100;
         return Math.round((stock / minimalStock) * 100);
+    },
+    
+    // Helper pour calculer un pourcentage
+    calc: (value, total) => {
+        if (total === 0) return 0;
+        return Math.round((value / total) * 100);
+    },
+    
+    // Helper pour formater un pourcentage
+    formatPercentage: (value) => {
+        return Math.round(value);
+    },
+    
+    // Helper pour formater un nombre avec décimales
+    formatNumber: (value) => {
+        return Math.round(value * 100) / 100;
     }
 };

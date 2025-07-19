@@ -54,18 +54,46 @@ const OrderList = {
 
         return {
             ...list,
-            items: items
+            products: items
         };
     },
 
     // Mettre à jour une liste
-    updateList: (id, name, description, status) => {
+    updateList: (id, name, description, status = null) => {
+        let sql = `
+            UPDATE order_lists 
+            SET name = ?, description = ?, updated_date = datetime('now')
+        `;
+        let params = [name, description];
+        
+        if (status !== null) {
+            sql += `, status = ?`;
+            params.push(status);
+        }
+        
+        sql += ` WHERE id = ?`;
+        params.push(id);
+        
+        const stmt = db.prepare(sql);
+        return stmt.run(...params);
+    },
+
+    // Supprimer tous les produits d'une liste
+    removeAllProductsFromList: (listId) => {
+        const stmt = db.prepare(`
+            DELETE FROM order_list_items WHERE list_id = ?
+        `);
+        return stmt.run(listId);
+    },
+
+    // Finaliser une liste (marquer comme commandée)
+    finalizeList: (listId, notes = '') => {
         const stmt = db.prepare(`
             UPDATE order_lists 
-            SET name = ?, description = ?, status = ?, updated_date = datetime('now')
+            SET status = 'ordered', notes = ?, updated_date = datetime('now')
             WHERE id = ?
         `);
-        return stmt.run(name, description, status, id);
+        return stmt.run(notes, listId);
     },
 
     // Supprimer un produit d'une liste

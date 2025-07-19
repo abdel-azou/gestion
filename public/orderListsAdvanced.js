@@ -79,16 +79,20 @@ class OrderListManager {
         const productCheckbox = document.querySelector(`input[data-product-id="${productId}"]`);
         if (productCheckbox && !productCheckbox.checked) {
             productCheckbox.checked = true;
-            updateProductSelection(productCheckbox);
+            if (typeof updateProductSelection === 'function') {
+                updateProductSelection(productCheckbox);
+            }
             
             // Animer l'élément pour montrer qu'il a été ajouté
             const productItem = productCheckbox.closest('.product-item');
-            productItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            productItem.classList.add('highlighted');
-            
-            setTimeout(() => {
-                productItem.classList.remove('highlighted');
-            }, 2000);
+            if (productItem) {
+                productItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                productItem.classList.add('highlighted');
+                
+                setTimeout(() => {
+                    productItem.classList.remove('highlighted');
+                }, 2000);
+            }
         }
     }
 
@@ -112,11 +116,15 @@ class OrderListManager {
             
             if (reorderData.success) {
                 this.applySmartReorder(reorderData.products);
-                showNotification(`${reorderData.products.length} produits ajoutés automatiquement`, 'success');
+                if (typeof showNotification === 'function') {
+                    showNotification(`${reorderData.products.length} produits ajoutés automatiquement`, 'success');
+                }
             }
         } catch (error) {
             console.error('Erreur lors du réapprovisionnement intelligent:', error);
-            showNotification('Erreur lors du réapprovisionnement intelligent', 'error');
+            if (typeof showNotification === 'function') {
+                showNotification('Erreur lors du réapprovisionnement intelligent', 'error');
+            }
         }
     }
 
@@ -125,7 +133,9 @@ class OrderListManager {
             const checkbox = document.querySelector(`input[data-product-id="${product.id}"]`);
             if (checkbox && !checkbox.checked) {
                 checkbox.checked = true;
-                updateProductSelection(checkbox);
+                if (typeof updateProductSelection === 'function') {
+                    updateProductSelection(checkbox);
+                }
                 
                 // Définir la quantité suggérée
                 const quantityInput = checkbox.closest('.product-item').querySelector('.quantity-input');
@@ -143,11 +153,15 @@ class OrderListManager {
                 switch(e.key) {
                     case 'a':
                         e.preventDefault();
-                        selectAllProducts();
+                        if (typeof selectAllProducts === 'function') {
+                            selectAllProducts();
+                        }
                         break;
                     case 'd':
                         e.preventDefault();
-                        clearAllProducts();
+                        if (typeof clearAllProducts === 'function') {
+                            clearAllProducts();
+                        }
                         break;
                     case 's':
                         e.preventDefault();
@@ -161,7 +175,7 @@ class OrderListManager {
         });
     }
 
-    // Drag and Drop pour réorganiser
+    // Drag and Drop
     setupDragAndDrop() {
         const productItems = document.querySelectorAll('.product-item');
         
@@ -173,151 +187,141 @@ class OrderListManager {
                 item.classList.add('dragging');
             });
             
-            item.addEventListener('dragend', () => {
+            item.addEventListener('dragend', (e) => {
                 item.classList.remove('dragging');
             });
-            
-            item.addEventListener('dragover', (e) => {
-                e.preventDefault();
-            });
-            
-            item.addEventListener('drop', (e) => {
-                e.preventDefault();
-                const draggedId = e.dataTransfer.getData('text/plain');
-                const draggedItem = document.querySelector(`[data-product-id="${draggedId}"]`).closest('.product-item');
-                
-                if (draggedItem !== item) {
-                    const container = item.parentNode;
-                    const draggedIndex = Array.from(container.children).indexOf(draggedItem);
-                    const targetIndex = Array.from(container.children).indexOf(item);
-                    
-                    if (draggedIndex < targetIndex) {
-                        container.insertBefore(draggedItem, item.nextSibling);
-                    } else {
-                        container.insertBefore(draggedItem, item);
-                    }
-                }
-            });
         });
-    }
 
-    // Fonctionnalités de template et favoris
-    saveAsTemplate(listName) {
-        const selectedProducts = this.getSelectedProducts();
-        const template = {
-            name: listName,
-            products: selectedProducts,
-            created_at: new Date().toISOString()
-        };
-
-        const templates = this.getTemplates();
-        templates.push(template);
-        localStorage.setItem('orderListTemplates', JSON.stringify(templates));
-        
-        showNotification('Template sauvegardé avec succès', 'success');
-    }
-
-    getTemplates() {
-        const templates = localStorage.getItem('orderListTemplates');
-        return templates ? JSON.parse(templates) : [];
-    }
-
-    applyTemplate(templateName) {
-        const templates = this.getTemplates();
-        const template = templates.find(t => t.name === templateName);
-        
-        if (template) {
-            clearAllProducts();
-            template.products.forEach(product => {
-                const checkbox = document.querySelector(`input[data-product-id="${product.id}"]`);
-                if (checkbox) {
-                    checkbox.checked = true;
-                    updateProductSelection(checkbox);
-                    
-                    const quantityInput = checkbox.closest('.product-item').querySelector('.quantity-input');
-                    if (quantityInput) {
-                        quantityInput.value = product.quantity;
-                    }
+        const dropZone = document.getElementById('selectedProductsList');
+        if (dropZone) {
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('drag-over');
+            });
+            
+            dropZone.addEventListener('dragleave', (e) => {
+                if (!dropZone.contains(e.relatedTarget)) {
+                    dropZone.classList.remove('drag-over');
                 }
             });
             
-            showNotification(`Template "${templateName}" appliqué`, 'success');
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+                
+                const productId = e.dataTransfer.getData('text/plain');
+                const checkbox = document.querySelector(`input[data-product-id="${productId}"]`);
+                
+                if (checkbox && !checkbox.checked) {
+                    checkbox.checked = true;
+                    if (typeof updateProductSelection === 'function') {
+                        updateProductSelection(checkbox);
+                    }
+                }
+            });
         }
     }
 
-    getSelectedProducts() {
-        const selected = [];
-        document.querySelectorAll('.product-checkbox:checked').forEach(checkbox => {
-            const productItem = checkbox.closest('.product-item');
-            const quantityInput = productItem.querySelector('.quantity-input');
-            const prioritySelect = productItem.querySelector('.priority-select');
-            
-            selected.push({
-                id: parseInt(checkbox.dataset.productId),
-                quantity: parseInt(quantityInput.value),
-                priority: prioritySelect.value
-            });
-        });
-        return selected;
-    }
+    // Analytics et statistiques
+    generateAnalytics() {
+        const selectedProducts = Array.from(document.querySelectorAll('input[data-product-id]:checked'));
+        const totalItems = selectedProducts.length;
+        const urgentItems = selectedProducts.filter(cb => 
+            cb.closest('.product-item').classList.contains('urgent')
+        ).length;
 
-    // Statistiques en temps réel
-    updateRealTimeStats() {
-        const selectedProducts = this.getSelectedProducts();
-        const totalItems = selectedProducts.reduce((sum, p) => sum + p.quantity, 0);
-        const urgentItems = selectedProducts.filter(p => p.priority === 'urgent').length;
-        
-        const statsContainer = document.getElementById('realTimeStats');
-        if (statsContainer) {
-            statsContainer.innerHTML = `
-                <div class="stat-item">
-                    <span class="stat-label">Total articles:</span>
-                    <span class="stat-value">${totalItems}</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Urgents:</span>
-                    <span class="stat-value urgent">${urgentItems}</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Produits:</span>
-                    <span class="stat-value">${selectedProducts.length}</span>
+        const analyticsContainer = document.getElementById('orderAnalytics');
+        if (analyticsContainer) {
+            analyticsContainer.innerHTML = `
+                <div class="analytics-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total produits</div>
+                        <div class="stat-value">${totalItems}</div>
+                    </div>
+                    <div class="stat-card urgent">
+                        <div class="stat-label">Produits urgents</div>
+                        <div class="stat-value urgent">${urgentItems}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Sélectionnés</div>
+                        <div class="stat-value">${selectedProducts.length}</div>
+                    </div>
                 </div>
             `;
         }
     }
 
     refreshSuggestions() {
-        showNotification('Actualisation des suggestions...', 'info');
         this.loadSmartSuggestions();
     }
 }
 
-// Initialiser le gestionnaire au chargement de la page
+// Fonctions utilitaires globales
+function saveCurrentAsTemplate() {
+    const selectedProducts = Array.from(document.querySelectorAll('input[data-product-id]:checked'));
+    const templateName = prompt('Nom du modèle:');
+    
+    if (templateName && selectedProducts.length > 0) {
+        const template = {
+            name: templateName,
+            products: selectedProducts.map(cb => ({
+                id: cb.dataset.productId,
+                quantity: cb.closest('.product-item').querySelector('.quantity-input')?.value || 1
+            })),
+            date: new Date().toISOString()
+        };
+        
+        localStorage.setItem(`template_${templateName}`, JSON.stringify(template));
+        if (typeof showNotification === 'function') {
+            showNotification(`Modèle "${templateName}" sauvegardé`, 'success');
+        }
+    }
+}
+
+function loadTemplate() {
+    const templateName = prompt('Nom du modèle à charger:');
+    if (!templateName) return;
+    
+    const templateData = localStorage.getItem(`template_${templateName}`);
+    if (templateData) {
+        const template = JSON.parse(templateData);
+        
+        // Désélectionner tous les produits
+        document.querySelectorAll('input[data-product-id]:checked').forEach(cb => {
+            cb.checked = false;
+            if (typeof updateProductSelection === 'function') {
+                updateProductSelection(cb);
+            }
+        });
+        
+        // Sélectionner les produits du modèle
+        template.products.forEach(product => {
+            const checkbox = document.querySelector(`input[data-product-id="${product.id}"]`);
+            if (checkbox) {
+                checkbox.checked = true;
+                if (typeof updateProductSelection === 'function') {
+                    updateProductSelection(checkbox);
+                }
+                
+                const quantityInput = checkbox.closest('.product-item').querySelector('.quantity-input');
+                if (quantityInput) {
+                    quantityInput.value = product.quantity;
+                }
+            }
+        });
+        
+        if (typeof showNotification === 'function') {
+            showNotification(`Modèle "${templateName}" chargé`, 'success');
+        }
+    } else {
+        if (typeof showNotification === 'function') {
+            showNotification(`Modèle "${templateName}" non trouvé`, 'error');
+        }
+    }
+}
+
+// Initialisation
 let orderListManager;
 document.addEventListener('DOMContentLoaded', () => {
     orderListManager = new OrderListManager();
 });
-
-// Fonction pour sauvegarder comme template
-function saveCurrentAsTemplate() {
-    const templateName = prompt('Nom du template:');
-    if (templateName) {
-        orderListManager.saveAsTemplate(templateName);
-    }
-}
-
-// Fonction pour charger un template
-function loadTemplate() {
-    const templates = orderListManager.getTemplates();
-    if (templates.length === 0) {
-        showNotification('Aucun template disponible', 'warning');
-        return;
-    }
-    
-    const templateNames = templates.map(t => t.name);
-    const selectedTemplate = prompt('Sélectionner un template:\n' + templateNames.join('\n'));
-    
-    if (selectedTemplate && templateNames.includes(selectedTemplate)) {
-        orderListManager.applyTemplate(selectedTemplate);
-    }
-}
