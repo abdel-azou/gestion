@@ -268,12 +268,12 @@ const productController = {
         });
     },
     
-    adminGetProductsByCategory: (req, res) => {
+    adminGetProductsByCategory: async (req, res) => {
         const category_id = req.params.categoryId;
         console.log(`Fetching products for category: ${category_id}`);
         
         try {
-            const products = Product.getByCategory(category_id);
+            const products = await Product.getByCategory(category_id);
             res.json(products);
         } catch (error) {
             console.error("Error fetching products by category:", error);
@@ -281,13 +281,13 @@ const productController = {
         }
     },
     
-    adminUpdateProduct: (req, res) => {
+    adminUpdateProduct: async (req, res) => {
         console.log("Admin updating product");
         const { id, name, stock, category_id, stock_minimal } = req.body;
         console.log("Received data:", { id, name, stock, category_id, stock_minimal });
         
         try {
-            Product.update(id, name, parseInt(stock), parseInt(category_id), parseInt(stock_minimal));
+            await Product.update(id, name, parseInt(stock), parseInt(category_id), parseInt(stock_minimal));
             res.json({ success: true, message: 'Produit mis à jour avec succès' });
         } catch (error) {
             console.error("Error updating product:", error);
@@ -295,12 +295,12 @@ const productController = {
         }
     },
     
-    adminGetProduct: (req, res) => {
+    adminGetProduct: async (req, res) => {
         const id = req.params.id;
         console.log(`Fetching product with ID: ${id}`);
         
         try {
-            const product = Product.getById(id);
+            const product = await Product.getById(id);
             if (product) {
                 res.json(product);
             } else {
@@ -312,13 +312,13 @@ const productController = {
         }
     },
     
-    adminCreateProduct: (req, res) => {
+    adminCreateProduct: async (req, res) => {
         console.log("Admin creating new product");
         const { name, stock, category_id, stock_minimal } = req.body;
         console.log("Received data:", { name, stock, category_id, stock_minimal });
         
         try {
-            Product.create(name, parseInt(stock), parseInt(category_id), parseInt(stock_minimal));
+            await Product.create(name, parseInt(stock), parseInt(category_id), parseInt(stock_minimal));
             res.json({ success: true, message: 'Produit créé avec succès' });
         } catch (error) {
             console.error("Error creating product:", error);
@@ -326,12 +326,12 @@ const productController = {
         }
     },
     
-    adminDeleteProduct: (req, res) => {
+    adminDeleteProduct: async (req, res) => {
         const id = req.params.id;
         console.log(`Admin deleting product with ID: ${id}`);
         
         try {
-            Product.delete(id);
+            await Product.delete(id);
             res.json({ success: true, message: 'Produit supprimé avec succès' });
         } catch (error) {
             console.error("Error deleting product:", error);
@@ -339,13 +339,13 @@ const productController = {
         }
     },
     
-    adminCreateCategory: (req, res) => {
+    adminCreateCategory: async (req, res) => {
         console.log("Admin creating new category");
         const { name } = req.body;
         console.log("Received data:", { name });
         
         try {
-            Category.create(name);
+            await Category.create(name);
             res.json({ success: true, message: 'Catégorie créée avec succès' });
         } catch (error) {
             console.error("Error creating category:", error);

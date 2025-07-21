@@ -6,7 +6,12 @@ const path = require('path');
 const fs = require('fs');
 
 // Initialiser la base de données au démarrage
-require('./init-db');
+const setupRailwayDatabase = require('./railway-setup');
+
+// Configuration asynchrone de la base
+(async () => {
+    await setupRailwayDatabase();
+})().catch(err => console.log('Setup DB warning:', err.message));
 
 const app = express();
 const port = process.env.PORT || 8080;

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erreur - Gestion Stock</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .error-container {
+            max-width: 600px;
+            margin: 50px auto;
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .error-icon {
+            font-size: 4rem;
+            color: #dc3545;
+            margin-bottom: 20px;
+        }
+        
+        .error-title {
+            color: #dc3545;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .error-message {
+            color: #6c757d;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .error-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: #007bff;
+        }
+        
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+        
+        .error-details {
+            margin-top: 30px;
+            padding: 15px;
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            text-align: left;
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-icon">⚠️</div>
+        
+        <h1 class="error-title">Une erreur s'est produite</h1>
+        
+        <div class="error-message">
+            {{#if error}}
+                <p>{{error}}</p>
+            {{else}}
+                <p>Désolé, une erreur inattendue s'est produite. Veuillez réessayer.</p>
+            {{/if}}
+        </div>
+        
+        <div class="error-actions">
+            <a href="javascript:history.back()" class="btn btn-secondary">← Retour</a>
+            <a href="/liste_abdelhamid" class="btn btn-primary">🏠 Accueil</a>
+        </div>
+        
+        {{#if showDetails}}
+        <div class="error-details">
+            <strong>Détails techniques :</strong><br>
+            {{error}}
+        </div>
+        {{/if}}
+    </div>
+
+    <script>
+        // Auto-refresh après 30 secondes si l'erreur est liée à la base de données
+        setTimeout(function() {
+            if (document.querySelector('.error-message').textContent.includes('base') || 
+                document.querySelector('.error-message').textContent.includes('database') ||
+                document.querySelector('.error-message').textContent.includes('exist')) {
+                window.location.reload();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
