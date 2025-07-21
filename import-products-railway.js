@@ -117,11 +117,11 @@ async function importAllProducts() {
             const categoryId = categoryMapping[product.categoryName];
             
             await client.query(`
-                INSERT INTO products (name, stock, min_stock, category_id, unit, price)
+                INSERT INTO products (name, stock, stock_minimal, category_id, unit, price)
                 VALUES ($1, $2, $3, $4, $5, $6)
                 ON CONFLICT (name) DO UPDATE SET
                     stock = EXCLUDED.stock,
-                    min_stock = EXCLUDED.min_stock
+                    stock_minimal = EXCLUDED.stock_minimal
             `, [
                 product.name,
                 product.stock,

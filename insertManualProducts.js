@@ -251,11 +251,11 @@ async function importProducts() {
             
             try {
                 await client.query(`
-                    INSERT INTO products (name, description, price, stock, min_stock, unit, category_id)
+                    INSERT INTO products (name, description, price, stock, stock_minimal, unit, category_id)
                     VALUES ($1, $2, $3, $4, $5, $6, $7)
                     ON CONFLICT (name) DO UPDATE SET
                         stock = EXCLUDED.stock,
-                        min_stock = EXCLUDED.min_stock,
+                        stock_minimal = EXCLUDED.stock_minimal,
                         category_id = EXCLUDED.category_id,
                         updated_at = NOW()
                 `, [
