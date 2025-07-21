@@ -1,13 +1,33 @@
-const db = require('./db_config');
+const pool = require('./db_config');
 
 const Category = {
-    create: (name) => {
-        const stmt = db.prepare('INSERT INTO categories (name) VALUES (?)');
-        stmt.run(name);
+    getAll: async () => {
+        const query = 'SELECT * FROM categories ORDER BY name';
+        const result = await pool.query(query);
+        return result.rows;
     },
-    getAll: () => {
-        const stmt = db.prepare('SELECT * FROM categories');
-        return stmt.all();
+    
+    create: async (name) => {
+        const query = 'INSERT INTO categories (name) VALUES ($1) RETURNING *';
+        const result = await pool.query(query, [name]);
+        return result.rows[0];
+    },
+    
+    getById: async (id) => {
+        const query = 'SELECT * FROM categories WHERE id = $1';
+        const result = await pool.query(query, [id]);
+        return result.rows[0];
+    },
+    
+    deleteById: async (id) => {
+        const query = 'DELETE FROM categories WHERE id = $1';
+        await pool.query(query, [id]);
+    },
+    
+    update: async (id, name) => {
+        const query = 'UPDATE categories SET name = $1 WHERE id = $2 RETURNING *';
+        const result = await pool.query(query, [name, id]);
+        return result.rows[0];
     }
 };
 

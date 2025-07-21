@@ -1,122 +1,127 @@
-const db = require('./db_config');
+const pool = require('./db_config');
 
 const Product = {
-    getAll: () => {
-        const stmt = db.prepare(`
+    getAll: async () => {
+        const query = `
             SELECT products.*, categories.name as category
             FROM products
             JOIN categories ON products.category_id = categories.id
-        `);
-        return stmt.all();
+        `;
+        const result = await pool.query(query);
+        return result.rows;
     },
-    create: (name, stock, category_id, stock_minimal) => {
-        const stmt = db.prepare(`
+    
+    create: async (name, stock, category_id, stock_minimal) => {
+        const query = `
             INSERT INTO products (name, stock, category_id, stock_minimal)
-            VALUES (?, ?, ?, ?)
-        `);
-        stmt.run(name, stock, category_id, stock_minimal);
+            VALUES ($1, $2, $3, $4)
+            RETURNING *
+        `;
+        const result = await pool.query(query, [name, stock, category_id, stock_minimal]);
+        return result.rows[0];
     },
-     createMany: (productsArray) => {
-        // Prépare l'instruction SQL une seule fois pour une meilleure performance
-        const insertStmt = db.prepare(`
-            INSERT INTO products (name, stock, category_id, stock_minimal)
-            VALUES (?, ?, ?, ?)
-        `);
-
-        // Utilise une transaction pour assurer que toutes les insertions réussissent ou échouent
-        db.transaction((products) => {
-            for (const product of products) {
-                // Exécute l'insertion pour chaque produit dans le tableau
-                insertStmt.run(product.name, product.stock, product.category_id, product.stock_minimal);
+    
+    createMany: async (productsArray) => {
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
+            for (const product of productsArray) {
+                await client.query(
+                    'INSERT INTO products (name, stock, category_id, stock_minimal) VALUES ($1, $2, $3, $4)',
+                    [product.name, product.stock, product.category_id, product.stock_minimal]
+                );
             }
-        })(productsArray); // Passe le tableau de produits à la fonction de transaction
+            await client.query('COMMIT');
+        } catch (err) {
+            await client.query('ROLLBACK');
+            throw err;
+        } finally {
+            client.release();
+        }
     },
-    updateStock: (id, stock) => {
-        const stmt = db.prepare(`
-            UPDATE products SET stock = ? WHERE id = ?
-        `);
-        stmt.run(stock, id);
+    
+    updateStock: async (id, stock) => {
+        const query = 'UPDATE products SET stock = $1 WHERE id = $2';
+        await pool.query(query, [stock, id]);
     },
 
-    updateMinimalStock: (id, stock_minimal) => {
-        const stmt = db.prepare(`
-            UPDATE products SET stock_minimal = ? WHERE id = ?
-        `);
-        stmt.run(stock_minimal, id);
-    },
-    getById: (id) => {
-        const stmt = db.prepare(`
-            SELECT * FROM products WHERE id = ?
-        `);
-        return stmt.get(id);
-    },
-    getProductsToOrder: () => {
-        const stmt = db.prepare(`
-            SELECT name, (stock_minimal - stock) as difference
-            FROM products
-            WHERE stock < stock_minimal
-        `);
-        return stmt.all();
-    },
-    delete: (id) => {
-        const parsedId = parseInt(id, 10);  // Force l'ID à être un nombre entier
-        if (isNaN(parsedId)) {
-            throw new Error("Invalid ID for deletion");
-        }
-        console.log(`Deleting product with ID: ${parsedId}`);
-        const stmt = db.prepare(`
-            DELETE FROM products WHERE id = ?
-        `);
-        stmt.run(parsedId);
+    updateMinimalStock: async (id, stock_minimal) => {
+        const query = 'UPDATE products SET stock_minimal = $1 WHERE id = $2';
+        await pool.query(query, [stock_minimal, id]);
     },
     
-    // Méthodes pour l'espace admin
-    update: (id, name, stock, category_id, stock_minimal) => {
-        const stmt = db.prepare(`
-            UPDATE products 
-            SET name = ?, stock = ?, category_id = ?, stock_minimal = ?
-            WHERE id = ?
-        `);
-        stmt.run(name, stock, category_id, stock_minimal, id);
+    getById: async (id) => {
+        const query = 'SELECT * FROM products WHERE id = $1';
+        const result = await pool.query(query, [id]);
+        return result.rows[0];
     },
     
-    getByCategory: (category_id = null) => {
-        let stmt;
-        if (category_id) {
-            stmt = db.prepare(`
-                SELECT products.*, categories.name as category
-                FROM products
-                JOIN categories ON products.category_id = categories.id
-                WHERE products.category_id = ?
-            `);
-            return stmt.all(category_id);
-        } else {
-            return Product.getAll();
-        }
+    deleteById: async (id) => {
+        const query = 'DELETE FROM products WHERE id = $1';
+        await pool.query(query, [id]);
     },
     
-    getBelowMinimalStock: () => {
-        const stmt = db.prepare(`
+    getByCategory: async (categoryId) => {
+        const query = `
             SELECT products.*, categories.name as category
             FROM products
             JOIN categories ON products.category_id = categories.id
-            WHERE products.stock < products.stock_minimal
-        `);
-        return stmt.all();
+            WHERE products.category_id = $1
+        `;
+        const result = await pool.query(query, [categoryId]);
+        return result.rows;
     },
     
-    getStatistics: () => {
-        const totalProducts = db.prepare('SELECT COUNT(*) as count FROM products').get().count;
-        const lowStockProducts = db.prepare('SELECT COUNT(*) as count FROM products WHERE stock < stock_minimal').get().count;
-        const outOfStockProducts = db.prepare('SELECT COUNT(*) as count FROM products WHERE stock = 0').get().count;
+    getLowStockProducts: async () => {
+        const query = `
+            SELECT products.*, categories.name as category
+            FROM products
+            JOIN categories ON products.category_id = categories.id
+            WHERE products.stock <= products.stock_minimal
+        `;
+        const result = await pool.query(query);
+        return result.rows;
+    },
+    
+    getOutOfStockProducts: async () => {
+        const query = `
+            SELECT products.*, categories.name as category
+            FROM products
+            JOIN categories ON products.category_id = categories.id
+            WHERE products.stock = 0
+        `;
+        const result = await pool.query(query);
+        return result.rows;
+    },
+    
+    updateProduct: async (id, name, stock, category_id, stock_minimal) => {
+        const query = `
+            UPDATE products 
+            SET name = $1, stock = $2, category_id = $3, stock_minimal = $4 
+            WHERE id = $5
+            RETURNING *
+        `;
+        const result = await pool.query(query, [name, stock, category_id, stock_minimal, id]);
+        return result.rows[0];
+    },
+    
+    getStatistics: async () => {
+        const totalQuery = 'SELECT COUNT(*) as total FROM products';
+        const lowStockQuery = 'SELECT COUNT(*) as low_stock FROM products WHERE stock <= stock_minimal AND stock > 0';
+        const outOfStockQuery = 'SELECT COUNT(*) as out_of_stock FROM products WHERE stock = 0';
+        
+        const [totalResult, lowStockResult, outOfStockResult] = await Promise.all([
+            pool.query(totalQuery),
+            pool.query(lowStockQuery),
+            pool.query(outOfStockQuery)
+        ]);
         
         return {
-            totalProducts,
-            lowStockProducts,
-            outOfStockProducts
+            totalProducts: parseInt(totalResult.rows[0].total),
+            lowStockProducts: parseInt(lowStockResult.rows[0].low_stock),
+            outOfStockProducts: parseInt(outOfStockResult.rows[0].out_of_stock)
         };
     }
-
 };
 
 module.exports = Product;
