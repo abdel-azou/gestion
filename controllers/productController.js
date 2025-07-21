@@ -70,15 +70,15 @@ const productController = {
         console.log("Products by category:", JSON.stringify(productsByCategory, null, 2));
         res.render('liste_abdelhamid', { productsByCategory });
     },
-    chefPatissier: (req, res) => {
+    chefPatissier: async (req, res) => {
         console.log("Fetching product list for chef-patissier");
-        const products = Product.getAll();
+        const products = await Product.getAll();
         console.log("Products:", products);
-        const categories = Category.getAll();
+        const categories = await Category.getAll();
         console.log("Categories:", categories);
 
         // Filtrer pour ne garder que la catégorie "Patissier" (ID: 5)
-        const patissierCategory = categories.find(category => category.name === 'Patissier' || category.id === 5);
+        const patissierCategory = categories.find(category => category.name === 'patissier' || category.id === 5);
         
         if (!patissierCategory) {
             console.error("Catégorie Patissier non trouvée");
@@ -432,13 +432,11 @@ const productController = {
     },
     
     // Gestion des listes de commandes
-    orderListsPage: (req, res) => {
+    orderListsPage: async (req, res) => {
         console.log("Loading order lists page");
         try {
-            const lists = OrderList.getAllLists();
-            const statistics = OrderList.getStatistics();
-            const availableProducts = OrderList.getAvailableProducts();
-            const categories = Category.getAll();
+            const lists = await OrderList.getAllLists();
+            const categories = await Category.getAll();
             
             res.render('orderLists', {
                 lists,
