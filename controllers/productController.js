@@ -54,11 +54,11 @@ const productController = {
             res.status(404).send('Product not found');
         }
     },
-    listeAbdelhamid: (req, res) => {
+    listeAbdelhamid: async (req, res) => {
         console.log("Fetching product list for liste_abdelhamid");
-        const products = Product.getAll();
+        const products = await Product.getAll();
         console.log("Products:", products);
-        const categories = Category.getAll();
+        const categories = await Category.getAll();
         console.log("Categories:", categories);
 
         const productsByCategory = categories.map(category => ({
