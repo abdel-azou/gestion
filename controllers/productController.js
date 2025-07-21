@@ -70,6 +70,30 @@ const productController = {
         console.log("Products by category:", JSON.stringify(productsByCategory, null, 2));
         res.render('liste_abdelhamid', { productsByCategory });
     },
+    chefPatissier: (req, res) => {
+        console.log("Fetching product list for chef-patissier");
+        const products = Product.getAll();
+        console.log("Products:", products);
+        const categories = Category.getAll();
+        console.log("Categories:", categories);
+
+        // Filtrer pour ne garder que la catégorie "Patissier" (ID: 5)
+        const patissierCategory = categories.find(category => category.name === 'Patissier' || category.id === 5);
+        
+        if (!patissierCategory) {
+            console.error("Catégorie Patissier non trouvée");
+            return res.status(404).send('Catégorie Patissier non trouvée');
+        }
+
+        const productsByCategory = [{
+            id: patissierCategory.id,
+            name: patissierCategory.name,
+            products: products.filter(product => product.category_id === patissierCategory.id)
+        }];
+        
+        console.log("Patissier products by category:", JSON.stringify(productsByCategory, null, 2));
+        res.render('chef_patissier', { productsByCategory });
+    },
     inventoryDashboard: (req, res) => {
         console.log("Fetching inventory dashboard");
         try {
@@ -1063,5 +1087,47 @@ function calculateStockDistribution(products, categories) {
         lowStockPercentage: data.productCount > 0 ? Math.round((data.lowStockCount / data.productCount) * 100) : 0
     }));
 }
+
+// Créer un inventaire spécifique pour la pâtisserie
+productController.createPatisserieInventory = (req, res) => {
+    try {
+        const { name, notes } = req.body;
+        
+        if (!name) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Le nom de l\'inventaire est requis' 
+            });
+        }
+
+        // Créer l'inventaire pâtisserie (category_id = 5)
+        const result = Inventory.createPatisserie(name, notes);
+        
+        if (result.lastInsertRowid) {
+            const inventoryId = result.lastInsertRowid;
+            
+            // Sauvegarder l'état actuel des produits de pâtisserie uniquement
+            Inventory.saveCurrentStock(inventoryId, 5); // 5 = catégorie pâtissier
+            
+            res.json({ 
+                success: true, 
+                inventoryId: inventoryId,
+                message: 'Inventaire pâtisserie créé avec succès',
+                type: 'patisserie'
+            });
+        } else {
+            res.status(500).json({ 
+                success: false, 
+                message: 'Erreur lors de la création de l\'inventaire' 
+            });
+        }
+    } catch (error) {
+        console.error('Erreur lors de la création de l\'inventaire pâtisserie:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Erreur serveur lors de la création de l\'inventaire' 
+        });
+    }
+};
 
 module.exports = productController;

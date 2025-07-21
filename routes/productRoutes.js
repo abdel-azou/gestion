@@ -12,6 +12,7 @@ router.post('/products/mark-as-ordered', productController.markAsOrdered);
 router.get('/categories', productController.categories);
 router.post('/categories', productController.createCategory);
 router.get('/liste_abdelhamid', productController.listeAbdelhamid);
+router.get('/chef-patissier', productController.chefPatissier);
 router.get('/products-to-order', productController.productsToOrder);
 router.get('/inventory', productController.inventoryDashboard);
 router.post('/products/delete/:id', productController.deleteProduct);
@@ -51,5 +52,8 @@ router.post('/api/inventory/update-stock', productController.updateInventoryProd
 router.post('/api/inventory/:id/finalize', productController.finalizeInventory);
 router.post('/api/inventory/:id/create-order-list', productController.createOrderListFromInventory);
 router.delete('/api/inventory/:id', productController.deleteInventory);
+
+// Route spécifique pour créer un inventaire pâtisserie
+router.post('/api/inventory/create-patisserie', productController.createPatisserieInventory);
 
 module.exports = router;

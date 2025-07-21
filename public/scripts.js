@@ -217,18 +217,66 @@ function filterCategories() {
 
     categories.forEach(category => {
         const categoryName = category.getAttribute('data-category').toLowerCase();
-        category.style.display = categoryName.includes(searchValue) ? '' : 'none';
+        const shouldShow = categoryName.includes(searchValue);
+        
+        // Utiliser des classes si on est sur chef pâtissier, sinon style.display
+        if (document.getElementById('chef_patissier-page')) {
+            if (shouldShow) {
+                category.classList.remove('filtered-hidden');
+            } else {
+                category.classList.add('filtered-hidden');
+            }
+        } else {
+            category.style.display = shouldShow ? '' : 'none';
+        }
     });
 }
 
 function filterProducts() {
     const searchValue = document.getElementById('product-search').value.toLowerCase();
-    const products = document.querySelectorAll('.product-item');
+    const categories = document.querySelectorAll('.category-section');
+    
+    console.log('Filtering products with search:', searchValue);
 
-    products.forEach(product => {
-        const productName = product.getAttribute('data-name').toLowerCase();
-        product.style.display = productName.includes(searchValue) ? '' : 'none';
+    // Déterminer quelle méthode utiliser selon la page
+    const isChefPatissierPage = document.getElementById('chef_patissier-page');
+
+    categories.forEach(category => {
+        const products = category.querySelectorAll('.product-item');
+        let visibleProductsInCategory = 0;
+        
+        products.forEach(product => {
+            const productName = product.getAttribute('data-name').toLowerCase();
+            const shouldShow = searchValue === '' || productName.includes(searchValue);
+            
+            if (isChefPatissierPage) {
+                // Page chef pâtissier : utiliser des classes CSS
+                if (shouldShow) {
+                    product.classList.remove('filtered-hidden');
+                    visibleProductsInCategory++;
+                } else {
+                    product.classList.add('filtered-hidden');
+                }
+            } else {
+                // Page liste Abdelhamid : utiliser style.display
+                product.style.display = shouldShow ? '' : 'none';
+                if (shouldShow) visibleProductsInCategory++;
+            }
+        });
+        
+        // Cacher la catégorie entière si aucun produit n'est visible
+        if (isChefPatissierPage) {
+            if (visibleProductsInCategory > 0) {
+                category.classList.remove('filtered-hidden');
+            } else {
+                category.classList.add('filtered-hidden');
+            }
+        } else {
+            category.style.display = visibleProductsInCategory > 0 ? '' : 'none';
+        }
     });
+    
+    console.log('Filter completed');
 }
 
 // ===== GESTION DES CATÉGORIES PLIABLES =====
@@ -395,19 +443,26 @@ function isInventoryMode() {
 // Créer automatiquement un inventaire lors de la première modification
 async function autoCreateInventory() {
     const now = new Date();
-    const autoName = `Inventaire ${now.toLocaleDateString('fr-FR')} ${now.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}`;
+    
+    // Détecter si on est sur la page chef patissier
+    const isChefPatissierPage = window.location.pathname === '/chef-patissier';
+    const inventoryType = isChefPatissierPage ? 'Pâtisserie' : 'Général';
+    const autoName = `Inventaire ${inventoryType} ${now.toLocaleDateString('fr-FR')} ${now.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}`;
+    
+    // Choisir l'endpoint approprié selon la page
+    const endpoint = isChefPatissierPage ? '/api/inventory/create-patisserie' : '/api/inventory/create';
     
     try {
-        showNotification('Création d\'un inventaire automatique...', 'info');
+        showNotification(`Création d'un inventaire ${inventoryType.toLowerCase()} automatique...`, 'info');
         
-        const response = await fetch('/api/inventory/create', {
+        const response = await fetch(endpoint, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
                 name: autoName,
-                notes: 'Inventaire créé automatiquement lors de modifications de stock'
+                notes: `Inventaire ${inventoryType.toLowerCase()} créé automatiquement lors de modifications de stock`
             })
         });
 
@@ -421,7 +476,7 @@ async function autoCreateInventory() {
             inventoryModifications = {};
             
             showInventoryNotification();
-            showNotification('✨ Inventaire démarré automatiquement !', 'success');
+            showNotification(`✨ Inventaire ${inventoryType.toLowerCase()} démarré automatiquement !`, 'success');
             
             // Masquer le bouton "Nouvel Inventaire" et afficher le bouton "Clôturer"
             updateInventoryButtonsState(true);

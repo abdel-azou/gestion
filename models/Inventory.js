@@ -1,23 +1,31 @@
 const db = require('./db_config');
 
 const Inventory = {
-    // Créer un nouvel inventaire
-    create: (name, notes = '') => {
+    // Créer un nouvel inventaire (avec support pour catégorie spécifique)
+    create: (name, notes = '', categoryId = null) => {
         const stmt = db.prepare(`
-            INSERT INTO inventories (name, notes, created_date, status)
-            VALUES (?, ?, datetime('now'), 'draft')
+            INSERT INTO inventories (name, notes, created_date, status, category_id)
+            VALUES (?, ?, datetime('now'), 'draft', ?)
         `);
-        return stmt.run(name, notes);
+        return stmt.run(name, notes, categoryId);
     },
 
-    // Sauvegarder l'état actuel de tous les produits dans un inventaire
-    saveCurrentStock: (inventoryId) => {
-        const stmt = db.prepare(`
+    // Sauvegarder l'état actuel des produits (tous ou d'une catégorie spécifique)
+    saveCurrentStock: (inventoryId, categoryId = null) => {
+        let query = `
             INSERT INTO inventory_items (inventory_id, product_id, stock_before, stock_after)
             SELECT ?, p.id, p.stock, p.stock
             FROM products p
-        `);
-        return stmt.run(inventoryId);
+        `;
+        
+        if (categoryId) {
+            query += ` WHERE p.category_id = ?`;
+            const stmt = db.prepare(query);
+            return stmt.run(inventoryId, categoryId);
+        } else {
+            const stmt = db.prepare(query);
+            return stmt.run(inventoryId);
+        }
     },
 
     // Mettre à jour le stock d'un produit dans l'inventaire
@@ -135,11 +143,13 @@ const Inventory = {
     getAll: () => {
         const stmt = db.prepare(`
             SELECT i.*, 
+                   c.name as category_name,
                    COUNT(ii.id) as items_count,
                    SUM(CASE WHEN ii.difference != 0 THEN 1 ELSE 0 END) as modified_items_count
             FROM inventories i
+            LEFT JOIN categories c ON i.category_id = c.id
             LEFT JOIN inventory_items ii ON i.id = ii.inventory_id
-            GROUP BY i.id
+            GROUP BY i.id, c.name
             ORDER BY i.created_date DESC
         `);
         return stmt.all();
@@ -195,6 +205,34 @@ const Inventory = {
             draftInventories,
             finalizedInventories
         };
+    },
+
+    // Obtenir les inventaires par catégorie
+    getByCategory: (categoryId = null) => {
+        let query = `
+            SELECT i.*, c.name as category_name
+            FROM inventories i
+            LEFT JOIN categories c ON i.category_id = c.id
+        `;
+        
+        if (categoryId) {
+            query += ` WHERE i.category_id = ? OR i.category_id IS NULL`;
+            const stmt = db.prepare(query + ` ORDER BY i.created_date DESC`);
+            return stmt.all(categoryId);
+        } else {
+            const stmt = db.prepare(query + ` ORDER BY i.created_date DESC`);
+            return stmt.all();
+        }
+    },
+
+    // Créer un inventaire spécifique pour la pâtisserie
+    createPatisserie: (name, notes = '') => {
+        return Inventory.create(name, notes, 5); // 5 = category_id pour pâtissier
+    },
+
+    // Créer un inventaire général (sans catégorie spécifique)
+    createGeneral: (name, notes = '') => {
+        return Inventory.create(name, notes, null);
     }
 };
 

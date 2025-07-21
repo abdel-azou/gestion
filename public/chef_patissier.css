@@ -1,0 +1,505 @@
+/* Import mobile-first inventory styles */
+@import url('./inventory-mobile.css');
+
+.chef-patissier-container .category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+/* Grille des produits - 2 par ligne sur mobile - Styles spécifiques et prioritaires */
+.chef-patissier-container .category-products ul {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    width: 100%;
+}
+
+.chef-patissier-container .category-products .product-item {
+    width: 100% !important;
+    margin: 0 !important;
+    display: block !important;
+    box-sizing: border-box;
+}
+
+/* Réinitialiser tous les styles flex qui pourraient interférer */
+.chef-patissier-container .category-products ul,
+.chef-patissier-container .category-products .product-item {
+    flex: none !important;
+    flex-basis: auto !important;
+    flex-direction: initial !important;
+    flex-wrap: initial !important;
+}
+
+/* Style ultra-spécifique pour forcer le grid sur mobile */
+#chef_patissier-page .category-products ul {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
+    width: 100% !important;
+}
+
+#chef_patissier-page .category-products .product-item {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    box-sizing: border-box !important;
+    flex: none !important;
+}
+
+/* Pour tablettes et desktop */
+@media (min-width: 768px) {
+    .chef-patissier-container .category-products ul {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+        gap: 15px;
+    }
+}
+
+/* Ajustements spécifiques mobile pour petits écrans */
+@media (max-width: 600px) {
+    .chef-patissier-container .category-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Garde 2 produits par ligne même sur très petits écrans */
+    .chef-patissier-container .category-products ul {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px;
+    }
+
+    .chef-patissier-container .product-item {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+    }
+
+    /* Styles mobiles ultra-spécifiques */
+    #chef_patissier-page .category-products ul {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+        display: grid !important;
+    }
+
+    #chef_patissier-page .category-products .product-item {
+        width: 100% !important;
+        max-width: none !important;
+        flex: none !important;
+    }
+
+    .chef-patissier-container .product-info {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .chef-patissier-container .stock-input {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+}
+
+/* Actions principales - design moderne amélioré */
+.main-actions {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.view-products-to-order-btn,
+.inventory-btn,
+.start-inventory-btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 12px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+    min-height: 48px;
+}
+
+/* Effet de brillance */
+.view-products-to-order-btn::before,
+.inventory-btn::before,
+.start-inventory-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.view-products-to-order-btn:hover::before,
+.inventory-btn:hover::before,
+.start-inventory-btn:hover::before {
+    left: 100%;
+}
+
+.view-products-to-order-btn {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+    color: white;
+    border: 2px solid transparent;
+}
+
+.view-products-to-order-btn:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+}
+
+.inventory-btn {
+    background: linear-gradient(135deg, #06b6d4, #0891b2);
+    color: white;
+    border: 2px solid transparent;
+}
+
+.inventory-btn:hover {
+    background: linear-gradient(135deg, #0891b2, #0e7490);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(6, 182, 212, 0.4);
+}
+
+.start-inventory-btn {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    border: 2px solid transparent;
+    position: relative;
+}
+
+.start-inventory-btn:hover {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+}
+
+/* Animation pulse pour le bouton principal */
+.start-inventory-btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulse-ring 2s infinite;
+}
+
+@keyframes pulse-ring {
+    0% {
+        width: 0;
+        height: 0;
+        opacity: 1;
+    }
+    100% {
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+    }
+}
+
+.chef-patissier-container .category-section {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+}
+
+.chef-patissier-container .category-section h2 {
+    font-size: 22px;
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    background-color: #ff6b6b; /* Couleur pâtisserie */
+}
+
+.chef-patissier-container .product-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.chef-patissier-container .product-item:last-child {
+    border-bottom: none;
+}
+
+.chef-patissier-container .product-info {
+    flex: 1;
+}
+
+.chef-patissier-container .product-name {
+    font-size: 18px;
+    color: #333;
+    font-weight: bold;
+}
+
+.chef-patissier-container .product-stock {
+    font-size: 16px;
+    color: #555;
+    margin: 0 20px;
+    font-weight: bold;
+}
+
+.chef-patissier-container .stock-input {
+    width: 60px;
+    padding: 5px;
+    margin-right: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.chef-patissier-container .modify-button {
+    background-color: #ff6b6b;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.chef-patissier-container .modify-button:hover {
+    background-color: #ee5a5a;
+}
+
+/* Reprise exacte des styles de liste_abdelhamid pour l'affichage des produits */
+#chef_patissier-page .category-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 12px;
+}
+
+#chef_patissier-page .category-section ul li {
+    background: #ffffff;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+#chef_patissier-page .category-section ul li:hover {
+    border-color: #ff6b6b;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.15);
+}
+
+#chef_patissier-page .category-section ul li.selected {
+    background: #fff3cd;
+    border-color: #ffc107;
+    color: #856404;
+    font-weight: 600;
+    transform: scale(1.02);
+    box-shadow: 0 4px 16px rgba(255, 193, 7, 0.3);
+}
+
+#chef_patissier-page .category-section ul li.product-updated {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border-color: #28a745;
+    animation: productUpdate 0.6s ease-out;
+}
+
+@keyframes productUpdate {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@media (max-width: 768px) {
+    #chef_patissier-page .category-section ul {
+        grid-template-columns: 1fr;
+    }
+    
+    #chef_patissier-page .category-section ul li {
+        padding: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    #chef_patissier-page .category-section ul {
+        gap: 8px;
+    }
+    
+    #chef_patissier-page .category-section ul li {
+        padding: 10px;
+        border-radius: 8px;
+    }
+}
+
+#chef_patissier-page ul li .product-info .product-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+#chef_patissier-page ul li .product-info .product-stock {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ff6b6b;
+}
+
+@media (max-width: 320px) {
+    #chef_patissier-page .category-section ul {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+    
+    #chef_patissier-page .category-section ul li {
+        padding: 8px;
+        border-radius: 6px;
+    }
+    
+    #chef_patissier-page ul li .product-info .product-name {
+        font-size: 12px;
+        line-height: 1.2;
+    }
+    
+    #chef_patissier-page ul li .product-info .product-stock {
+        font-size: 16px;
+    }
+}
+
+/* Styles pour les catégories cliquables */
+.category-header {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.3s ease;
+}
+
+.category-header:hover {
+    opacity: 0.8;
+}
+
+.category-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.toggle-arrow {
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    transition: transform 0.3s ease;
+}
+
+.category-section.collapsed .toggle-arrow {
+    transform: rotate(-90deg);
+}
+
+.check-mark {
+    font-size: 18px;
+    font-weight: bold;
+    color: #4cd964;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: checkAnimation 0.5s ease-in-out;
+}
+
+@keyframes checkAnimation {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.category-products {
+    transition: all 0.3s ease;
+    overflow: hidden;
+    max-height: 2000px;
+    opacity: 1;
+}
+
+.category-section.collapsed .category-products {
+    max-height: 0 !important;
+    opacity: 0 !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+/* Responsive design pour les catégories */
+@media (max-width: 600px) {
+    .chef-patissier-container .category-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .chef-patissier-container .product-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .chef-patissier-container .product-info {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .chef-patissier-container .stock-input {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+    
+    .category-header {
+        font-size: 18px;
+        padding: 8px;
+    }
+    
+    .category-indicator {
+        gap: 5px;
+    }
+    
+    .toggle-arrow {
+        font-size: 14px;
+    }
+    
+    .check-mark {
+        width: 20px;
+        height: 20px;
+        font-size: 14px;
+    }
+    
+    .category-section.collapsed .category-products {
+        max-height: 0 !important;
+        opacity: 0 !important;
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+}

@@ -1,0 +1,298 @@
+{{> header title="Chef Pâtissier" page="chef_patissier"}}
+
+<!-- Include mobile-first inventory CSS -->
+<link rel="stylesheet" href="/inventory-mobile.css">
+<link rel="stylesheet" href="/chef_patissier.css">
+
+<!-- CSS d'urgence pour forcer le grid mobile -->
+<style>
+/* Styles ultra-prioritaires pour mobile */
+#chef_patissier-page .category-products ul {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
+    width: 100% !important;
+}
+
+#chef_patissier-page .category-products .product-item {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    box-sizing: border-box !important;
+    flex: none !important;
+}
+
+/* Styles pour le filtrage - utilisation de classes au lieu de display inline */
+#chef_patissier-page .product-item.filtered-hidden {
+    display: none !important;
+}
+
+#chef_patissier-page .category-section.filtered-hidden {
+    display: none !important;
+}
+
+/* Mobile très petits écrans */
+@media (max-width: 600px) {
+    #chef_patissier-page .category-products ul {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+    }
+}
+</style>
+
+<div class="container chef-patissier-container" id="chef_patissier-page">
+    <h1 style="text-align: center;">Produits Pâtisserie</h1>
+    
+    <!-- Boutons d'action principaux -->
+    <div class="main-actions" role="navigation" aria-label="Actions principales">
+        <a href="/productsToOrder" class="view-products-to-order-btn" 
+           aria-label="Voir les produits à commander">
+            <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+            <span>Produits à Commander</span>
+        </a>
+        <a href="/inventory" class="inventory-btn" 
+           aria-label="Accéder à la gestion des inventaires">
+            <i class="fas fa-clipboard-list" aria-hidden="true"></i> 
+            <span>Gestion Inventaires</span>
+        </a>
+        <button type="button" class="start-inventory-btn" onclick="startPatisserieInventory()" 
+                aria-label="Créer un nouvel inventaire pâtisserie">
+            <i class="fas fa-plus" aria-hidden="true"></i> 
+            <span>Inventaire Pâtisserie</span>
+        </button>
+    </div>
+
+    <!-- Notification d'inventaire en cours -->
+    <div id="inventory-notification" class="inventory-notification" style="display: none;">
+        <div class="inventory-notification-content">
+            <div class="inventory-header">
+                <div class="inventory-icon">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <div class="inventory-info">
+                    <strong>📊 Inventaire en cours</strong>
+                    <div class="inventory-name" id="inventory-name"></div>
+                    <div class="modification-counter">0 produits modifiés</div>
+                </div>
+            </div>
+            <div class="inventory-actions">
+                <button onclick="finalizeCurrentInventory()" class="btn-finalize">
+                    <i class="fas fa-check-circle"></i> 
+                    <span>Clôturer</span>
+                </button>
+                <button onclick="cancelCurrentInventory()" class="btn-cancel">
+                    <i class="fas fa-times-circle"></i> 
+                    <span>Annuler</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="search-container">
+        <input type="text" id="product-search" placeholder="Rechercher un produit pâtisserie..." onkeyup="filterProducts()">
+    </div>
+    
+    <div class="category-grid" id="product-list">
+        {{#each productsByCategory}}
+        <div class="category-section" data-category="{{name}}">
+            <h2 class="category-header">
+                {{name}}
+                <span class="category-indicator">
+                    <span class="toggle-arrow">▼</span>
+                    <span class="check-mark" style="display: none;">✓</span>
+                </span>
+            </h2>
+            <div class="category-products" data-category-content="{{name}}">
+                {{#if products.length}}
+                <ul>
+                    {{#each products}}
+                    <li class="product-item" data-id="{{this.id}}" data-name="{{this.name}}">
+                        <div class="product-info">
+                            <div class="product-name-container">
+                                <span class="product-name">{{this.name}}</span>
+                            </div>
+                            <div class="product-stock-container">
+                                <span class="product-stock">{{this.stock}}</span>
+                            </div>
+                        </div>
+                    </li>
+                    {{/each}}
+                </ul>
+                {{else}}
+                <p>Aucun produit dans cette catégorie.</p>
+                {{/if}}
+            </div>
+        </div>
+        {{/each}}
+    </div>
+</div>
+
+<!-- Modal pour créer un inventaire -->
+<div id="startInventoryModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">
+                <i class="fas fa-warehouse"></i>
+                Nouvel Inventaire
+            </h2>
+            <button class="close-modal" onclick="closeInventoryModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form id="startInventoryForm">
+            <div class="form-group">
+                <label for="newInventoryName" class="form-label">Nom de l'inventaire</label>
+                <input type="text" id="newInventoryName" name="name" class="form-input" required placeholder="Ex: Inventaire Pâtisserie Janvier 2025">
+            </div>
+            <div class="form-group">
+                <label for="newInventoryNotes" class="form-label">Notes (optionnel)</label>
+                <textarea id="newInventoryNotes" name="notes" class="form-input form-textarea" placeholder="Ajoutez des notes sur cet inventaire pâtisserie..."></textarea>
+            </div>
+            <div style="display: flex; gap: 12px; margin-top: 24px;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">
+                    <i class="fas fa-rocket"></i>
+                    Démarrer
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="closeInventoryModal()">
+                    Annuler
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Barre d'action compacte (ancien design qui fonctionne) -->
+<div id="action-bar" class="compact-action-bar">
+    <div class="action-group increment-group">
+        <button class="action-btn increment" onclick="updateSelectedStock(1)">+1</button>
+        <button class="action-btn increment" onclick="updateSelectedStock(2)">+2</button>
+        <button class="action-btn increment" onclick="updateSelectedStock(5)">+5</button>
+    </div>
+    
+    <div class="action-group custom-group">
+        <input type="number" id="custom-amount" placeholder="#" onchange="updateSelectedStockCustom()">
+    </div>
+
+    <div class="action-group decrement-group">
+        <button class="action-btn decrement" onclick="updateSelectedStock(-1)">-1</button>
+        <button class="action-btn decrement" onclick="updateSelectedStock(-2)">-2</button>
+        <button class="action-btn decrement" onclick="updateSelectedStock(-5)">-5</button>
+    </div>
+</div>
+
+<!-- Floating Action Button pour actions rapides -->
+<button class="fab" onclick="showQuickActions()" id="quick-fab">
+    <i class="fas fa-birthday-cake"></i>
+</button>
+
+<!-- Actions rapides modal -->
+<div id="quickActionsModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Actions Rapides Pâtisserie</h2>
+            <button class="close-modal" onclick="closeQuickActions()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div style="display: grid; gap: 16px;">
+            <button class="btn btn-primary" onclick="startNewInventory(); closeQuickActions();">
+                <i class="fas fa-warehouse"></i>
+                Nouvel Inventaire
+            </button>
+            <a href="/add-product" class="btn btn-success">
+                <i class="fas fa-plus"></i>
+                Ajouter Produit
+            </a>
+            <a href="/products-to-order" class="btn btn-warning">
+                <i class="fas fa-shopping-cart"></i>
+                Produits à Commander
+            </a>
+            <button class="btn btn-secondary" onclick="exportData(); closeQuickActions();">
+                <i class="fas fa-download"></i>
+                Exporter Données
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Fonction spécifique pour créer un inventaire pâtisserie
+function startPatisserieInventory() {
+    const inventoryName = `Inventaire Pâtisserie ${new Date().toLocaleDateString('fr-FR')}`;
+    
+    fetch('/api/inventory/create-patisserie', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            name: inventoryName,
+            notes: 'Inventaire spécifique aux produits de pâtisserie'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Inventaire pâtisserie créé avec succès !', 'success');
+            // Démarrer le mode inventaire
+            localStorage.setItem('currentInventoryId', data.inventoryId);
+            localStorage.setItem('currentInventoryName', inventoryName);
+            updateInventoryNotification();
+            
+            // Recharger la page pour activer le mode inventaire
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            showNotification('Erreur lors de la création de l\'inventaire: ' + data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        showNotification('Erreur de connexion', 'error');
+    });
+}
+
+// Fonctions pour les actions rapides
+function showQuickActions() {
+    document.getElementById('quickActionsModal').style.display = 'block';
+}
+
+function closeQuickActions() {
+    document.getElementById('quickActionsModal').style.display = 'none';
+}
+
+function exportData() {
+    // Fonction pour exporter les données (à implémenter)
+    showNotification('Fonction d\'export en développement', 'info');
+}
+
+// Améliorer l'interface mobile
+document.addEventListener('DOMContentLoaded', function() {
+    // Gérer le FAB selon le mode inventaire
+    function updateFabIcon() {
+        const fab = document.getElementById('quick-fab');
+        const isInventory = isInventoryMode();
+        
+        if (isInventory) {
+            fab.innerHTML = '<i class="fas fa-check"></i>';
+            fab.onclick = finalizeCurrentInventory;
+            fab.style.background = 'linear-gradient(135deg, var(--success-color), var(--success-hover))';
+        } else {
+            fab.innerHTML = '<i class="fas fa-birthday-cake"></i>';
+            fab.onclick = showQuickActions;
+            fab.style.background = 'linear-gradient(135deg, #ff6b6b, #ee5a5a)';
+        }
+    }
+    
+    // Vérifier périodiquement le mode inventaire
+    setInterval(updateFabIcon, 1000);
+});
+</script>
+
+<script src="/scripts.js"></script>
+{{> footer}}

@@ -110,13 +110,27 @@
         <div class="action-card">
             <div class="action-card-content">
                 <h3>
-                    <i class="fas fa-plus-circle" style="color: var(--primary-color);"></i>
-                    Nouvel Inventaire
+                    <i class="fas fa-warehouse" style="color: var(--primary-color);"></i>
+                    Inventaire Général
                 </h3>
-                <p>Créer un nouveau comptage de stock pour votre magasin</p>
-                <button class="btn btn-primary" onclick="startNewInventory()">
-                    <i class="fas fa-plus"></i>
-                    Créer un inventaire
+                <p>Créer un inventaire complet de tous les produits</p>
+                <button class="btn btn-primary" onclick="startNewGeneralInventory()">
+                    <i class="fas fa-warehouse"></i>
+                    Inventaire Général
+                </button>
+            </div>
+        </div>
+
+        <div class="action-card">
+            <div class="action-card-content">
+                <h3>
+                    <i class="fas fa-birthday-cake" style="color: var(--warning-color);"></i>
+                    Inventaire Pâtisserie
+                </h3>
+                <p>Créer un inventaire spécifique aux produits de pâtisserie</p>
+                <button class="btn btn-warning" onclick="startNewPatisserieInventory()">
+                    <i class="fas fa-birthday-cake"></i>
+                    Inventaire Pâtisserie
                 </button>
             </div>
         </div>
@@ -131,20 +145,6 @@
                 <a href="/inventory/stats" class="btn btn-success">
                     <i class="fas fa-chart-bar"></i>
                     Voir les stats
-                </a>
-            </div>
-        </div>
-
-        <div class="action-card">
-            <div class="action-card-content">
-                <h3>
-                    <i class="fas fa-shopping-cart" style="color: var(--warning-color);"></i>
-                    Produits à Commander
-                </h3>
-                <p>Liste des produits sous le stock minimum</p>
-                <a href="/productsToOrder" class="btn btn-warning">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    Voir la liste
                 </a>
             </div>
         </div>
@@ -188,10 +188,32 @@
             {{#each inventories}}
             <div class="inventory-card">
                 <div class="inventory-card-header">
-                    <h3 class="inventory-card-title">{{this.name}}</h3>
+                    <h3 class="inventory-card-title">
+                        {{this.name}}
+                        {{#if this.category_name}}
+                        <span class="inventory-type-badge badge-patisserie">
+                            <i class="fas fa-birthday-cake"></i> {{this.category_name}}
+                        </span>
+                        {{else}}
+                        <span class="inventory-type-badge badge-general">
+                            <i class="fas fa-warehouse"></i> Général
+                        </span>
+                        {{/if}}
+                    </h3>
                 </div>
                 <div class="inventory-card-content">
                     <div class="inventory-card-meta">
+                        <p><strong>Type:</strong> 
+                            {{#if this.category_name}}
+                                <span style="color: #f59e0b; font-weight: 600;">
+                                    <i class="fas fa-birthday-cake"></i> Inventaire Pâtisserie
+                                </span>
+                            {{else}}
+                                <span style="color: #3b82f6; font-weight: 600;">
+                                    <i class="fas fa-warehouse"></i> Inventaire Général
+                                </span>
+                            {{/if}}
+                        </p>
                         <p><strong>Statut:</strong> 
                             <span class="status-badge status-{{this.status}}">
                                 {{#if (eq this.status 'draft')}}Brouillon{{else}}Finalisé{{/if}}
@@ -398,6 +420,68 @@ function applyInventoryFilters() {
 function clearInventoryFilters() {
     showInventoryLoadingIndicator();
     window.location.href = '/inventory';
+}
+
+// Fonction pour créer un inventaire général
+function startNewGeneralInventory() {
+    const inventoryName = `Inventaire Général ${new Date().toLocaleDateString('fr-FR')}`;
+    
+    fetch('/api/inventory/create', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            name: inventoryName,
+            notes: 'Inventaire général de tous les produits'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Inventaire général créé avec succès !', 'success');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            showNotification('Erreur lors de la création de l\'inventaire: ' + data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        showNotification('Erreur de connexion', 'error');
+    });
+}
+
+// Fonction pour créer un inventaire pâtisserie
+function startNewPatisserieInventory() {
+    const inventoryName = `Inventaire Pâtisserie ${new Date().toLocaleDateString('fr-FR')}`;
+    
+    fetch('/api/inventory/create-patisserie', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            name: inventoryName,
+            notes: 'Inventaire spécifique aux produits de pâtisserie'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Inventaire pâtisserie créé avec succès !', 'success');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            showNotification('Erreur lors de la création de l\'inventaire: ' + data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        showNotification('Erreur de connexion', 'error');
+    });
 }
 
 function showInventoryLoadingIndicator() {

@@ -1,6 +1,6 @@
 // insertManualProducts.js
 
-const Product = require('./models/Product'); // Assurez-vous que le chemin est correct
+const Product = require('./models/product'); // Assurez-vous que le chemin est correct
 const db = require('./models/db_config'); // Assurez-vous que le chemin est correct
 
 // --- MAPPING DES CATÉGORIES AVEC LEURS IDs ---
@@ -14,6 +14,7 @@ const categoryMapping = {
     'Divers': 8, // Assurez-vous que cette catégorie existe et a cet ID dans votre DB
     'Boite': 1,
     'Frigo': 3,
+    'Patissier': 5, // Catégorie pâtisserie
     // Ajoutez d'autres catégories si nécessaire
 };
 
@@ -115,6 +116,80 @@ const productsData = [
     { categoryName: 'Frigo', name: 'Saumon', stock: 4, stock_minimal: 4 }, // Corrigé
     { categoryName: 'Frigo', name: 'Fromage blanc', stock: 4, stock_minimal: 4 }, // Corrigé
     { categoryName: 'Frigo', name: 'Mascarpone', stock: 10, stock_minimal: 10 }, // Corrigé
+
+    // Catégorie: Patissier (ID: 5)
+    { categoryName: 'Patissier', name: 'CHOCOLAT BLANC', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'CHOCOLAT AU LAIT', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'CHOCOLAT NOIR 811', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'BATONS CHOCOLAT 300pc', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'PEPITES CHOCOLAT', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'GRAINS DE CAFE', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'CHOCOLAT', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'POUDRE DE CACAO', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'FONDANT BLANC', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'FONDANT CHOCOLAT', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'GLUCOSE', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'DELI CARAMEL', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'POIRES CONSERVES', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'ABRICOT CONSERVES', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'CERISES CONSERVES', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'CORIN D\'ABRICOT', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'DECORGEL NEUTRAL', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'MIROIR NEUTRE', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'PRALINE', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'MIROIR CHOCOLAT', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'PATE A SUCRE', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'BEURRE DE CACAO', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'SOUS GATEAUX 16CM', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'SOUS GATEAUX 18 CM', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'SOUS GATEAUX 20 CM', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'SOUS GATEAUX 22 CM', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'SOUS GATEAUX 24 CM', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'LANGUETTES CARR NOIR 8CM', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'CAISSETTES RONDES', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'CAISSETTES OVALES', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'CAISSETTES TRIANGULAIRES', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'CAISSETTES CALYPSO', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'CARTONS D\'OR 60/40', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'ASSIETTES RONDES NOIRES', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'BAVARIX 5CM', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'COLORANTS', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'MACARONS CHOCOLAT', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'FEUILLTINE', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'BRESILIENNE', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'GELATINE POUDRE', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'BACKING', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'VANILLE LIQUIDE', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'VANILLE POUDRE', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'CAFÉ TRABLE', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'SUCRE SO', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'SUCRE RAFTISNOW', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'RAISAINS SECS', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'POUDRE D\'AMANDE', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'AMANDES ÉFILÉES', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'AMANDES HACHÉES', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'AMANDES CONCASSÉES', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'PAILLETTES CHOCO NOIR', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'PAILLETTES CHOCO BLANC', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'MERINGUES 200PCS', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'SPECULOOS CONCASSÉES', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'BONBONNES DE GAZ', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'CREME PATISSIERE', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'BISCUIT', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'VEGETOP SUCRE', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'VEGETOP SANS SUCRE', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'BLANC D\'ŒUF', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'JAUNE D\'OEUF', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'BEURRE MONTAIGU', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'MARGARINE MIRA', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'FROMAGE', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'RIZ DEBIC PRECUIT', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'PURÉE DE FRAMBOISE', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'PURÉE DE PASSION', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'PURÉE DE FRAISE', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'PURÉE DE MANGUE', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'PURÉE DE CITRON', stock: 0, stock_minimal: 0 },
+    { categoryName: 'Patissier', name: 'FRAMBOISES CONGELÉES', stock: 0, stock_minimal: 0 },
 ];
 
 async function importProducts() {

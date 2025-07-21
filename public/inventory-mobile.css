@@ -1259,3 +1259,49 @@ body {
     color: #92400e;
     font-weight: 600;
 }
+
+/* Badges pour les types d'inventaire */
+.inventory-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: 8px;
+}
+
+.badge-patisserie {
+    background-color: #fef3c7;
+    color: #92400e;
+    border: 1px solid #f59e0b;
+}
+
+.badge-general {
+    background-color: #dbeafe;
+    color: #1e40af;
+    border: 1px solid #3b82f6;
+}
+
+.inventory-card-title {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* Responsive pour les badges */
+@media (max-width: 480px) {
+    .inventory-type-badge {
+        margin-left: 0;
+        margin-top: 4px;
+    }
+    
+    .inventory-card-title {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
