@@ -1,4 +1,9 @@
-require('dotenv').config();
+// Chargement des variables d'environnement
+require('dotenv').config({ path: '.env.local' });
+if (!process.env.DATABASE_URL) {
+    require('dotenv').config(); // Fallback vers .env standard
+}
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const exphbs = require('express-handlebars');

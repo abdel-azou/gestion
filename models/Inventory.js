@@ -62,27 +62,64 @@ const Inventory = {
         }
     },
 
-    // Obtenir un inventaire avec ses items
-    getWithItems: async (inventoryId) => {
-        const inventoryQuery = `
-            SELECT i.*, c.name as category_name
-            FROM inventories i
-            LEFT JOIN categories c ON i.category_id = c.id
-            WHERE i.id = $1
+    // Synchroniser un inventaire avec les stocks actuels (ajouter les nouveaux produits)
+    syncWithCurrentStock: async (inventoryId, categoryId = null) => {
+        let insertQuery = `
+            INSERT INTO inventory_items (inventory_id, product_id, stock_before, stock_after)
+            SELECT $1, p.id, p.stock, p.stock
+            FROM products p
+            WHERE p.id NOT IN (
+                SELECT product_id FROM inventory_items WHERE inventory_id = $1
+            )
         `;
         
-        const itemsQuery = `
-            SELECT ii.*, p.name as product_name, c.name as category_name,
-                   p.stock as current_stock, p.stock_minimal
-            FROM inventory_items ii
-            JOIN products p ON ii.product_id = p.id
-            LEFT JOIN categories c ON p.category_id = c.id
-            WHERE ii.inventory_id = $1
-            ORDER BY c.name, p.name
-        `;
-
         const client = await pool.connect();
         try {
+            if (categoryId) {
+                insertQuery += ` AND p.category_id = $2`;
+                const result = await client.query(insertQuery, [inventoryId, categoryId]);
+                return result.rowCount;
+            } else {
+                const result = await client.query(insertQuery, [inventoryId]);
+                return result.rowCount;
+            }
+        } finally {
+            client.release();
+        }
+    },
+
+    // Obtenir un inventaire avec ses items
+    getWithItems: async (inventoryId) => {
+        const client = await pool.connect();
+        try {
+            // D'abord, synchroniser avec les produits actuels (ajouter les nouveaux produits)
+            const insertQuery = `
+                INSERT INTO inventory_items (inventory_id, product_id, stock_before, stock_after)
+                SELECT $1, p.id, p.stock, p.stock
+                FROM products p
+                WHERE p.id NOT IN (
+                    SELECT product_id FROM inventory_items WHERE inventory_id = $1
+                )
+            `;
+            await client.query(insertQuery, [inventoryId]);
+            
+            const inventoryQuery = `
+                SELECT i.*, c.name as category_name
+                FROM inventories i
+                LEFT JOIN categories c ON i.category_id = c.id
+                WHERE i.id = $1
+            `;
+            
+            const itemsQuery = `
+                SELECT ii.*, p.name as product_name, c.name as category_name,
+                       p.stock as current_stock, p.stock_minimal
+                FROM inventory_items ii
+                JOIN products p ON ii.product_id = p.id
+                LEFT JOIN categories c ON p.category_id = c.id
+                WHERE ii.inventory_id = $1
+                ORDER BY c.name, p.name
+            `;
+
             const inventoryResult = await client.query(inventoryQuery, [inventoryId]);
             if (inventoryResult.rows.length === 0) {
                 return null;

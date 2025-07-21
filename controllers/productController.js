@@ -418,13 +418,13 @@ const productController = {
     },
     
     // Mettre à jour le statut d'une commande
-    updateOrderStatus: (req, res) => {
+    updateOrderStatus: async (req, res) => {
         console.log("Updating order status");
         const { id, status, notes } = req.body;
         console.log("Received data:", { id, status, notes });
         
         try {
-            OrderHistory.updateStatus(id, status, notes);
+            await OrderHistory.updateStatus(id, status, notes);
             res.json({ success: true, message: 'Statut mis à jour avec succès' });
         } catch (error) {
             console.error("Error updating order status:", error);
@@ -438,11 +438,19 @@ const productController = {
         try {
             const lists = await OrderList.getAllLists();
             const categories = await Category.getAll();
+            const products = await Product.getAll();
+            
+            // Calculer des statistiques basiques
+            const statistics = {
+                totalLists: lists.length,
+                draftLists: lists.filter(list => list.status === 'draft').length,
+                finalizedLists: lists.filter(list => list.status === 'finalized').length
+            };
             
             res.render('orderLists', {
                 lists,
                 statistics,
-                availableProducts,
+                availableProducts: products,
                 categories
             });
         } catch (error) {
@@ -452,13 +460,13 @@ const productController = {
     },
     
     // Créer une nouvelle liste de commandes
-    createOrderList: (req, res) => {
+    createOrderList: async (req, res) => {
         console.log("Creating new order list");
         const { name, description } = req.body;
         console.log("Received data:", { name, description });
         
         try {
-            const result = OrderList.createList(name, description);
+            const result = await OrderList.createList(name, description);
             res.json({ 
                 success: true, 
                 message: 'Liste créée avec succès',
@@ -583,12 +591,12 @@ const productController = {
     },
     
     // Supprimer une liste complète
-    deleteOrderList: (req, res) => {
+    deleteOrderList: async (req, res) => {
         const listId = req.params.id;
         console.log(`Deleting order list with ID: ${listId}`);
         
         try {
-            OrderList.deleteList(listId);
+            await OrderList.deleteList(listId);
             res.json({ success: true, message: 'Liste supprimée avec succès' });
         } catch (error) {
             console.error("Error deleting order list:", error);
@@ -597,13 +605,13 @@ const productController = {
     },
     
     // Dupliquer une liste
-    duplicateOrderList: (req, res) => {
+    duplicateOrderList: async (req, res) => {
         console.log("Duplicating order list");
         const { listId, newName } = req.body;
         console.log("Received data:", { listId, newName });
         
         try {
-            const newListId = OrderList.duplicateList(listId, newName);
+            const newListId = await OrderList.duplicateList(listId, newName);
             if (newListId) {
                 res.json({ 
                     success: true, 
@@ -620,14 +628,14 @@ const productController = {
     },
     
     // Exporter une liste de commandes
-    exportOrderList: (req, res) => {
+    exportOrderList: async (req, res) => {
         const listId = req.params.id;
         const format = req.query.format || 'print'; // print, csv, json
         
         console.log(`Exporting order list ${listId} in format ${format}`);
         
         try {
-            const list = OrderList.getListWithProducts(listId);
+            const list = await OrderList.getListWithProducts(listId);
             if (!list) {
                 return res.status(404).json({ error: 'Liste non trouvée' });
             }
@@ -689,11 +697,11 @@ const productController = {
     },
 
     // Obtenir un inventaire avec ses items
-    getInventory: (req, res) => {
+    getInventory: async (req, res) => {
         const inventoryId = req.params.id;
         
         try {
-            const inventory = Inventory.getWithItems(inventoryId);
+            const inventory = await Inventory.getWithItems(inventoryId);
             if (!inventory) {
                 return res.status(404).json({ error: 'Inventaire non trouvé' });
             }
@@ -706,12 +714,12 @@ const productController = {
     },
 
     // Mettre à jour le stock d'un produit dans l'inventaire
-    updateInventoryProductStock: (req, res) => {
+    updateInventoryProductStock: async (req, res) => {
         const { inventoryId, productId, newStock } = req.body;
         
         try {
             console.log("Updating inventory product stock:", { inventoryId, productId, newStock });
-            Inventory.updateProductStock(inventoryId, productId, parseInt(newStock));
+            await Inventory.updateProductStock(inventoryId, productId, parseInt(newStock));
             
             res.json({ 
                 success: true, 
@@ -724,13 +732,13 @@ const productController = {
     },
 
     // Finaliser un inventaire
-    finalizeInventory: (req, res) => {
+    finalizeInventory: async (req, res) => {
         const inventoryId = req.params.id;
         const { notes } = req.body;
         
         try {
             console.log("Finalizing inventory:", inventoryId);
-            Inventory.finalize(inventoryId, notes || '');
+            await Inventory.finalize(inventoryId, notes || '');
             
             res.json({ 
                 success: true, 
@@ -743,13 +751,13 @@ const productController = {
     },
 
     // Créer une liste de commandes depuis un inventaire
-    createOrderListFromInventory: (req, res) => {
+    createOrderListFromInventory: async (req, res) => {
         const inventoryId = req.params.id;
         const { listName } = req.body;
         
         try {
             console.log("Creating order list from inventory:", { inventoryId, listName });
-            const result = Inventory.createOrderListFromInventory(inventoryId, listName);
+            const result = await Inventory.createOrderListFromInventory(inventoryId, listName);
             
             res.json({ 
                 success: true, 
@@ -765,12 +773,12 @@ const productController = {
     },
 
     // Supprimer un inventaire
-    deleteInventory: (req, res) => {
+    deleteInventory: async (req, res) => {
         const inventoryId = req.params.id;
         
         try {
             console.log("Deleting inventory:", inventoryId);
-            Inventory.delete(inventoryId);
+            await Inventory.delete(inventoryId);
             
             res.json({ 
                 success: true, 
@@ -783,7 +791,7 @@ const productController = {
     },
 
     // Statistiques des inventaires
-    inventoryStats: (req, res) => {
+    inventoryStats: async (req, res) => {
         try {
             console.log("Fetching inventory statistics");
             
@@ -792,19 +800,24 @@ const productController = {
             console.log("Filter parameters:", { period, year, month, week });
             
             // Récupérer tous les inventaires avec leurs items
-            let inventories = Inventory.getAll().map(inventory => {
-                const items = Inventory.getWithItems(inventory.id);
-                return items ? items : { ...inventory, items: [] };
-            });
+            let inventories = await Inventory.getAll();
+            const inventoriesWithItems = await Promise.all(
+                inventories.map(async inventory => {
+                    const items = await Inventory.getWithItems(inventory.id);
+                    return items ? items : { ...inventory, items: [] };
+                })
+            );
             
             // Appliquer les filtres par période
             if (period || year || month || week) {
-                inventories = filterInventoriesByPeriod(inventories, { period, year, month, week });
+                inventories = filterInventoriesByPeriod(inventoriesWithItems, { period, year, month, week });
                 console.log(`Filtered inventories: ${inventories.length} remaining`);
+            } else {
+                inventories = inventoriesWithItems;
             }
             
-            const products = Product.getAll();
-            const categories = Category.getAll();
+            const products = await Product.getAll();
+            const categories = await Category.getAll();
             
             // 1. Fréquence des inventaires
             const inventoryFrequency = calculateInventoryFrequency(inventories);
@@ -1088,7 +1101,7 @@ function calculateStockDistribution(products, categories) {
 }
 
 // Créer un inventaire spécifique pour la pâtisserie
-productController.createPatisserieInventory = (req, res) => {
+productController.createPatisserieInventory = async (req, res) => {
     try {
         const { name, notes } = req.body;
         
@@ -1100,13 +1113,13 @@ productController.createPatisserieInventory = (req, res) => {
         }
 
         // Créer l'inventaire pâtisserie (category_id = 5)
-        const result = Inventory.createPatisserie(name, notes);
+        const result = await Inventory.createPatisserie(name, notes);
         
         if (result.lastInsertRowid) {
             const inventoryId = result.lastInsertRowid;
             
             // Sauvegarder l'état actuel des produits de pâtisserie uniquement
-            Inventory.saveCurrentStock(inventoryId, 5); // 5 = catégorie pâtissier
+            await Inventory.saveCurrentStock(inventoryId, 5); // 5 = catégorie pâtissier
             
             res.json({ 
                 success: true, 
