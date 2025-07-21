@@ -4,6 +4,8 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
+    "dev": "node app.js",
+    "setup-db": "node init-db.js",
     "vercel-build": "npm install"
   },
   "dependencies": {
