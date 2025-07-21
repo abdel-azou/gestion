@@ -18,17 +18,8 @@ async function initializeDatabase() {
         if (result.rows.length === 0) {
             console.log('📊 Initialisation de la base PostgreSQL...');
             
-            // Lire et adapter le script SQL pour PostgreSQL
-            let sqlScript = fs.readFileSync(path.join(__dirname, 'db_install.sql'), 'utf8');
-            
-            // Adapter le SQL pour PostgreSQL
-            sqlScript = sqlScript
-                .replace(/INTEGER PRIMARY KEY AUTOINCREMENT/g, 'SERIAL PRIMARY KEY')
-                .replace(/DATETIME DEFAULT CURRENT_TIMESTAMP/g, 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP')
-                .replace(/TEXT UNIQUE NOT NULL/g, 'VARCHAR(255) UNIQUE NOT NULL')
-                .replace(/TEXT NOT NULL/g, 'VARCHAR(255) NOT NULL')
-                .replace(/TEXT DEFAULT/g, 'VARCHAR(255) DEFAULT')
-                .replace(/TEXT,/g, 'TEXT,');
+            // Lire le script SQL PostgreSQL
+            let sqlScript = fs.readFileSync(path.join(__dirname, 'db_install_postgres.sql'), 'utf8');
             
             // Exécuter le script
             await pool.query(sqlScript);

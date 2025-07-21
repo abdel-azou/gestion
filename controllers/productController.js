@@ -5,11 +5,11 @@ const OrderList = require('../models/OrderList');
 const Inventory = require('../models/Inventory');
 
 const productController = {
-    list: (req, res) => {
+    list: async (req, res) => {
         console.log("Fetching product list");
-        const products = Product.getAll();
+        const products = await Product.getAll();
         console.log("Products:", products);
-        const categories = Category.getAll();
+        const categories = await Category.getAll();
         console.log("Categories:", categories);
 
         const productsByCategory = categories.map(category => ({
@@ -21,31 +21,31 @@ const productController = {
         console.log("Products by category:", JSON.stringify(productsByCategory, null, 2));
         res.render('products', { productsByCategory });
     },
-    form: (req, res) => {
+    form: async (req, res) => {
         console.log("Fetching form for adding product");
-        const categories = Category.getAll();
+        const categories = await Category.getAll();
         console.log("Categories:", categories);
         res.render('addProduct', { categories });
     },
-    create: (req, res) => {
+    create: async (req, res) => {
         console.log("Creating new product");
         const { name, stock, category_id, stock_minimal } = req.body;
         console.log("Received data:", { name, stock, category_id, stock_minimal });
-        Product.create(name, parseInt(stock), parseInt(category_id), parseInt(stock_minimal));
+        await Product.create(name, parseInt(stock), parseInt(category_id), parseInt(stock_minimal));
         res.redirect('liste_abdelhamid');
     },
-    updateStock: (req, res) => {
+    updateStock: async (req, res) => {
         console.log("Updating stock");
         const { id, amount } = req.body;
         console.log("Received data:", { id, amount });
-        const product = Product.getById(id);
+        const product = await Product.getById(id);
         if (product) {
             const newStock = product.stock + amount;
             if (newStock < 0) {
                 console.log("Stock cannot be negative. Update aborted.");
                 res.status(400).send('Stock cannot be negative.');
             } else {
-                Product.updateStock(id, newStock);
+                await Product.updateStock(id, newStock);
                 console.log("Updated stock:", newStock);
                 res.sendStatus(200);
             }
@@ -94,14 +94,14 @@ const productController = {
         console.log("Patissier products by category:", JSON.stringify(productsByCategory, null, 2));
         res.render('chef_patissier', { productsByCategory });
     },
-    inventoryDashboard: (req, res) => {
+    inventoryDashboard: async (req, res) => {
         console.log("Fetching inventory dashboard");
         try {
             // Récupérer les paramètres de filtre
             const { period, year, month, week } = req.query;
             console.log("Filter parameters:", { period, year, month, week });
             
-            let allInventories = Inventory.getAll();
+            let allInventories = await Inventory.getAll();
             
             // Appliquer les filtres si spécifiés
             if (period || year || month || week) {
@@ -116,7 +116,7 @@ const productController = {
                 .slice(0, 10);
             
             // Préparer les données pour les filtres
-            const allInventoriesForYears = Inventory.getAll(); // Pour obtenir toutes les années disponibles
+            const allInventoriesForYears = await Inventory.getAll(); // Pour obtenir toutes les années disponibles
             const availableYears = [...new Set(allInventoriesForYears
                 .map(inv => new Date(inv.created_date).getFullYear())
                 .filter(year => !isNaN(year))
@@ -140,9 +140,9 @@ const productController = {
             res.status(500).render('error', { error: 'Erreur lors du chargement des inventaires' });
         }
     },
-    categories: (req, res) => {
+    categories: async (req, res) => {
         console.log("Fetching categories");
-        const categories = Category.getAll();
+        const categories = await Category.getAll();
         res.json(categories);
     },
     createCategory: (req, res) => {
@@ -151,9 +151,9 @@ const productController = {
         Category.create(name);
         res.sendStatus(201);
     },
-    productsToOrder: (req, res) => {
+    productsToOrder: async (req, res) => {
         console.log("Fetching products to order");
-        const products = Product.getAll();
+        const products = await Product.getAll();
         const productsToOrder = products.filter(product => product.stock < product.stock_minimal);
         
         // Enrichir les données avec les informations nécessaires pour le tableau interactif
@@ -206,26 +206,27 @@ const productController = {
     },
 
     // Nouvelle méthode pour marquer comme commandé avec historique
-    markAsOrdered: (req, res) => {
+    markAsOrdered: async (req, res) => {
         console.log("Marking as ordered");
         const { id, quantity } = req.body;
         console.log("Received data:", { id, quantity });
         
         try {
-            const product = Product.getById(id);
+            const product = await Product.getById(id);
             if (product) {
                 const previousStock = product.stock;
                 const newStock = product.stock + quantity;
                 
                 // Obtenir les informations de catégorie
-                const categoryInfo = Category.getAll().find(cat => cat.id === product.category_id);
+                const categories = await Category.getAll();
+                const categoryInfo = categories.find(cat => cat.id === product.category_id);
                 const categoryName = categoryInfo ? categoryInfo.name : 'Unknown';
                 
                 // Mettre à jour le stock
-                Product.updateStock(id, newStock);
+                await Product.updateStock(id, newStock);
                 
                 // Ajouter à l'historique
-                OrderHistory.addOrder(
+                await OrderHistory.addOrder(
                     id,
                     product.name,
                     categoryName,
@@ -247,11 +248,11 @@ const productController = {
     },
     
     // Espace Admin - Méthodes d'administration
-    adminDashboard: (req, res) => {
+    adminDashboard: async (req, res) => {
         console.log("Loading admin dashboard");
-        const products = Product.getAll();
-        const categories = Category.getAll();
-        const statistics = Product.getStatistics();
+        const products = await Product.getAll();
+        const categories = await Category.getAll();
+        const statistics = await Product.getStatistics();
         
         const productsByCategory = categories.map(category => ({
             id: category.id,
@@ -353,12 +354,12 @@ const productController = {
     },
     
     // Nouvelle méthode pour l'espace commandes amélioré
-    ordersSpace: (req, res) => {
+    ordersSpace: async (req, res) => {
         console.log("Loading orders space");
-        const products = Product.getAll();
-        const categories = Category.getAll();
-        const orderStats = OrderHistory.getStatistics();
-        const recentOrders = OrderHistory.getRecent(30);
+        const products = await Product.getAll();
+        const categories = await Category.getAll();
+        const orderStats = await OrderHistory.getStatistics();
+        const recentOrders = await OrderHistory.getRecent(30);
         
         const productsToOrder = products.filter(product => product.stock < product.stock_minimal);
         
@@ -390,7 +391,7 @@ const productController = {
     },
     
     // Obtenir l'historique des commandes
-    getOrderHistory: (req, res) => {
+    getOrderHistory: async (req, res) => {
         console.log("Fetching order history");
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 20;
@@ -398,8 +399,8 @@ const productController = {
         const offset = (page - 1) * limit;
         
         try {
-            const orders = OrderHistory.getAll(limit, offset, status);
-            const stats = OrderHistory.getStatistics();
+            const orders = await OrderHistory.getAll(limit, offset, status);
+            const stats = await OrderHistory.getStatistics();
             
             res.json({
                 orders,

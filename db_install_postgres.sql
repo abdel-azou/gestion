@@ -37,6 +37,7 @@ CREATE TABLE order_history (
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     order_status VARCHAR(50) DEFAULT 'pending',
     notes TEXT,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
@@ -75,17 +76,29 @@ CREATE TABLE order_list_items (
     UNIQUE(list_id, product_id)
 );
 
--- Table pour les inventaires
+-- Tables pour les inventaires (nouveau design)
 CREATE TABLE inventories (
     id SERIAL PRIMARY KEY,
-    product_id INTEGER NOT NULL,
-    quantity_counted INTEGER NOT NULL,
-    quantity_expected INTEGER NOT NULL,
-    difference INTEGER NOT NULL,
+    name VARCHAR(255) NOT NULL,
     notes TEXT,
-    inventory_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    user_name VARCHAR(255),
-    FOREIGN KEY (product_id) REFERENCES products(id)
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    finalized_date TIMESTAMP,
+    status VARCHAR(50) DEFAULT 'draft',
+    category_id INTEGER,
+    FOREIGN KEY (category_id) REFERENCES categories(id)
+);
+
+CREATE TABLE inventory_items (
+    id SERIAL PRIMARY KEY,
+    inventory_id INTEGER NOT NULL,
+    product_id INTEGER NOT NULL,
+    stock_before INTEGER NOT NULL,
+    stock_after INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (inventory_id) REFERENCES inventories(id),
+    FOREIGN KEY (product_id) REFERENCES products(id),
+    UNIQUE(inventory_id, product_id)
 );
 
 -- Insertion des catégories initiales
