@@ -12,13 +12,13 @@ const pool = require('./models/db_config'); // PostgreSQL connection
 // --- MAPPING DES CATÉGORIES ---
 // Les catégories seront créées automatiquement si elles n'existent pas
 const categoriesData = [
-    { name: 'Farine', description: 'Farines et ingrédients de base', color: '#e74c3c' },
-    { name: 'Congel', description: 'Produits congelés', color: '#3498db' },
-    { name: 'Sachet', description: 'Sachets et emballages', color: '#f39c12' },
-    { name: 'Divers', description: 'Articles divers', color: '#9b59b6' },
-    { name: 'Boite', description: 'Boîtes et contenants', color: '#2ecc71' },
-    { name: 'Frigo', description: 'Produits réfrigérés', color: '#1abc9c' },
-    { name: 'Patissier', description: 'Ingrédients pâtisserie', color: '#e67e22' }
+    { name: 'Farine' },
+    { name: 'Congel' },
+    { name: 'Sachet' },
+    { name: 'Divers' },
+    { name: 'Boite' },
+    { name: 'Frigo' },
+    { name: 'Patissier' }
 ];
 
 // --- LISTE DES PRODUITS À IMPORTER ---
@@ -209,13 +209,11 @@ async function importProducts() {
         for (const category of categoriesData) {
             try {
                 const result = await client.query(`
-                    INSERT INTO categories (name, description, color)
-                    VALUES ($1, $2, $3)
-                    ON CONFLICT (name) DO UPDATE SET
-                        description = EXCLUDED.description,
-                        color = EXCLUDED.color
+                    INSERT INTO categories (name)
+                    VALUES ($1)
+                    ON CONFLICT (name) DO NOTHING
                     RETURNING id, name
-                `, [category.name, category.description, category.color]);
+                `, [category.name]);
                 
                 // Si pas de RETURNING (conflit), récupérer l'ID existant
                 let categoryId;

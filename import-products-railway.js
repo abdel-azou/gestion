@@ -3,15 +3,15 @@
 
 const pool = require('./models/db_config');
 
-// Données des catégories
+// Données des catégories - version simplifiée pour structure existante
 const categoriesData = [
-    { name: 'Farine', description: 'Farines et ingrédients de base', color: '#e74c3c' },
-    { name: 'Congel', description: 'Produits congelés', color: '#3498db' },
-    { name: 'Sachet', description: 'Sachets et emballages', color: '#f39c12' },
-    { name: 'Divers', description: 'Articles divers', color: '#9b59b6' },
-    { name: 'Boite', description: 'Boîtes et contenants', color: '#2ecc71' },
-    { name: 'Frigo', description: 'Produits réfrigérés', color: '#1abc9c' },
-    { name: 'Patissier', description: 'Ingrédients pâtisserie', color: '#e67e22' }
+    { name: 'Farine' },
+    { name: 'Congel' },
+    { name: 'Sachet' },
+    { name: 'Divers' },
+    { name: 'Boite' },
+    { name: 'Frigo' },
+    { name: 'Patissier' }
 ];
 
 // Données des produits (extrait de votre liste)
@@ -92,11 +92,11 @@ async function importAllProducts() {
         
         for (const category of categoriesData) {
             const result = await client.query(`
-                INSERT INTO categories (name, description, color)
-                VALUES ($1, $2, $3)
+                INSERT INTO categories (name)
+                VALUES ($1)
                 ON CONFLICT (name) DO NOTHING
                 RETURNING id
-            `, [category.name, category.description, category.color]);
+            `, [category.name]);
             
             // Récupérer l'ID (nouveau ou existant)
             let categoryId;
