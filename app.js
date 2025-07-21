@@ -19,6 +19,18 @@ const setupRailwayDatabase = require('./railway-setup');
 })().catch(err => console.log('Setup DB warning:', err.message));
 
 const app = express();
+// Import temporaire des produits
+app.get('/admin/import-products', async (req, res) => {
+    try {
+        const importFunction = require('./import-products-railway');
+        await importFunction();
+        res.json({ success: true, message: 'Produits importés avec succès!' });
+    } catch (error) {
+        console.error('Erreur import:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 const port = process.env.PORT || 8080;
 
 app.use(bodyParser.json());

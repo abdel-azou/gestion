@@ -1,22 +1,25 @@
-// insertManualProducts.js
+// insertManualProducts.js - Version PostgreSQL
 
-const Product = require('./models/product'); // Assurez-vous que le chemin est correct
-const db = require('./models/db_config'); // Assurez-vous que le chemin est correct
+// Chargement des variables d'environnement
+require('dotenv').config({ path: '.env.local' });
+if (!process.env.DATABASE_URL) {
+    require('dotenv').config(); // Fallback vers .env standard
+}
 
-// --- MAPPING DES CATÉGORIES AVEC LEURS IDs ---
-// *** IMPORTANT : Ajustez ces IDs si vos catégories ont des IDs différents dans la base de données ***
-// Si 'Congel' et 'Divers' n'ont pas encore d'IDs dans votre DB, vous devrez d'abord les ajouter
-// à votre table 'categories' et leur attribuer des IDs.
-const categoryMapping = {
-    'Farine': 4,
-    'Congel': 7, // Assurez-vous que cette catégorie existe et a cet ID dans votre DB
-    'Sachet': 2,
-    'Divers': 8, // Assurez-vous que cette catégorie existe et a cet ID dans votre DB
-    'Boite': 1,
-    'Frigo': 3,
-    'Patissier': 5, // Catégorie pâtisserie
-    // Ajoutez d'autres catégories si nécessaire
-};
+const Product = require('./models/product'); // PostgreSQL Product model
+const pool = require('./models/db_config'); // PostgreSQL connection
+
+// --- MAPPING DES CATÉGORIES ---
+// Les catégories seront créées automatiquement si elles n'existent pas
+const categoriesData = [
+    { name: 'Farine', description: 'Farines et ingrédients de base', color: '#e74c3c' },
+    { name: 'Congel', description: 'Produits congelés', color: '#3498db' },
+    { name: 'Sachet', description: 'Sachets et emballages', color: '#f39c12' },
+    { name: 'Divers', description: 'Articles divers', color: '#9b59b6' },
+    { name: 'Boite', description: 'Boîtes et contenants', color: '#2ecc71' },
+    { name: 'Frigo', description: 'Produits réfrigérés', color: '#1abc9c' },
+    { name: 'Patissier', description: 'Ingrédients pâtisserie', color: '#e67e22' }
+];
 
 // --- LISTE DES PRODUITS À IMPORTER ---
 // Le stock_minimal a été corrigé pour correspondre au stock initial.
@@ -193,41 +196,110 @@ const productsData = [
 ];
 
 async function importProducts() {
-    console.log("Démarrage de l'importation manuelle des produits...");
-
-    const productsToCreate = productsData.map(product => {
-        const category_id = categoryMapping[product.categoryName];
-        if (category_id === undefined) {
-            console.warn(`Avertissement : Catégorie "${product.categoryName}" non trouvée pour le produit "${product.name}". Ce produit sera ignoré.`);
-            return null; // Ignore ce produit s'il n'y a pas de mapping
-        }
-        return {
-            name: product.name,
-            stock: product.stock,
-            category_id: category_id,
-            stock_minimal: product.stock_minimal
-        };
-    }).filter(p => p !== null); // Supprime les produits ignorés
-
-    if (productsToCreate.length === 0) {
-        console.log("Aucun produit valide à importer après le mapping des catégories.");
-        return;
-    }
-
+    console.log("🚀 Démarrage de l'importation des produits vers PostgreSQL...");
+    
+    const client = await pool.connect();
+    
     try {
-        Product.createMany(productsToCreate);
-        console.log(`🎉 ${productsToCreate.length} produits ont été ajoutés avec succès à la base de données !`);
+        // ===== ÉTAPE 1: CRÉER LES CATÉGORIES =====
+        console.log("📂 Création/vérification des catégories...");
+        
+        const categoryMapping = {};
+        
+        for (const category of categoriesData) {
+            try {
+                const result = await client.query(`
+                    INSERT INTO categories (name, description, color)
+                    VALUES ($1, $2, $3)
+                    ON CONFLICT (name) DO UPDATE SET
+                        description = EXCLUDED.description,
+                        color = EXCLUDED.color
+                    RETURNING id, name
+                `, [category.name, category.description, category.color]);
+                
+                // Si pas de RETURNING (conflit), récupérer l'ID existant
+                let categoryId;
+                if (result.rows.length > 0) {
+                    categoryId = result.rows[0].id;
+                } else {
+                    const existingResult = await client.query(
+                        'SELECT id FROM categories WHERE name = $1',
+                        [category.name]
+                    );
+                    categoryId = existingResult.rows[0].id;
+                }
+                
+                categoryMapping[category.name] = categoryId;
+                console.log(`✅ Catégorie: ${category.name} (ID: ${categoryId})`);
+            } catch (error) {
+                console.error(`❌ Erreur catégorie ${category.name}:`, error.message);
+            }
+        }
+
+        // ===== ÉTAPE 2: CRÉER LES PRODUITS =====
+        console.log("\n📦 Importation des produits...");
+        
+        let successCount = 0;
+        let errorCount = 0;
+        
+        for (const product of productsData) {
+            const category_id = categoryMapping[product.categoryName];
+            
+            if (!category_id) {
+                console.warn(`⚠️  Catégorie "${product.categoryName}" non trouvée pour "${product.name}"`);
+                errorCount++;
+                continue;
+            }
+            
+            try {
+                await client.query(`
+                    INSERT INTO products (name, description, price, stock, min_stock, unit, category_id)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7)
+                    ON CONFLICT (name) DO UPDATE SET
+                        stock = EXCLUDED.stock,
+                        min_stock = EXCLUDED.min_stock,
+                        category_id = EXCLUDED.category_id,
+                        updated_at = NOW()
+                `, [
+                    product.name,
+                    `Produit ${product.categoryName}`, // Description par défaut
+                    0, // Prix par défaut
+                    product.stock,
+                    product.stock_minimal,
+                    'pièce', // Unité par défaut
+                    category_id
+                ]);
+                
+                successCount++;
+                console.log(`✅ ${product.name} (Stock: ${product.stock}) - Catégorie: ${product.categoryName}`);
+            } catch (error) {
+                errorCount++;
+                console.error(`❌ Erreur produit ${product.name}:`, error.message);
+            }
+        }
+
+        // ===== STATISTIQUES FINALES =====
+        console.log('\n📊 Résumé de l\'importation:');
+        console.log(`✅ ${successCount} produits importés avec succès`);
+        console.log(`❌ ${errorCount} erreurs`);
+        
+        // Vérification finale
+        const stats = await client.query(`
+            SELECT 
+                (SELECT COUNT(*) FROM categories) as categories_count,
+                (SELECT COUNT(*) FROM products) as products_count
+        `);
+        
+        const counts = stats.rows[0];
+        console.log(`📂 Total catégories: ${counts.categories_count}`);
+        console.log(`📦 Total produits: ${counts.products_count}`);
+        
+        console.log('\n🎉 Importation terminée !');
+        
     } catch (error) {
-        console.error("❌ Erreur lors de l'importation des produits :", error.message);
-        console.error(error.stack); // Afficher la trace complète de l'erreur pour le débogage
+        console.error("❌ Erreur pendant l'importation:", error);
     } finally {
-        // La connexion à la base de données SQLite3 se ferme généralement automatiquement.
-        // Si vous utilisez une autre base de données ou si vous avez un besoin spécifique de fermeture,
-        // décommentez et ajustez la ligne ci-dessous si votre db_config expose une méthode close.
-        // if (db && typeof db.close === 'function') {
-        //     db.close();
-        //     console.log("Connexion à la base de données fermée.");
-        // }
+        client.release();
     }
 }
 
