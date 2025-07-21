@@ -145,10 +145,10 @@ const productController = {
         const categories = await Category.getAll();
         res.json(categories);
     },
-    createCategory: (req, res) => {
+    createCategory: async (req, res) => {
         console.log("Creating new category");
         const { name } = req.body;
-        Category.create(name);
+        await Category.create(name);
         res.sendStatus(201);
     },
     productsToOrder: async (req, res) => {
@@ -171,7 +171,7 @@ const productController = {
         console.log("Products to order:", enrichedProducts);
         res.render('productsToOrder', { productsToOrder: enrichedProducts });
     },
-    deleteProduct: (req, res) => {
+    deleteProduct: async (req, res) => {
         const productId = req.params.id;
         console.log(`Received request to delete product with ID: ${productId}`);  // Log ID reçu
     
@@ -181,7 +181,7 @@ const productController = {
         }
     
         try {
-            Product.delete(productId);  // Appel à la méthode de suppression
+            await Product.delete(productId);  // Appel à la méthode de suppression
             console.log(`Product deletion successful for ID: ${productId}`);  // Log après suppression
             res.status(200).send('Produit supprimé');  // Confirmation succès
         } catch (err) {
@@ -190,13 +190,13 @@ const productController = {
         }
     },
     // Nouvelle méthode pour mettre à jour le stock minimal
-    updateMinimalStock: (req, res) => {
+    updateMinimalStock: async (req, res) => {
         console.log("Updating minimal stock");
         const { id, stock_minimal } = req.body;
         console.log("Received data:", { id, stock_minimal });
         
         try {
-            Product.updateMinimalStock(id, stock_minimal);
+            await Product.updateMinimalStock(id, stock_minimal);
             console.log("Updated minimal stock:", stock_minimal);
             res.sendStatus(200);
         } catch (error) {
@@ -655,16 +655,16 @@ const productController = {
 
     // Page de gestion des inventaires
     // Créer un nouvel inventaire
-    createInventory: (req, res) => {
+    createInventory: async (req, res) => {
         const { name, notes } = req.body;
         
         try {
             console.log("Creating new inventory:", { name, notes });
-            const result = Inventory.create(name, notes || '');
+            const result = await Inventory.create(name, notes || '');
             const inventoryId = result.lastInsertRowid;
             
             // Sauvegarder l'état actuel de tous les produits
-            Inventory.saveCurrentStock(inventoryId);
+            await Inventory.saveCurrentStock(inventoryId);
             
             res.json({ 
                 success: true, 
@@ -677,10 +677,10 @@ const productController = {
         }
     },
 
-    getAllInventories: (req, res) => {
+    getAllInventories: async (req, res) => {
         try {
             console.log("Fetching all inventories");
-            const inventories = Inventory.getAll();
+            const inventories = await Inventory.getAll();
             res.json(inventories);
         } catch (error) {
             console.error("Error fetching inventories:", error);
