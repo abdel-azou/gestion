@@ -28,6 +28,7 @@ router.post('/admin/products/update', adminSecurity, adminLogger, adminAuth, pro
 router.post('/admin/products/create', adminSecurity, adminLogger, adminAuth, productController.adminCreateProduct);
 router.delete('/admin/products/:id', adminSecurity, adminLogger, adminAuth, productController.adminDeleteProduct);
 router.post('/admin/categories', adminSecurity, adminLogger, adminAuth, productController.adminCreateCategory);
+router.post('/admin/import-products', adminSecurity, adminLogger, adminAuth, productController.importProducts);
 
 // Routes pour les listes de commandes
 router.get('/order-lists', productController.orderListsPage);

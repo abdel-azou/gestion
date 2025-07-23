@@ -352,6 +352,109 @@ const productController = {
             res.status(500).json({ error: 'Erreur lors de la création de la catégorie' });
         }
     },
+
+    // Import rapide des produits
+    importProducts: async (req, res) => {
+        try {
+            const client = await pool.connect();
+            
+            try {
+                await client.query('BEGIN');
+                
+                // Créer les catégories
+                const categories = [
+                    'Farine', 'Congel', 'Sachet', 'Divers', 'Boite', 'Frigo', 'Patissier'
+                ];
+                
+                for (const categoryName of categories) {
+                    await client.query(
+                        'INSERT INTO categories (name) VALUES ($1) ON CONFLICT (name) DO NOTHING',
+                        [categoryName]
+                    );
+                }
+                
+                // Tous les produits en une seule operation
+                const allProducts = [
+                    // Farine (18 produits)
+                    ['Semoule baguettes', 50, 50, 'Farine'],
+                    ['Oumeyma', 50, 50, 'Farine'],
+                    ['Natural supra', 25, 25, 'Farine'],
+                    ['Alpha', 20, 20, 'Farine'],
+                    ['Levure Bruggeman', 6, 6, 'Farine'],
+                    ['S500 puratos', 2, 2, 'Farine'],
+                    ['Boscous', 10, 10, 'Farine'],
+                    ['Seigle', 2, 2, 'Farine'],
+                    ['Decor cereales', 2, 2, 'Farine'],
+                    ['Sucre', 15, 15, 'Farine'],
+                    ['Sucre P4', 2, 2, 'Farine'],
+                    ['Sel', 10, 10, 'Farine'],
+                    ['Sésames', 2, 2, 'Farine'],
+                    ['Son', 2, 2, 'Farine'],
+                    ['Semoule harcha', 3, 3, 'Farine'],
+                    ['Œufs', 6, 6, 'Farine'],
+                    ['Papier cuisson 40x60', 5, 5, 'Farine'],
+                    ['Papier cuisson 80x60', 2, 2, 'Farine'],
+                    
+                    // Congel (10 produits)
+                    ['Croissant chocolat', 5, 5, 'Congel'],
+                    ['Croquant noisette chocolat', 4, 4, 'Congel'],
+                    ['Noix de pécan', 4, 4, 'Congel'],
+                    ['Croissant amande', 5, 5, 'Congel'],
+                    ['Amande cerise', 4, 4, 'Congel'],
+                    ['Boule de Berlin', 3, 3, 'Congel'],
+                    ['Croissant nature', 2, 2, 'Congel'],
+                    ['Couque au chocolat', 2, 2, 'Congel'],
+                    ['Maton', 2, 2, 'Congel'],
+                    ['Mini pecan', 2, 2, 'Congel'],
+                    
+                    // Sachet (11 produits)
+                    ['P1', 5, 5, 'Sachet'],
+                    ['P2', 5, 5, 'Sachet'],
+                    ['P4', 5, 5, 'Sachet'],
+                    ['P6', 5, 5, 'Sachet'],
+                    ['Petit pain', 5, 5, 'Sachet'],
+                    ['Grand pain Carré', 5, 5, 'Sachet'],
+                    ['Grand pain Rond', 5, 5, 'Sachet'],
+                    ['1 baguette', 3, 3, 'Sachet'],
+                    ['2 baguettes', 3, 3, 'Sachet'],
+                    ['Sandwich', 5, 5, 'Sachet'],
+                    ['Sac plastique', 10, 10, 'Sachet']
+                ];
+                
+                // Insérer tous les produits
+                for (const [name, stock, stock_minimal, categoryName] of allProducts) {
+                    await client.query(`
+                        INSERT INTO products (name, stock, stock_minimal, category_id)
+                        VALUES ($1, $2, $3, (SELECT id FROM categories WHERE name = $4))
+                        ON CONFLICT (name) DO UPDATE SET
+                          stock = EXCLUDED.stock,
+                          stock_minimal = EXCLUDED.stock_minimal
+                    `, [name, stock, stock_minimal, categoryName]);
+                }
+                
+                await client.query('COMMIT');
+                
+                res.json({ 
+                    success: true, 
+                    message: `${allProducts.length} produits importés avec succès!`,
+                    categories: categories.length
+                });
+                
+            } catch (error) {
+                await client.query('ROLLBACK');
+                throw error;
+            } finally {
+                client.release();
+            }
+            
+        } catch (error) {
+            console.error('Erreur import:', error);
+            res.status(500).json({ 
+                success: false, 
+                error: 'Erreur lors de l\'import des produits' 
+            });
+        }
+    },
     
     // Nouvelle méthode pour l'espace commandes amélioré
     ordersSpace: async (req, res) => {
