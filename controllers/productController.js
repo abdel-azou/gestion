@@ -3,6 +3,7 @@ const Category = require('../models/category');
 const OrderHistory = require('../models/OrderHistory');
 const OrderList = require('../models/OrderList');
 const Inventory = require('../models/Inventory');
+const { pool } = require('../models/db_config');
 
 const productController = {
     list: async (req, res) => {

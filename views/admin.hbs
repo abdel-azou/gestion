@@ -787,7 +787,7 @@
 
         // Import rapide de tous les produits
         async function importAllProducts() {
-            if (!confirm('Voulez-vous importer tous les produits ? Cette opération va ajouter 50+ produits dans votre base de données.')) {
+            if (!confirm('Voulez-vous importer tous les produits ? Cette opération va ajouter 180+ produits dans votre base de données.')) {
                 return;
             }
 
@@ -807,12 +807,12 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    showMessage('main-content', `✅ ${result.message}`, 'success');
+                    alert(`✅ ${result.message}`);
                     setTimeout(() => {
                         window.location.reload();
                     }, 2000);
                 } else {
-                    showMessage('main-content', `❌ ${result.error}`, 'error');
+                    alert(`❌ ${result.error}`);
                 }
 
                 button.innerHTML = originalText;
@@ -820,7 +820,10 @@
 
             } catch (error) {
                 console.error('Erreur import:', error);
-                showMessage('main-content', '❌ Erreur lors de l\'import des produits', 'error');
+                alert('❌ Erreur lors de l\'import des produits');
+                
+                const button = event.target;
+                const originalText = button.innerHTML;
                 button.innerHTML = originalText;
                 button.disabled = false;
             }
