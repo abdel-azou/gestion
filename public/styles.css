@@ -1914,23 +1914,23 @@ body {
 }
 
 /* Couleurs spécifiques pour chaque catégorie - Palette élargie et contrastée */
-.category-section[data-category="boite"] h2 {
+.category-section[data-category="Boite"] h2 {
     background: linear-gradient(to right, #ff9500, #ff7b00);
 }
 
-.category-section[data-category="sachet"] h2 {
+.category-section[data-category="Sachet"] h2 {
     background: linear-gradient(to right, #9c27b0, #7d3cff);
 }
 
-.category-section[data-category="frigo"] h2 {
+.category-section[data-category="Frigo"] h2 {
     background: linear-gradient(to right, #007aff, #056de3);
 }
 
-.category-section[data-category="farine"] h2 {
+.category-section[data-category="Farine"] h2 {
     background: linear-gradient(to right, #ff2d55, #e61e4d);
 }
 
-.category-section[data-category="patissier"] h2 {
+.category-section[data-category="Patissier"] h2 {
     background: linear-gradient(to right, #4cd964, #34a853);
 }
 

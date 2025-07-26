@@ -710,27 +710,27 @@
     margin-bottom: 10px;
 }
 
-.liste-abdelhamid-container .category-section[data-category="boite"] h2 {
+.liste-abdelhamid-container .category-section[data-category="Boite"] h2 {
     background-color: #2a241d;
     /* Orange */
 }
 
-.liste-abdelhamid-container .category-section[data-category="sachet"] h2 {
+.liste-abdelhamid-container .category-section[data-category="Sachet"] h2 {
     background-color: #7d3cff;
     /* Purple */
 }
 
-.liste-abdelhamid-container .category-section[data-category="frigo"] h2 {
+.liste-abdelhamid-container .category-section[data-category="Frigo"] h2 {
     background-color: #007aff;
     /* Blue */
 }
 
-.liste-abdelhamid-container .category-section[data-category="farine"] h2 {
+.liste-abdelhamid-container .category-section[data-category="Farine"] h2 {
     background-color: #ff2d55;
     /* Red */
 }
 
-.liste-abdelhamid-container .category-section[data-category="patissier"] h2 {
+.liste-abdelhamid-container .category-section[data-category="Patissier"] h2 {
     background-color: #4cd964;
     /* Green */
 }

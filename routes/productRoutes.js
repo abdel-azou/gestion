@@ -30,6 +30,40 @@ router.delete('/admin/products/:id', adminSecurity, adminLogger, adminAuth, prod
 router.post('/admin/categories', adminSecurity, adminLogger, adminAuth, productController.adminCreateCategory);
 router.post('/admin/import-products', adminSecurity, adminLogger, adminAuth, productController.importProducts);
 
+// Route de test simple pour l'import (temporaire)
+router.get('/test-import', async (req, res) => {
+    try {
+        const { pool } = require('../models/db_config');
+        const client = await pool.connect();
+        
+        // Test simple
+        await client.query(
+            'INSERT INTO categories (name) VALUES ($1) ON CONFLICT (name) DO NOTHING',
+            ['Test']
+        );
+        
+        await client.query(`
+            INSERT INTO products (name, stock, stock_minimal, category_id)
+            VALUES ($1, $2, $3, (SELECT id FROM categories WHERE name = $4))
+            ON CONFLICT (name) DO UPDATE SET stock = EXCLUDED.stock
+        `, ['Produit Test Import', 10, 5, 'Test']);
+        
+        const result = await client.query('SELECT COUNT(*) as total FROM products');
+        client.release();
+        
+        res.json({ 
+            success: true, 
+            message: `Test réussi! Total produits: ${result.rows[0].total}` 
+        });
+        
+    } catch (error) {
+        res.status(500).json({ 
+            success: false, 
+            error: error.message 
+        });
+    }
+});
+
 // Routes pour les listes de commandes
 router.get('/order-lists', productController.orderListsPage);
 router.post('/api/order-lists/create', productController.createOrderList);
