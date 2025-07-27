@@ -1,43 +1,63 @@
-# 🔐 Configuration Sécurisée
+# Sécurité - Système de Gestion Boulangerie
 
-## Variables d'environnement sensibles
+## ⚠️ IMPORTANT - Informations Sensibles
 
-Ce projet utilise des variables d'environnement pour stocker les informations sensibles comme les clés de base de données.
+Ce repository a été nettoyé des informations sensibles suivantes :
+- Clés de base de données Railway
+- Mots de passe
+- URLs de connexion avec identifiants
 
-### Fichiers de configuration requis
+## 🔒 Configuration Sécurisée
 
-1. **`.env.railway`** (non versionné) - Configuration pour Railway PostgreSQL
-   - Copiez `.env.railway.template` vers `.env.railway`
-   - Complétez avec vos vraies clés Railway
+### Variables d'Environnement
+1. Copiez `.env.railway.template` vers `.env.railway`
+2. Remplissez avec vos vraies valeurs de connexion
+3. **JAMAIS** commiter les fichiers `.env*` réels
 
-### Instructions de setup
+### Fichiers Protégés
+- `.env.railway` - Configuration Railway
+- `.env.local` - Configuration locale
+- `data/` - Base de données locale
+- `railway-connection.js` - Scripts de connexion
+- `import-railway.js` - Scripts d'import
+- `clean-categories.js` - Scripts de nettoyage
+
+### Checklist Sécurité
+- [ ] Variables sensibles dans .env (non commitées)
+- [ ] .gitignore à jour
+- [ ] Mots de passe forts
+- [ ] Accès Railway sécurisé
+- [ ] Scripts temporaires supprimés
+
+## 🚨 En cas de Compromission
+
+Si des clés ont été exposées :
+1. Changer immédiatement les mots de passe Railway
+2. Regénérer les URLs de connexion
+3. Mettre à jour les variables d'environnement
+4. Nettoyer l'historique Git si nécessaire
+
+## 📝 Bonnes Pratiques
+
+1. **Jamais** hardcoder d'identifiants dans le code
+2. Utiliser des variables d'environnement
+3. Rotation régulière des mots de passe
+4. Monitoring des accès
+5. Logs sécurisés (sans mots de passe)
+
+## 🔧 Configuration Développement
 
 ```bash
-# 1. Copier le template
+# Copier le template
 cp .env.railway.template .env.railway
 
-# 2. Éditer le fichier avec vos vraies clés
-# Remplacez les valeurs dans .env.railway
+# Éditer avec vos valeurs
+nano .env.railway
 
-# 3. Vérifier que le fichier est ignoré par git
-git status  # .env.railway ne doit PAS apparaître
+# Vérifier que .env.railway est dans .gitignore
+git check-ignore .env.railway
 ```
 
-### ⚠️ IMPORTANT
+## 📞 Contact Sécurité
 
-- **JAMAIS** commiter les fichiers `.env.*` avec de vraies clés
-- **TOUJOURS** utiliser les templates pour partager la structure
-- Les clés de production sont dans Railway, pas dans le code
-
-### Deployment
-
-- **Local**: Utilise `.env.railway`
-- **Production**: Utilise les variables d'environnement Railway automatiquement
-
-### Récupération des clés
-
-Si vous avez besoin des clés Railway:
-1. Connectez-vous à railway.app
-2. Sélectionnez le projet `gestion`
-3. Onglet Variables > Database URL
-4. Copiez l'URL externe dans votre `.env.railway` local
+En cas de problème de sécurité, contactez immédiatement l'administrateur système.
