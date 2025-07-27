@@ -1,7 +1,24 @@
 // Chargement des variables d'environnement
-require('dotenv').config({ path: '.env.local' });
+// Ordre de priorité: Railway production > .env.railway (local) > .env.local > .env
+if (process.env.NODE_ENV === 'production') {
+    // En production sur Railway, utilise les variables d'environnement automatiques
+    console.log('🚀 Mode production - utilisation des variables Railway');
+} else {
+    // En développement local
+    require('dotenv').config({ path: '.env.railway' });
+    if (!process.env.DATABASE_URL) {
+        require('dotenv').config({ path: '.env.local' });
+        if (!process.env.DATABASE_URL) {
+            require('dotenv').config(); // Fallback vers .env standard
+        }
+    }
+}
+
+// Vérification des variables sensibles
 if (!process.env.DATABASE_URL) {
-    require('dotenv').config(); // Fallback vers .env standard
+    console.error('❌ Erreur: DATABASE_URL non configurée');
+    console.log('💡 Conseil: Copiez .env.railway.template vers .env.railway et complétez les clés');
+    process.exit(1);
 }
 
 const express = require('express');

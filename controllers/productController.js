@@ -78,8 +78,12 @@ const productController = {
         const categories = await Category.getAll();
         console.log("Categories:", categories);
 
-        // Filtrer pour ne garder que la catégorie "Patissier" (ID: 5)
-        const patissierCategory = categories.find(category => category.name === 'patissier' || category.id === 5);
+        // Filtrer pour ne garder que la catégorie "Patissier" (chercher par nom avec différentes casses)
+        const patissierCategory = categories.find(category => 
+            category.name.toLowerCase() === 'patissier' || 
+            category.name === 'Patissier' ||
+            category.id === 13
+        );
         
         if (!patissierCategory) {
             console.error("Catégorie Patissier non trouvée");
