@@ -49,11 +49,6 @@
     
     <!-- Boutons d'action principaux -->
     <div class="main-actions" role="navigation" aria-label="Actions principales">
-        <a href="/productsToOrder" class="view-products-to-order-btn" 
-           aria-label="Voir les produits à commander">
-            <i class="fas fa-shopping-cart" aria-hidden="true"></i>
-            <span>Produits à Commander</span>
-        </a>
         <a href="/inventory" class="inventory-btn" 
            aria-label="Accéder à la gestion des inventaires">
             <i class="fas fa-clipboard-list" aria-hidden="true"></i> 
@@ -63,6 +58,11 @@
                 aria-label="Créer un nouvel inventaire pâtisserie">
             <i class="fas fa-plus" aria-hidden="true"></i> 
             <span>Inventaire Pâtisserie</span>
+        </button>
+        <button type="button" class="categories-btn" onclick="openCategoriesMenu()" 
+                aria-label="Voir toutes les catégories">
+            <i class="fas fa-th-large" aria-hidden="true"></i> 
+            <span>Toutes Catégories</span>
         </button>
     </div>
 
@@ -80,13 +80,9 @@
                 </div>
             </div>
             <div class="inventory-actions">
-                <button onclick="finalizeCurrentInventory()" class="btn-finalize">
+                <button id="inventory-main-action" onclick="finalizeCurrentInventory()" class="btn-finalize">
                     <i class="fas fa-check-circle"></i> 
-                    <span>Clôturer</span>
-                </button>
-                <button onclick="cancelCurrentInventory()" class="btn-cancel">
-                    <i class="fas fa-times-circle"></i> 
-                    <span>Annuler</span>
+                    <span>Clôturer l'inventaire</span>
                 </button>
             </div>
         </div>
@@ -94,6 +90,12 @@
 
     <div class="search-container">
         <input type="text" id="product-search" placeholder="Rechercher un produit pâtisserie..." onkeyup="filterProducts()">
+    </div>
+    
+    <!-- Indice pour le long press -->
+    <div class="long-press-hint">
+        <i class="fas fa-hand-pointer"></i>
+        <span>💡 Cliquez pour sélectionner, maintenez appuyé pour modifier le stock rapidement</span>
     </div>
     
     <div class="category-grid" id="product-list">
@@ -165,22 +167,18 @@
     </div>
 </div>
 
-<!-- Barre d'action compacte (ancien design qui fonctionne) -->
+<!-- Barre d'action compacte optimisée -->
 <div id="action-bar" class="compact-action-bar">
-    <div class="action-group increment-group">
-        <button class="action-btn increment" onclick="updateSelectedStock(1)">+1</button>
-        <button class="action-btn increment" onclick="updateSelectedStock(2)">+2</button>
-        <button class="action-btn increment" onclick="updateSelectedStock(5)">+5</button>
-    </div>
-    
-    <div class="action-group custom-group">
-        <input type="number" id="custom-amount" placeholder="#" onchange="updateSelectedStockCustom()">
+    <div class="action-group decrement-group">
+        <button class="action-btn decrement" onclick="updateSelectedStock(-5)" title="Diminuer de 5">-5</button>
+        <button class="action-btn decrement" onclick="updateSelectedStock(-2)" title="Diminuer de 2">-2</button>
+        <button class="action-btn decrement" onclick="updateSelectedStock(-1)" title="Diminuer de 1">-1</button>
     </div>
 
-    <div class="action-group decrement-group">
-        <button class="action-btn decrement" onclick="updateSelectedStock(-1)">-1</button>
-        <button class="action-btn decrement" onclick="updateSelectedStock(-2)">-2</button>
-        <button class="action-btn decrement" onclick="updateSelectedStock(-5)">-5</button>
+    <div class="action-group increment-group">
+        <button class="action-btn increment" onclick="updateSelectedStock(1)" title="Augmenter de 1">+1</button>
+        <button class="action-btn increment" onclick="updateSelectedStock(2)" title="Augmenter de 2">+2</button>
+        <button class="action-btn increment" onclick="updateSelectedStock(5)" title="Augmenter de 5">+5</button>
     </div>
 </div>
 
@@ -294,5 +292,9 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+{{> categories-menu}}
+
+<!-- Long Press Modal pour modification rapide du stock -->
+<script src="/long-press-modal.js"></script>
 <script src="/scripts.js"></script>
 {{> footer}}

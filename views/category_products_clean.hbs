@@ -1,0 +1,99 @@
+{{> header}}
+
+<div class="container">
+    <div class="top-actions">
+        <div class="navigation-container">
+            <div class="back-navigation">
+                <button onclick="window.history.back()" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-arrow-left"></i> Retour
+                </button>
+            </div>
+            <div class="page-header">
+                <h1 class="page-title">{{categoryName}}</h1>
+                <p class="page-subtitle">Gestion des stocks - Catégorie {{categoryName}}</p>
+            </div>
+            <div class="menu-actions">
+                <button class="categories-btn" onclick="openCategoriesMenu()">
+                    <i class="fas fa-th-large"></i> Catégories
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="search-container">
+        <input type="text" id="product-search" placeholder="Rechercher un produit dans {{categoryName}}..." onkeyup="filterProducts()">
+    </div>
+    
+    <!-- Indice pour le long press -->
+    <div class="long-press-hint">
+        <i class="fas fa-hand-pointer"></i>
+        <span>💡 Cliquez pour sélectionner, maintenez appuyé pour modifier le stock rapidement</span>
+    </div>
+    
+    <div class="category-grid" id="product-list">
+        {{#each productsByCategory}}
+        <div class="category-section" data-category="{{name}}">
+            <h2 class="category-header">
+                {{name}}
+                <span class="category-indicator">
+                    <span class="toggle-arrow">▼</span>
+                    <span class="check-mark" style="display: none;">✓</span>
+                </span>
+            </h2>
+            <div class="category-products" data-category-content="{{name}}">
+                {{#if products.length}}
+                <ul>
+                    {{#each products}}
+                    <li class="product-item" data-id="{{this.id}}" data-name="{{this.name}}">
+                        <div class="product-info">
+                            <span class="product-name">{{this.name}}</span>
+                            <div class="product-details">
+                                <span class="product-stock {{#if (lt this.stock this.stock_minimal)}}low-stock{{/if}}">
+                                    Stock: {{this.stock}}
+                                </span>
+                                <span class="product-minimal">Min: {{this.stock_minimal}}</span>
+                            </div>
+                        </div>
+                        <div class="product-actions">
+                            <button class="btn btn-sm btn-outline-danger quick-decrease" onclick="quickStockUpdate({{this.id}}, -1)" title="Diminuer de 1">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-success quick-increase" onclick="quickStockUpdate({{this.id}}, 1)" title="Augmenter de 1">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </li>
+                    {{/each}}
+                </ul>
+                {{else}}
+                <p class="no-products">Aucun produit dans cette catégorie</p>
+                {{/if}}
+            </div>
+        </div>
+        {{/each}}
+    </div>
+</div>
+
+{{> categories-menu}}
+
+<!-- Barre d'action compacte optimisée -->
+<div id="action-bar" class="compact-action-bar">
+    <div class="action-group decrement-group">
+        <button class="action-btn decrement" onclick="updateSelectedStock(-5)" title="Diminuer de 5">-5</button>
+        <button class="action-btn decrement" onclick="updateSelectedStock(-2)" title="Diminuer de 2">-2</button>
+        <button class="action-btn decrement" onclick="updateSelectedStock(-1)" title="Diminuer de 1">-1</button>
+    </div>
+
+    <div class="action-group increment-group">
+        <button class="action-btn increment" onclick="updateSelectedStock(1)" title="Augmenter de 1">+1</button>
+        <button class="action-btn increment" onclick="updateSelectedStock(2)" title="Augmenter de 2">+2</button>
+        <button class="action-btn increment" onclick="updateSelectedStock(5)" title="Augmenter de 5">+5</button>
+    </div>
+</div>
+
+<!-- Chargement des scripts -->
+<script src="/scripts.js"></script>
+<script src="/inventory.js"></script>
+
+<!-- Lien vers le CSS pour les mobiles si nécessaire -->
+<link rel="stylesheet" href="/liste_abdelhamid.css">

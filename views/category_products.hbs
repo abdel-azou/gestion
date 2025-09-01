@@ -1,25 +1,16 @@
-{{> header title="Liste Abdelhamid" page="liste_abdelhamid"}}
+{{> header}}
 
-<!-- Include mobile-first inventory CSS -->
-<link rel="stylesheet" href="/inventory-mobile.css">
+<!-- Chargement du CSS spécifique pour mobile-first -->
+<link rel="stylesheet" href="/liste_abdelhamid.css">
 
 <div class="container liste-abdelhamid-container" id="liste_abdelhamid-page">
-    <h1 style="text-align: center;">Liste des Produits</h1>
+    <h1 style="text-align: center;">{{categoryName}} - Produits</h1>
     
     <!-- Boutons d'action principaux -->
     <div class="main-actions" role="navigation" aria-label="Actions principales">
-        <a href="/inventory" class="inventory-btn" 
-           aria-label="Accéder à la gestion des inventaires">
-            <i class="fas fa-clipboard-list" aria-hidden="true"></i> 
-            <span>Gestion Inventaires</span>
-        </a>
-        <button type="button" class="start-inventory-btn" onclick="startNewInventory()" 
-                aria-label="Créer un nouvel inventaire">
-            <i class="fas fa-plus" aria-hidden="true"></i> 
-            <span>Nouvel Inventaire</span>
-        </button>
-        <button type="button" class="categories-btn" onclick="openCategoriesMenu()" 
-                aria-label="Voir par catégorie">
+        <a href="/inventory" class="inventory-btn" aria-label="Accéder à la gestion des inventaires" style="background: linear-gradient(135deg, rgb(6, 182, 212), rgb(8, 145, 178));"><i class="fas fa-clipboard-list"></i> Gestion Inventaires</a>
+        <button type="button" class="start-inventory-btn" onclick="startNewInventory()" aria-label="Créer un nouvel inventaire" style="background: linear-gradient(135deg, rgb(59, 130, 246), rgb(37, 99, 235)); color: white;"><i class="fas fa-plus"></i> Nouvel Inventaire</button>
+        <button type="button" class="categories-btn" onclick="openCategoriesMenu()" aria-label="Voir par catégorie">
             <i class="fas fa-th-large" aria-hidden="true"></i> 
             <span>Catégories</span>
         </button>
@@ -49,7 +40,7 @@
 
     <div class="search-container">
         <input type="text" id="category-search" placeholder="Rechercher une catégorie..." onkeyup="filterCategories()">
-        <input type="text" id="product-search" placeholder="Rechercher un produit..." onkeyup="filterProducts()">
+        <input type="text" id="product-search" placeholder="Rechercher un produit dans {{categoryName}}..." onkeyup="filterProducts()">
     </div>
     
     <!-- Indice pour le long press -->
@@ -59,16 +50,15 @@
     </div>
     
     <div class="category-grid" id="product-list">
-        {{#each productsByCategory}}
-        <div class="category-section" data-category="{{name}}">
+        <div class="category-section" data-category="{{categoryName}}">
             <h2 class="category-header">
-                {{name}}
+                {{categoryName}}
                 <span class="category-indicator">
                     <span class="toggle-arrow">▼</span>
                     <span class="check-mark" style="display: none;">✓</span>
                 </span>
             </h2>
-            <div class="category-products" data-category-content="{{name}}">
+            <div class="category-products" data-category-content="{{categoryName}}">
                 {{#if products.length}}
                 <ul>
                     {{#each products}}
@@ -89,9 +79,10 @@
                 {{/if}}
             </div>
         </div>
-        {{/each}}
     </div>
 </div>
+
+{{> categories-menu}}
 
 <!-- Modal pour créer un inventaire -->
 <div id="startInventoryModal" class="modal">
@@ -108,7 +99,7 @@
         <form id="startInventoryForm">
             <div class="form-group">
                 <label for="newInventoryName" class="form-label">Nom de l'inventaire</label>
-                <input type="text" id="newInventoryName" name="name" class="form-input" required placeholder="Ex: Inventaire Janvier 2025">
+                <input type="text" id="newInventoryName" name="name" class="form-input" required placeholder="Ex: Inventaire {{categoryName}} Janvier 2025">
             </div>
             <div class="form-group">
                 <label for="newInventoryNotes" class="form-label">Notes (optionnel)</label>
@@ -119,7 +110,8 @@
                     <i class="fas fa-rocket"></i>
                     Démarrer
                 </button>
-                <button type="button" class="btn btn-secondary" onclick="closeInventoryModal()">
+                <button type="button" onclick="closeInventoryModal()" class="btn btn-secondary">
+                    <i class="fas fa-times"></i>
                     Annuler
                 </button>
             </div>
@@ -142,82 +134,39 @@
     </div>
 </div>
 
-<!-- Floating Action Button pour actions rapides -->
-<button class="fab" onclick="showQuickActions()" id="quick-fab">
-    <i class="fas fa-magic"></i>
-</button>
-
-<!-- Actions rapides modal -->
-<div id="quickActionsModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2 class="modal-title">Actions Rapides</h2>
-            <button class="close-modal" onclick="closeQuickActions()">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div style="display: grid; gap: 16px;">
-            <button class="btn btn-primary" onclick="startNewInventory(); closeQuickActions();">
-                <i class="fas fa-warehouse"></i>
-                Nouvel Inventaire
-            </button>
-            <a href="/add-product" class="btn btn-success">
-                <i class="fas fa-plus"></i>
-                Ajouter Produit
-            </a>
-            <a href="/products-to-order" class="btn btn-warning">
-                <i class="fas fa-shopping-cart"></i>
-                Produits à Commander
-            </a>
-            <button class="btn btn-secondary" onclick="exportData(); closeQuickActions();">
-                <i class="fas fa-download"></i>
-                Exporter Données
-            </button>
-        </div>
-    </div>
-</div>
-
 <script>
-// Fonctions pour les actions rapides
-function showQuickActions() {
-    document.getElementById('quickActionsModal').style.display = 'block';
-}
-
-function closeQuickActions() {
-    document.getElementById('quickActionsModal').style.display = 'none';
-}
-
-function exportData() {
-    // Fonction pour exporter les données (à implémenter)
-    showNotification('Fonction d\'export en développement', 'info');
-}
-
-// Améliorer l'interface mobile
 document.addEventListener('DOMContentLoaded', function() {
-    // Gérer le FAB selon le mode inventaire
-    function updateFabIcon() {
-        const fab = document.getElementById('quick-fab');
-        const isInventory = isInventoryMode();
-        
-        if (isInventory) {
-            fab.innerHTML = '<i class="fas fa-check"></i>';
-            fab.onclick = finalizeCurrentInventory;
-            fab.style.background = 'linear-gradient(135deg, var(--success-color), var(--success-hover))';
-        } else {
-            fab.innerHTML = '<i class="fas fa-magic"></i>';
-            fab.onclick = showQuickActions;
-            fab.style.background = 'linear-gradient(135deg, var(--primary-color), var(--primary-hover))';
-        }
-    }
+    // Initialisation de la gestion d'inventaire
+    const inventoryState = JSON.parse(localStorage.getItem('inventoryState')) || {};
     
-    // Vérifier périodiquement le mode inventaire
-    setInterval(updateFabIcon, 1000);
+    if (inventoryState.isActive) {
+        showInventoryNotification(inventoryState);
+        updateInventoryCounter();
+    }
+
+    // Gestion du formulaire de création d'inventaire
+    const startInventoryForm = document.getElementById('startInventoryForm');
+    if (startInventoryForm) {
+        startInventoryForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const inventoryData = {
+                name: formData.get('name'),
+                notes: formData.get('notes') || ''
+            };
+            
+            try {
+                await createNewInventory(inventoryData);
+                closeInventoryModal();
+            } catch (error) {
+                console.error('Erreur lors de la création de l\'inventaire:', error);
+                alert('Erreur lors de la création de l\'inventaire');
+            }
+        });
+    }
 });
 </script>
 
-{{> categories-menu}}
-
-<!-- Long Press Modal pour modification rapide du stock -->
-<script src="/long-press-modal.js"></script>
+<!-- Chargement des scripts -->
 <script src="/scripts.js"></script>
-{{> footer}}
+<script src="/inventory.js"></script>

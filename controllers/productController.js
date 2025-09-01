@@ -6,22 +6,24 @@ const Inventory = require('../models/Inventory');
 const { pool } = require('../models/db_config');
 
 const productController = {
-    list: async (req, res) => {
-        console.log("Fetching product list");
-        const products = await Product.getAll();
-        console.log("Products:", products);
-        const categories = await Category.getAll();
-        console.log("Categories:", categories);
-
-        const productsByCategory = categories.map(category => ({
-            id: category.id,
-            name: category.name,
-            products: products.filter(product => product.category_id === category.id)
-        }));
-        
-        console.log("Products by category:", JSON.stringify(productsByCategory, null, 2));
-        res.render('products', { productsByCategory });
+    // Page d'accueil avec statistiques
+    home: async (req, res) => {
+        try {
+            console.log("Loading home page with statistics...");
+            
+            // Récupérer les statistiques générales
+            const stats = await Product.getGeneralStats();
+            
+            res.render('home', { 
+                stats,
+                title: 'Accueil - Gestion de Stock'
+            });
+        } catch (error) {
+            console.error('Error loading home page:', error);
+            res.status(500).render('error', { error: 'Erreur lors du chargement de la page d\'accueil' });
+        }
     },
+
     form: async (req, res) => {
         console.log("Fetching form for adding product");
         const categories = await Category.getAll();
@@ -44,15 +46,15 @@ const productController = {
             const newStock = product.stock + amount;
             if (newStock < 0) {
                 console.log("Stock cannot be negative. Update aborted.");
-                res.status(400).send('Stock cannot be negative.');
+                res.status(400).json({ success: false, error: 'Stock cannot be negative.' });
             } else {
                 await Product.updateStock(id, newStock);
                 console.log("Updated stock:", newStock);
-                res.sendStatus(200);
+                res.json({ success: true, newStock: newStock });
             }
         } else {
             console.error("Product not found");
-            res.status(404).send('Product not found');
+            res.status(404).json({ success: false, error: 'Product not found' });
         }
     },
     listeAbdelhamid: async (req, res) => {
@@ -98,6 +100,43 @@ const productController = {
         
         console.log("Patissier products by category:", JSON.stringify(productsByCategory, null, 2));
         res.render('chef_patissier', { productsByCategory });
+    },
+    
+    // Nouvelle fonction pour afficher les produits par catégorie
+    productsByCategory: async (req, res) => {
+        try {
+            const categoryId = parseInt(req.params.categoryId);
+            console.log("Fetching products for category ID:", categoryId);
+            
+            const products = await Product.getAll();
+            const categories = await Category.getAll();
+            
+            // Trouver la catégorie spécifique
+            const selectedCategory = categories.find(category => category.id === categoryId);
+            
+            if (!selectedCategory) {
+                console.error("Catégorie non trouvée:", categoryId);
+                return res.status(404).send('Catégorie non trouvée');
+            }
+
+            const productsByCategory = [{
+                id: selectedCategory.id,
+                name: selectedCategory.name,
+                products: products.filter(product => product.category_id === categoryId)
+            }];
+            
+            console.log(`Products for category ${selectedCategory.name}:`, productsByCategory[0].products.length);
+            
+            res.render('category_products', { 
+                productsByCategory,
+                categoryName: selectedCategory.name,
+                products: productsByCategory[0].products,
+                title: `${selectedCategory.name} - Produits`
+            });
+        } catch (error) {
+            console.error('Error fetching products by category:', error);
+            res.status(500).send('Erreur lors du chargement des produits');
+        }
     },
     inventoryDashboard: async (req, res) => {
         console.log("Fetching inventory dashboard");
@@ -145,11 +184,48 @@ const productController = {
             res.status(500).render('error', { error: 'Erreur lors du chargement des inventaires' });
         }
     },
+    
+    // Voir un inventaire spécifique
+    viewInventory: async (req, res) => {
+        const inventoryId = req.params.id;
+        console.log("Viewing inventory:", inventoryId);
+        
+        try {
+            const inventoryWithItems = await Inventory.getWithItems(inventoryId);
+            if (!inventoryWithItems) {
+                return res.status(404).render('error', { error: 'Inventaire non trouvé' });
+            }
+            
+            const stats = await Inventory.getStats(inventoryId);
+            
+            res.render('viewInventory', { 
+                inventory: inventoryWithItems,
+                items: inventoryWithItems.items,
+                stats,
+                title: `Inventaire - ${inventoryWithItems.name}`
+            });
+        } catch (error) {
+            console.error('Error viewing inventory:', error);
+            res.status(500).render('error', { error: 'Erreur lors du chargement de l\'inventaire' });
+        }
+    },
     categories: async (req, res) => {
         console.log("Fetching categories");
         const categories = await Category.getAll();
         res.json(categories);
     },
+    
+    getApiCategories: async (req, res) => {
+        try {
+            console.log("API: Fetching all categories");
+            const categories = await Category.getAll();
+            res.json(categories);
+        } catch (error) {
+            console.error("Error fetching categories via API:", error);
+            res.status(500).json({ error: 'Error fetching categories' });
+        }
+    },
+    
     createCategory: async (req, res) => {
         console.log("Creating new category");
         const { name } = req.body;

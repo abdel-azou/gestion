@@ -3,16 +3,18 @@ const router = express.Router();
 const productController = require('../controllers/productController');
 const { adminAuth, adminLogger, adminSecurity } = require('../middleware/adminMiddleware');
 
-router.get('/products', productController.list);
 router.get('/add-product', productController.form);
 router.post('/products', productController.create);
 router.post('/products/update-stock', productController.updateStock);
 router.post('/products/update-minimal-stock', productController.updateMinimalStock);
 router.post('/products/mark-as-ordered', productController.markAsOrdered);
 router.get('/categories', productController.categories);
+router.get('/api/categories', productController.getApiCategories);
 router.post('/categories', productController.createCategory);
 router.get('/liste_abdelhamid', productController.listeAbdelhamid);
 router.get('/chef-patissier', productController.chefPatissier);
+router.get('/chef_patissier', productController.chefPatissier);
+router.get('/category/:categoryId', productController.productsByCategory);
 router.get('/products-to-order', productController.productsToOrder);
 router.get('/inventory', productController.inventoryDashboard);
 router.post('/products/delete/:id', productController.deleteProduct);
@@ -80,6 +82,7 @@ router.get('/api/order-lists/:id/export', productController.exportOrderList);
 // Routes pour les inventaires
 router.get('/inventory', productController.inventoryDashboard);
 router.get('/inventory/stats', productController.inventoryStats);
+router.get('/inventory/:id', productController.viewInventory);
 router.post('/api/inventory/create', productController.createInventory);
 router.get('/api/inventory/all', productController.getAllInventories);
 router.get('/api/inventory/:id', productController.getInventory);

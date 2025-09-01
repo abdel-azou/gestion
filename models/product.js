@@ -121,6 +121,31 @@ const Product = {
             lowStockProducts: parseInt(lowStockResult.rows[0].low_stock),
             outOfStockProducts: parseInt(outOfStockResult.rows[0].out_of_stock)
         };
+    },
+
+    getGeneralStats: async () => {
+        const client = await pool.connect();
+        try {
+            // Statistiques des produits
+            const productsQuery = 'SELECT COUNT(*) as total FROM products';
+            const productsResult = await client.query(productsQuery);
+            
+            // Statistiques des catégories
+            const categoriesQuery = 'SELECT COUNT(*) as total FROM categories';
+            const categoriesResult = await client.query(categoriesQuery);
+            
+            // Statistiques des inventaires actifs
+            const inventoriesQuery = 'SELECT COUNT(*) as total FROM inventories WHERE status = $1';
+            const inventoriesResult = await client.query(inventoriesQuery, ['active']);
+            
+            return {
+                totalProducts: parseInt(productsResult.rows[0].total) || 0,
+                totalCategories: parseInt(categoriesResult.rows[0].total) || 0,
+                activeInventories: parseInt(inventoriesResult.rows[0].total) || 0
+            };
+        } finally {
+            client.release();
+        }
     }
 };
 

@@ -76,6 +76,10 @@ app.get('/debug', (req, res) => {
     res.send('Debug route accessed');
 });
 
+// Route pour afficher la page d'accueil (DOIT être avant les autres routes)
+const productController = require('./controllers/productController');
+app.get('/', productController.home);
+
 // Importer et utiliser les routes des produits
 const productRoutes = require('./routes/productRoutes');
 app.use('/', productRoutes);
@@ -83,10 +87,6 @@ app.use('/', productRoutes);
 // Importer et utiliser les routes des listes de commandes
 const orderListRoutes = require('./routes/orderListRoutes');
 app.use('/', orderListRoutes);
-
-// Route pour afficher directement les produits
-const productController = require('./controllers/productController');
-app.get('/', productController.list);
 
 // Gestionnaire d'erreurs global
 app.use((err, req, res, next) => {

@@ -1,6 +1,160 @@
 /* Import mobile-first inventory styles */
 @import url('./inventory-mobile.css');
 
+/* Indice pour le long press - Version chef pâtissier */
+.long-press-hint {
+    background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+    border: 1px solid #ffb74d;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 15px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #e65100;
+    animation: fadeInHint 0.5s ease-out;
+}
+
+.long-press-hint i {
+    color: #ff9800;
+    animation: pointBounce 2s infinite;
+}
+
+@keyframes fadeInHint {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pointBounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-3px);
+    }
+    60% {
+        transform: translateY(-2px);
+    }
+}
+
+/* Masquer le hint sur petit écran pour économiser l'espace */
+@media (max-width: 480px) {
+    .long-press-hint {
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+}
+
+/* Barre d'actions compacte - Version chef pâtissier */
+.compact-action-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #fff9e6, #fff3d3);
+    border-top: 3px solid #ff9800;
+    box-shadow: 0 -4px 20px rgba(255, 152, 0, 0.2);
+    z-index: 1000;
+    display: none;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px;
+    gap: 15px;
+    transform: translateY(100%);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: slideUpActionBar 0.3s ease-out;
+    min-height: 70px;
+    backdrop-filter: blur(10px);
+}
+
+/* Styles prioritaires pour forcer l'affichage de la barre d'action */
+.compact-action-bar.action-bar-visible,
+.compact-action-bar[style*="display: flex"],
+.compact-action-bar[style*="display:flex"] {
+    display: flex !important;
+    transform: translateY(0) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Style inline prioritaire pour JavaScript */
+#action-bar[style*="display: flex"] {
+    display: flex !important;
+    transform: translateY(0) !important;
+}
+
+/* Couleurs spécifiques chef pâtissier pour l'affichage du produit */
+.selected-product-name {
+    background: rgba(255, 248, 225, 0.9);
+    border-color: #ffb74d;
+    color: #e65100;
+}
+
+/* Boutons d'incrémentation version pâtissier */
+.increment-group .action-btn {
+    background: linear-gradient(135deg, #ff9800, #ffb74d);
+    border-color: #ff9800;
+    color: white;
+}
+
+.increment-group .action-btn:hover {
+    background: linear-gradient(135deg, #ffb74d, #ffc107);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
+}
+
+/* Boutons de décrémentation version pâtissier */
+.decrement-group .action-btn {
+    background: linear-gradient(135deg, #795548, #8d6e63);
+    border-color: #795548;
+    color: white;
+}
+
+.decrement-group .action-btn:hover {
+    background: linear-gradient(135deg, #8d6e63, #a1887f);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(121, 85, 72, 0.4);
+}
+
+/* Animation d'apparition forcée */
+@keyframes slideUpActionBar {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.action-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .compact-action-bar {
+        padding: 12px 15px;
+        gap: 10px;
+    }
+    
+    .action-group {
+        gap: 6px;
+    }
+}
+
+/* Styles pour la nouvelle barre d'actions compacte uniquement */
+
 /* CORRECTION PRINCIPALE: Override des styles inventory-mobile.css qui limitent l'affichage */
 .chef-patissier-container,
 #chef_patissier-page {
@@ -621,5 +775,213 @@
         opacity: 0 !important;
         margin-top: 0 !important;
         padding-top: 0 !important;
+    }
+}
+
+/* Bouton pour voir l'inventaire terminé - Version chef pâtissier */
+.btn-view-inventory {
+    background: linear-gradient(135deg, #ff9800, #ffb74d) !important;
+    color: white !important;
+    border: none !important;
+    padding: 12px 20px !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3) !important;
+}
+
+.btn-view-inventory:hover {
+    background: linear-gradient(135deg, #f57c00, #ff9800) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4) !important;
+}
+
+.btn-view-inventory i {
+    font-size: 16px !important;
+}
+
+/* Animation fadeOut pour la notification */
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+/* Styles pour la recherche dans les inventaires - Version chef pâtissier */
+.search-container {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border: 1px solid #e0e0e0;
+}
+
+.search-box {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 45px 12px 45px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+    box-sizing: border-box;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #ff9800;
+    box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.1);
+    background: white;
+}
+
+.search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+    font-size: 16px;
+}
+
+.clear-search {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+    display: none;
+    transition: all 0.2s ease;
+}
+
+.clear-search:hover {
+    color: #666;
+    background: #f0f0f0;
+}
+
+.search-stats {
+    color: #666;
+    font-size: 14px;
+    margin: 0;
+    text-align: center;
+}
+
+/* Styles pour les sections de catégories - Version chef pâtissier */
+.category-section {
+    margin-bottom: 30px;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    border: 1px solid #e8e8e8;
+}
+
+.category-header {
+    background: linear-gradient(135deg, #fff8e1, #ffecb3);
+    padding: 15px 20px;
+    border-bottom: 2px solid #ffb74d;
+}
+
+.category-header h4 {
+    margin: 0;
+    color: #e65100;
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.category-header i {
+    color: #ff9800;
+    font-size: 16px;
+}
+
+.category-stats {
+    font-weight: 400;
+    font-size: 14px;
+    color: #f57c00;
+    margin-left: auto;
+}
+
+.category-items {
+    padding: 0;
+}
+
+.category-items .items-table {
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+}
+
+.category-items .items-table thead {
+    background: #fff8e1;
+}
+
+.category-items .items-table thead th {
+    padding: 12px 15px;
+    border-bottom: 1px solid #ffb74d;
+    font-weight: 600;
+    color: #e65100;
+}
+
+.category-items .items-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Amélioration des styles existants pour les tables - Version chef pâtissier */
+.items-table tbody tr.modified {
+    background: linear-gradient(90deg, rgba(255, 152, 0, 0.1), rgba(255, 152, 0, 0.05));
+    border-left: 4px solid #ff9800;
+}
+
+.items-table tbody tr.modified td:first-child::before {
+    content: "✓";
+    color: #ff9800;
+    font-weight: bold;
+    margin-right: 8px;
+}
+
+/* Responsive pour les catégories */
+@media (max-width: 768px) {
+    .category-header h4 {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    .category-stats {
+        margin-left: 0;
+        font-size: 13px;
+    }
+    
+    .search-container {
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .search-input {
+        font-size: 16px; /* Évite le zoom sur iOS */
     }
 }

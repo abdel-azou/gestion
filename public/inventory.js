@@ -133,129 +133,49 @@ function displayInventoryDetails(inventory) {
         html += `
             <div class="inventory-items-section">
                 <h3>Produits dans l'inventaire (${inventory.items.length} articles)</h3>
-                <div class="inventory-items-mobile">
-        `;
-        
-        inventory.items.forEach(item => {
-            const difference = item.stock_after - item.stock_before;
-            let differenceClass = 'difference-zero';
-            let differenceIcon = '';
-            let differenceText = '';
-            
-            if (difference > 0) {
-                differenceClass = 'difference-positive';
-                differenceIcon = '📈';
-                differenceText = `+${difference}`;
-            } else if (difference < 0) {
-                differenceClass = 'difference-negative';
-                differenceIcon = '📉';
-                differenceText = `${difference}`;
-            } else {
-                differenceIcon = '➖';
-                differenceText = '0';
-            }
-            
-            // Vérifier si le stock est sous le minimum
-            const isUnderMinimum = item.stock_after < item.stock_minimal;
-            const stockWarning = isUnderMinimum ? 'stock-warning' : '';
-            
-            html += `
-                <div class="inventory-item-card">
-                    <div class="item-header">
-                        <h4 class="item-name">${item.product_name || `Produit #${item.product_id}`}</h4>
-                        <span class="item-category">${item.category_name || 'Sans catégorie'}</span>
+                
+                <!-- Barre de recherche -->
+                <div class="search-container-modal">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon"></i>
+                        <input 
+                            type="text" 
+                            id="modal-product-search" 
+                            class="search-input"
+                            placeholder="Rechercher un produit..." 
+                            onkeyup="filterModalProducts()"
+                        >
+                        <button class="clear-search" onclick="clearModalSearch()" style="display: none;">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
                     
-                    <div class="item-stocks">
-                        <div class="stock-info">
-                            <span class="stock-label">Initial</span>
-                            <span class="stock-value">${item.stock_before}</span>
-                        </div>
-                        <div class="stock-arrow">→</div>
-                        <div class="stock-info ${stockWarning}">
-                            <span class="stock-label">Final</span>
-                            <span class="stock-value">${item.stock_after}</span>
-                        </div>
-                        <div class="stock-minimum">
-                            <span class="stock-label">Min.</span>
-                            <span class="stock-value">${item.stock_minimal}</span>
-                        </div>
+                    <!-- Filtres -->
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" onclick="setModalFilter('all')" data-filter="all">
+                            <i class="fas fa-list"></i> Tous
+                        </button>
+                        <button class="filter-btn" onclick="setModalFilter('modified')" data-filter="modified">
+                            <i class="fas fa-edit"></i> Modifiés seulement
+                        </button>
+                        <button class="filter-btn" onclick="setModalFilter('unmodified')" data-filter="unmodified">
+                            <i class="fas fa-equals"></i> Non modifiés
+                        </button>
                     </div>
                     
-                    <div class="item-difference">
-                        <span class="difference-label">Différence :</span>
-                        <span class="difference-value ${differenceClass}">
-                            ${differenceIcon} ${differenceText}
-                        </span>
-                    </div>
-                    
-                    ${isUnderMinimum ? `
-                    <div class="stock-alert">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        Stock sous le minimum !
-                    </div>
-                    ` : ''}
-                </div>
-            `;
-        });
-        
-        html += `
+                    <p class="search-stats">
+                        <span id="modal-search-results-count">${inventory.items.length} produits</span>
+                    </p>
                 </div>
                 
-                <!-- Version tableau pour écrans plus larges -->
-                <div class="inventory-items-desktop">
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Produit</th>
-                                    <th>Catégorie</th>
-                                    <th>Stock Initial</th>
-                                    <th>Stock Final</th>
-                                    <th>Stock Min.</th>
-                                    <th>Différence</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                <!-- Container pour les catégories -->
+                <div id="modal-items-container">
+                    <!-- Les produits organisés par catégories seront ajoutés ici -->
+                </div>
         `;
         
-        inventory.items.forEach(item => {
-            const difference = item.stock_after - item.stock_before;
-            let differenceClass = 'difference-zero';
-            let differenceIcon = '';
-            
-            if (difference > 0) {
-                differenceClass = 'difference-positive';
-                differenceIcon = '↗️';
-            } else if (difference < 0) {
-                differenceClass = 'difference-negative';
-                differenceIcon = '↘️';
-            } else {
-                differenceIcon = '→';
-            }
-            
-            const isUnderMinimum = item.stock_after < item.stock_minimal;
-            const stockWarning = isUnderMinimum ? 'stock-warning' : '';
-            
-            html += `
-                <tr>
-                    <td><strong>${item.product_name || `Produit #${item.product_id}`}</strong></td>
-                    <td>${item.category_name || 'Sans catégorie'}</td>
-                    <td>${item.stock_before}</td>
-                    <td class="${stockWarning}">${item.stock_after}</td>
-                    <td>${item.stock_minimal}</td>
-                    <td class="${differenceClass}">
-                        ${differenceIcon} ${difference > 0 ? '+' : ''}${difference}
-                    </td>
-                </tr>
-            `;
-        });
-        
+        // On termine la section mais on organisera les produits avec JavaScript
         html += `
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
             </div>
         `;
     } else {
@@ -291,6 +211,11 @@ function displayInventoryDetails(inventory) {
     `;
     
     content.innerHTML = html;
+    
+    // Organiser les produits par catégories dans la modal
+    if (inventory.items && inventory.items.length > 0) {
+        organizeModalItemsByCategory(inventory.items);
+    }
 }
 
 // Fonction utilitaire pour formater les dates
@@ -581,4 +506,286 @@ if (!document.querySelector('#notification-styles')) {
         }
     `;
     document.head.appendChild(style);
+}
+
+// Organiser les produits par catégories dans la modal
+function organizeModalItemsByCategory(items) {
+    console.log('Organisation des produits par catégories dans la modal...');
+    const container = document.getElementById('modal-items-container');
+    
+    if (!container) {
+        console.error('Container modal non trouvé');
+        return;
+    }
+    
+    // Organiser les items par catégorie
+    const categoriesMap = {};
+    
+    items.forEach(item => {
+        const category = item.category_name || 'Sans catégorie';
+        if (!categoriesMap[category]) {
+            categoriesMap[category] = [];
+        }
+        categoriesMap[category].push(item);
+    });
+    
+    console.log('Catégories trouvées:', Object.keys(categoriesMap));
+    
+    // Créer le HTML pour chaque catégorie
+    let html = '';
+    const categories = Object.keys(categoriesMap).sort();
+    
+    categories.forEach(categoryName => {
+        const categoryItems = categoriesMap[categoryName];
+        const modifiedCount = categoryItems.filter(item => item.stock_before !== item.stock_after).length;
+        
+        html += `
+            <div class="modal-category-section" data-category="${categoryName}">
+                <div class="modal-category-header">
+                    <h4>
+                        <i class="fas fa-folder-open"></i>
+                        ${categoryName}
+                        <span class="modal-category-stats">(${categoryItems.length} produits, ${modifiedCount} modifiés)</span>
+                    </h4>
+                </div>
+                <div class="modal-category-items">
+                    <div class="modal-items-mobile">
+        `;
+        
+        categoryItems.forEach(item => {
+            const difference = item.stock_after - item.stock_before;
+            let differenceClass = 'difference-zero';
+            let differenceIcon = '';
+            let differenceText = '';
+            
+            if (difference > 0) {
+                differenceClass = 'difference-positive';
+                differenceIcon = '📈';
+                differenceText = `+${difference}`;
+            } else if (difference < 0) {
+                differenceClass = 'difference-negative';
+                differenceIcon = '📉';
+                differenceText = `${difference}`;
+            } else {
+                differenceIcon = '➖';
+                differenceText = '0';
+            }
+            
+            const isUnderMinimum = item.stock_after < item.stock_minimal;
+            const stockWarning = isUnderMinimum ? 'stock-warning' : '';
+            const isModified = item.stock_before !== item.stock_after;
+            
+            html += `
+                <div class="inventory-item-card" 
+                     data-product-name="${(item.product_name || '').toLowerCase()}"
+                     data-modified="${isModified}"
+                     data-difference="${difference}">
+                    <div class="item-header">
+                        <h4 class="item-name">${item.product_name || `Produit #${item.product_id}`}</h4>
+                        <span class="item-category">${item.category_name || 'Sans catégorie'}</span>
+                        ${isModified ? '<span class="modified-badge"><i class="fas fa-edit"></i> Modifié</span>' : ''}
+                    </div>
+                    
+                    <div class="item-stocks">
+                        <div class="stock-info">
+                            <span class="stock-label">Initial</span>
+                            <span class="stock-value">${item.stock_before}</span>
+                        </div>
+                        <div class="stock-arrow">→</div>
+                        <div class="stock-info ${stockWarning}">
+                            <span class="stock-label">Final</span>
+                            <span class="stock-value">${item.stock_after}</span>
+                        </div>
+                        <div class="stock-minimum">
+                            <span class="stock-label">Min.</span>
+                            <span class="stock-value">${item.stock_minimal}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="item-difference">
+                        <span class="difference-label">Différence :</span>
+                        <span class="difference-value ${differenceClass}">
+                            ${differenceIcon} ${differenceText}
+                        </span>
+                    </div>
+                    
+                    ${isUnderMinimum ? `
+                    <div class="stock-alert">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Stock sous le minimum !
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        });
+        
+        html += `
+                    </div>
+                    
+                    <!-- Version tableau pour écrans plus larges -->
+                    <div class="modal-items-desktop">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Produit</th>
+                                        <th>Stock Initial</th>
+                                        <th>Stock Final</th>
+                                        <th>Stock Min.</th>
+                                        <th>Différence</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+        `;
+        
+        categoryItems.forEach(item => {
+            const difference = item.stock_after - item.stock_before;
+            let differenceClass = 'difference-zero';
+            let differenceIcon = '';
+            
+            if (difference > 0) {
+                differenceClass = 'difference-positive';
+                differenceIcon = '↗️';
+            } else if (difference < 0) {
+                differenceClass = 'difference-negative';
+                differenceIcon = '↘️';
+            } else {
+                differenceIcon = '→';
+            }
+            
+            const isUnderMinimum = item.stock_after < item.stock_minimal;
+            const stockWarning = isUnderMinimum ? 'stock-warning' : '';
+            const isModified = item.stock_before !== item.stock_after;
+            
+            html += `
+                <tr data-product-name="${(item.product_name || '').toLowerCase()}"
+                    data-modified="${isModified}"
+                    data-difference="${difference}"
+                    class="${isModified ? 'table-row-modified' : ''}">
+                    <td>
+                        <strong>${item.product_name || `Produit #${item.product_id}`}</strong>
+                        ${isModified ? '<span class="modified-badge-small"><i class="fas fa-edit"></i></span>' : ''}
+                    </td>
+                    <td>${item.stock_before}</td>
+                    <td class="${stockWarning}">${item.stock_after}</td>
+                    <td>${item.stock_minimal}</td>
+                    <td class="${differenceClass}">
+                        ${differenceIcon} ${difference > 0 ? '+' : ''}${difference}
+                    </td>
+                </tr>
+            `;
+        });
+        
+        html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+    updateModalSearchStats();
+    console.log('Organisation terminée');
+}
+
+// Effacer la recherche dans la modal
+function clearModalSearch() {
+    document.getElementById('modal-product-search').value = '';
+    // Réinitialiser aussi le filtre à "Tous"
+    setModalFilter('all');
+    document.getElementById('modal-product-search').focus();
+}
+
+// Mettre à jour les statistiques de recherche dans la modal
+function updateModalSearchStats(visibleCount, categoriesCount, searchTerm) {
+    const statsElement = document.getElementById('modal-search-results-count');
+    const allProducts = document.querySelectorAll('.modal-category-section [data-product-name]');
+    const totalItems = allProducts.length;
+    
+    if (visibleCount !== undefined && visibleCount !== null) {
+        if (searchTerm) {
+            statsElement.textContent = `${visibleCount} produits trouvés dans ${categoriesCount} catégories`;
+        } else {
+            statsElement.textContent = `${totalItems} produits`;
+        }
+    } else {
+        statsElement.textContent = `${totalItems} produits`;
+    }
+}
+
+// Variable globale pour le filtre actuel
+let currentModalFilter = 'all';
+
+// Définir le filtre pour la modal
+function setModalFilter(filterType) {
+    currentModalFilter = filterType;
+    
+    // Mettre à jour l'apparence des boutons
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    filterButtons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('data-filter') === filterType) {
+            btn.classList.add('active');
+        }
+    });
+    
+    // Appliquer le filtre
+    filterModalProducts();
+}
+
+// Fonction modifiée pour prendre en compte le filtre
+function filterModalProducts() {
+    const searchTerm = document.getElementById('modal-product-search').value.toLowerCase();
+    const clearButton = document.querySelector('.clear-search');
+    const categories = document.querySelectorAll('.modal-category-section');
+    
+    // Afficher/masquer le bouton clear
+    if (clearButton) {
+        clearButton.style.display = searchTerm ? 'block' : 'none';
+    }
+    
+    let visibleProductsCount = 0;
+    let visibleCategoriesCount = 0;
+    
+    categories.forEach(category => {
+        const products = category.querySelectorAll('[data-product-name]');
+        let visibleProductsInCategory = 0;
+        
+        products.forEach(product => {
+            const productName = product.getAttribute('data-product-name');
+            const isModified = product.getAttribute('data-modified') === 'true';
+            
+            // Vérifier si le produit correspond à la recherche
+            const matchesSearch = productName.indexOf(searchTerm) >= 0;
+            
+            // Vérifier si le produit correspond au filtre
+            let matchesFilter = true;
+            if (currentModalFilter === 'modified') {
+                matchesFilter = isModified;
+            } else if (currentModalFilter === 'unmodified') {
+                matchesFilter = !isModified;
+            }
+            
+            const isVisible = matchesSearch && matchesFilter;
+            product.style.display = isVisible ? '' : 'none';
+            
+            if (isVisible) {
+                visibleProductsInCategory++;
+                visibleProductsCount++;
+            }
+        });
+        
+        // Masquer la catégorie si aucun produit n'est visible
+        if (visibleProductsInCategory > 0) {
+            category.style.display = '';
+            visibleCategoriesCount++;
+        } else {
+            category.style.display = 'none';
+        }
+    });
+    
+    updateModalSearchStats(visibleProductsCount, visibleCategoriesCount, searchTerm);
 }

@@ -263,8 +263,8 @@ const Inventory = {
 
     // Créer un inventaire spécifique pour la pâtisserie
     createPatisserie: async (name, notes = '') => {
-        // Utiliser la méthode create avec categoryId = 5 (pâtissier)
-        return await Inventory.create(name, notes, 5);
+        // Utiliser la méthode create avec categoryId = 13 (Patissier)
+        return await Inventory.create(name, notes, 13);
     },
 
     // Obtenir les statistiques d'un inventaire
@@ -287,14 +287,14 @@ const Inventory = {
             const result = await client.query(query, [inventoryId]);
             const stats = result.rows[0];
             
-            // Convertir les valeurs en nombres
+            // Convertir les valeurs en nombres avec les noms attendus par la vue
             return {
-                totalProducts: parseInt(stats.total_products) || 0,
-                changedProducts: parseInt(stats.changed_products) || 0,
-                totalGains: parseInt(stats.total_gains) || 0,
-                totalLosses: parseInt(stats.total_losses) || 0,
-                outOfStockProducts: parseInt(stats.out_of_stock_products) || 0,
-                avgChange: parseFloat(stats.avg_change) || 0
+                total_products: parseInt(stats.total_products) || 0,
+                changed_products: parseInt(stats.changed_products) || 0,
+                total_gains: parseInt(stats.total_gains) || 0,
+                total_losses: parseInt(stats.total_losses) || 0,
+                out_of_stock_products: parseInt(stats.out_of_stock_products) || 0,
+                avg_change: parseFloat(stats.avg_change) || 0
             };
         } finally {
             client.release();

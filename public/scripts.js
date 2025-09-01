@@ -5,13 +5,62 @@ let categoryStates = {};
 let categoryModifications = {};
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('=== INITIALISATION DE LA PAGE ===');
+    console.log('Page actuelle:', window.location.pathname);
+    
     // Initialiser les sélections de produits
-    document.querySelectorAll('.product-item').forEach(item => {
-        item.addEventListener('click', () => {
+    const productItems = document.querySelectorAll('.product-item');
+    console.log('Nombre de produits trouvés:', productItems.length);
+    
+    productItems.forEach((item, index) => {
+        console.log(`Attachement gestionnaire pour produit ${index + 1}:`, item.getAttribute('data-name'));
+        item.addEventListener('click', (e) => {
+            e.stopPropagation(); // Empêcher la propagation vers le document
+            console.log('=== CLIC SUR PRODUIT ===');
+            console.log('Produit cliqué:', item.getAttribute('data-name'));
+            console.log('ID produit:', item.getAttribute('data-id'));
+            
+            // Vérifier que l'ID n'est pas null
+            const productId = item.getAttribute('data-id');
+            const productName = item.getAttribute('data-name');
+            if (!productId) {
+                console.error('ERREUR: data-id manquant sur le produit');
+                showNotification('Erreur: ID produit manquant', 'error');
+                return;
+            }
+            
             document.querySelectorAll('.product-item').forEach(p => p.classList.remove('selected'));
             item.classList.add('selected');
-            selectedProductId = item.getAttribute('data-id');
+            selectedProductId = productId;
+            
+            // Mettre à jour l'affichage du produit sélectionné
+            updateSelectedProductDisplay(productName);
+            
+            console.log('Produit sélectionné avec ID:', selectedProductId);
+            console.log('Classe selected ajoutée, appel showCompactActionBar...');
+            // Afficher la barre d'actions rapides
+            showCompactActionBar();
         });
+    });
+    
+    // Vérifier que la barre d'action existe
+    const actionBar = document.getElementById('action-bar');
+    console.log('Barre d\'action trouvée:', !!actionBar);
+    if (actionBar) {
+        console.log('Styles initiaux de la barre d\'action:', actionBar.style.cssText);
+        console.log('Classes de la barre d\'action:', actionBar.className);
+    }
+    
+    // Masquer la barre d'actions quand on clique ailleurs
+    document.addEventListener('click', (e) => {
+        const actionBar = document.getElementById('action-bar');
+        const isActionBarClick = actionBar && actionBar.contains(e.target);
+        const isProductClick = e.target.closest('.product-item');
+        
+        if (!isActionBarClick && !isProductClick && selectedProductId) {
+            console.log('Clic extérieur détecté, masquage de la barre d\'action');
+            hideCompactActionBar();
+        }
     });
     
     // Initialiser les états des catégories
@@ -56,21 +105,45 @@ document.addEventListener('DOMContentLoaded', () => {
 // ===== GESTION DU STOCK =====
 
 async function updateSelectedStock(amount) {
+    console.log('=== MISE À JOUR DU STOCK ===');
+    console.log('Amount demandé:', amount);
+    console.log('selectedProductId:', selectedProductId);
+    
     if (selectedProductId) {
         const productElement = document.querySelector(`.product-item[data-id="${selectedProductId}"]`);
+        console.log('Élément produit trouvé:', !!productElement);
+        
+        if (!productElement) {
+            console.error('Produit non trouvé avec l\'ID:', selectedProductId);
+            showNotification('Erreur: Produit non trouvé', 'error');
+            return;
+        }
+        
         const stockElement = productElement.querySelector('.product-stock');
+        console.log('Élément stock trouvé:', !!stockElement);
+        
+        if (!stockElement) {
+            console.error('Élément stock non trouvé dans le produit');
+            showNotification('Erreur: Stock non trouvé', 'error');
+            return;
+        }
+        
         const currentStock = parseInt(stockElement.textContent, 10);
         const newStock = currentStock + amount;
+        console.log('Stock actuel:', currentStock, 'Nouveau stock:', newStock);
 
         if (newStock >= 0) {
             productElement.classList.add('processing');
+            console.log('Début de la mise à jour...');
 
             try {
                 // Si pas d'inventaire en cours, en créer un automatiquement
                 if (!isInventoryMode()) {
+                    console.log('Pas d\'inventaire en cours, création automatique...');
                     await autoCreateInventory();
                 }
 
+                console.log('Envoi de la requête de mise à jour...');
                 const response = await fetch('/products/update-stock', {
                     method: 'POST',
                     headers: {
@@ -80,8 +153,10 @@ async function updateSelectedStock(amount) {
                 });
 
                 productElement.classList.remove('processing');
+                console.log('Réponse reçue, status:', response.status);
 
                 if (response.ok) {
+                    console.log('Mise à jour réussie');
                     stockElement.textContent = newStock;
                     productElement.classList.add('product-updated');
                     setTimeout(() => productElement.classList.remove('product-updated'), 2000);
@@ -93,27 +168,85 @@ async function updateSelectedStock(amount) {
                     const modCount = Object.keys(inventoryModifications).length;
                     showNotification(`Stock modifié (${modCount} produits modifiés)`, 'success');
                 } else {
-                    console.error('Failed to update stock');
+                    const errorText = await response.text();
+                    console.error('Échec de la mise à jour, réponse:', errorText);
                     showNotification('Erreur lors de la mise à jour du stock', 'error');
                 }
             } catch (error) {
                 productElement.classList.remove('processing');
-                console.error('Error updating stock:', error);
+                console.error('Erreur lors de la mise à jour du stock:', error);
                 showNotification('Erreur de connexion', 'error');
             }
         } else {
+            console.warn('Tentative de stock négatif');
             alert('Le stock ne peut pas être négatif.');
         }
     } else {
+        console.warn('Aucun produit sélectionné');
         alert('Veuillez sélectionner un produit.');
     }
 }
 
 function updateSelectedStockCustom() {
-    const customAmount = parseInt(document.getElementById('custom-amount').value, 10);
-    if (!isNaN(customAmount)) {
-        updateSelectedStock(customAmount);
-        document.getElementById('custom-amount').value = '';
+    // Cette fonction n'est plus utilisée mais gardée pour compatibilité
+    console.warn('updateSelectedStockCustom() est obsolète');
+}
+
+// Plus d'affichage du produit sélectionné - ergonomie maximale
+function updateSelectedProductDisplay(productName) {
+    // Fonction conservée pour compatibilité mais ne fait plus rien
+    console.log('🎯 Interface simplifiée - pas d\'affichage central');
+}
+
+// Plus d'affichage du produit sélectionné
+function resetSelectedProductDisplay() {
+    // Fonction conservée pour compatibilité mais ne fait plus rien
+    console.log('🎯 Interface simplifiée - reset non nécessaire');
+}
+
+// ===== FONCTION POUR MISE À JOUR RAPIDE DU STOCK =====
+async function quickStockUpdate(productId, amount) {
+    console.log(`🚀 Mise à jour rapide: Produit ${productId}, quantité ${amount}`);
+    
+    try {
+        const response = await fetch('/products/update-stock', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                id: productId,
+                amount: amount
+            })
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log('✅ Stock mis à jour:', result);
+            
+            // Mettre à jour l'affichage local
+            const productElement = document.querySelector(`[data-id="${productId}"]`);
+            if (productElement) {
+                const stockElement = productElement.querySelector('.product-stock');
+                if (stockElement) {
+                    const currentStock = parseInt(stockElement.textContent.match(/\d+/)[0]);
+                    const newStock = currentStock + amount;
+                    stockElement.textContent = `Stock: ${newStock}`;
+                    
+                    // Ajouter feedback visuel
+                    productElement.style.animation = 'pulse 0.3s ease';
+                    setTimeout(() => {
+                        productElement.style.animation = '';
+                    }, 300);
+                }
+            }
+        } else {
+            console.error('❌ Erreur lors de la mise à jour');
+            alert('Erreur lors de la mise à jour du stock');
+        }
+    } catch (error) {
+        console.error('❌ Erreur réseau:', error);
+        alert('Erreur de connexion');
     }
 }
 
@@ -840,21 +973,18 @@ async function finalizeCurrentInventory() {
         console.log('Finalization result:', result);
 
         if (result.success) {
+            // Transformer le bouton en bouton "Voir l'inventaire" avec date/heure
+            const completedDate = new Date().toLocaleDateString('fr-FR');
+            const completedTime = new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'});
+            
+            transformToViewInventoryButton(currentInventory.id, currentInventory.name, completedDate, completedTime);
+            
             resetInventoryMode();
-            showNotification('Inventaire finalisé et enregistré avec succès!', 'success');
+            showNotification('✅ Inventaire finalisé avec succès !', 'success');
             
-            // Proposer de voir l'inventaire créé
+            // Recharger la page pour voir les nouveaux stocks après un délai
             setTimeout(() => {
-                if (confirm('Inventaire enregistré! Voulez-vous voir le tableau de bord des inventaires?')) {
-                    window.location.href = '/inventory';
-                }
-            }, 1000);
-            
-            // Recharger la page pour voir les nouveaux stocks
-            setTimeout(() => {
-                if (!confirm('Inventaire enregistré! Voulez-vous voir le tableau de bord des inventaires?')) {
-                    window.location.reload();
-                }
+                window.location.reload();
             }, 2000);
         } else {
             showNotification(result.error || 'Erreur lors de la finalisation', 'error');
@@ -956,4 +1086,105 @@ function showNotification(message, type = 'info') {
     setTimeout(() => {
         notification.remove();
     }, 3000);
+}
+
+// ===== GESTION DE LA BARRE D'ACTIONS RAPIDES =====
+
+function showCompactActionBar() {
+    const actionBar = document.getElementById('action-bar');
+    
+    if (actionBar) {
+        console.log('Affichage de la barre d\'actions'); // Debug log
+        
+        // Forcer tous les styles nécessaires
+        actionBar.style.display = 'flex';
+        actionBar.style.transform = 'translateY(0)';
+        actionBar.style.opacity = '1';
+        actionBar.style.visibility = 'visible';
+        actionBar.style.zIndex = '1000';
+        actionBar.style.animation = 'slideUpActionBar 0.3s ease-out';
+        
+        // Force l'affichage même si le CSS tente de le masquer
+        actionBar.classList.add('action-bar-visible');
+        
+        // Vérification après animation
+        setTimeout(() => {
+            const computedStyle = window.getComputedStyle(actionBar);
+            console.log('Barre d\'action - Display:', computedStyle.display, 'Transform:', computedStyle.transform);
+            
+            if (computedStyle.display === 'none') {
+                console.warn('Barre d\'action masquée par CSS, correction...');
+                actionBar.style.setProperty('display', 'flex', 'important');
+                actionBar.style.setProperty('transform', 'translateY(0)', 'important');
+            }
+        }, 350);
+    } else {
+        console.error('Element action-bar non trouvé'); // Debug log
+    }
+}
+
+function hideCompactActionBar() {
+    const actionBar = document.getElementById('action-bar');
+    if (actionBar) {
+        console.log('Masquage de la barre d\'actions'); // Debug log
+        actionBar.style.transform = 'translateY(100%)';
+        actionBar.classList.remove('action-bar-visible');
+        
+        setTimeout(() => {
+            actionBar.style.display = 'none';
+        }, 300);
+    }
+    
+    // Désélectionner le produit et réinitialiser l'affichage
+    document.querySelectorAll('.product-item').forEach(p => p.classList.remove('selected'));
+    selectedProductId = null;
+    resetSelectedProductDisplay();
+}
+
+// ===== TRANSFORMATION DU BOUTON INVENTAIRE =====
+
+function transformToViewInventoryButton(inventoryId, inventoryName, date, time) {
+    const button = document.getElementById('inventory-main-action');
+    const inventoryNotification = document.getElementById('inventory-notification');
+    
+    if (button && inventoryNotification) {
+        // Transformer le bouton
+        button.innerHTML = `
+            <i class="fas fa-eye"></i> 
+            <span>Voir l'inventaire du ${date} à ${time}</span>
+        `;
+        button.className = 'btn-view-inventory';
+        button.onclick = () => {
+            window.open(`/inventory/${inventoryId}`, '_blank');
+        };
+        
+        // Changer le titre de la notification
+        const inventoryInfo = inventoryNotification.querySelector('.inventory-info strong');
+        if (inventoryInfo) {
+            inventoryInfo.innerHTML = '✅ Inventaire terminé';
+        }
+        
+        // Changer la couleur de la notification
+        inventoryNotification.style.background = 'linear-gradient(135deg, #d4edda, #c3e6cb)';
+        inventoryNotification.style.borderLeft = '4px solid #28a745';
+        
+        // Masquer la notification après 8 secondes
+        setTimeout(() => {
+            if (inventoryNotification.style.display !== 'none') {
+                inventoryNotification.style.animation = 'fadeOut 0.5s ease-out';
+                setTimeout(() => {
+                    inventoryNotification.style.display = 'none';
+                }, 500);
+            }
+        }, 8000);
+    }
+}
+
+// Fonction pour la compatibilité avec l'ancien code
+function showQuickActionBar(productName) {
+    showCompactActionBar();
+}
+
+function hideQuickActionBar() {
+    hideCompactActionBar();
 }

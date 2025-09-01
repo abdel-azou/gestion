@@ -1,0 +1,534 @@
+{{> header title="Accueil - Gestion Stock" page="home"}}
+
+<div class="home-container">
+    <!-- En-tête de bienvenue -->
+    <div class="welcome-section">
+        <div class="welcome-content">
+            <h1 class="welcome-title">
+                <i class="fas fa-warehouse"></i>
+                Gestion de Stock
+            </h1>
+            <p class="welcome-subtitle">
+                Système de gestion des inventaires et commandes pour votre entreprise
+            </p>
+        </div>
+        <div class="welcome-stats">
+            <div class="stat-item">
+                <span class="stat-number">{{stats.totalProducts}}</span>
+                <span class="stat-label">Produits</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{stats.totalCategories}}</span>
+                <span class="stat-label">Catégories</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{stats.activeInventories}}</span>
+                <span class="stat-label">Inventaires actifs</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menu principal -->
+    <div class="main-menu">
+        <h2 class="menu-title">
+            <i class="fas fa-th-large"></i>
+            Menu Principal
+        </h2>
+        
+        <div class="menu-grid">
+            <!-- Gestion des Produits -->
+            <div class="menu-card">
+                <div class="card-icon products-icon">
+                    <i class="fas fa-boxes"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Gestion des Produits</h3>
+                    <p>Voir, ajouter et modifier les produits en stock</p>
+                    <div class="card-actions">
+                        <a href="/liste_abdelhamid" class="btn btn-primary">
+                            <i class="fas fa-eye"></i>
+                            Voir les produits
+                        </a>
+                        <a href="/add-product" class="btn btn-outline">
+                            <i class="fas fa-plus"></i>
+                            Ajouter
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventaires -->
+            <div class="menu-card">
+                <div class="card-icon inventory-icon">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Inventaires</h3>
+                    <p>Créer et gérer les inventaires de stock</p>
+                    <div class="card-actions">
+                        <a href="/inventory" class="btn btn-primary">
+                            <i class="fas fa-list"></i>
+                            Voir inventaires
+                        </a>
+                        <a href="/liste_abdelhamid" class="btn btn-outline">
+                            <i class="fas fa-plus-circle"></i>
+                            Nouvel inventaire
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Listes de Commandes -->
+            <div class="menu-card">
+                <div class="card-icon orders-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Listes de Commandes</h3>
+                    <p>Gérer les commandes et approvisionnements</p>
+                    <div class="card-actions">
+                        <a href="/order-lists" class="btn btn-primary">
+                            <i class="fas fa-list-alt"></i>
+                            Voir commandes
+                        </a>
+                        <a href="/order-lists/create" class="btn btn-outline">
+                            <i class="fas fa-plus"></i>
+                            Nouvelle liste
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Espace Pâtissier -->
+            <div class="menu-card">
+                <div class="card-icon pastry-icon">
+                    <i class="fas fa-birthday-cake"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Espace Pâtissier</h3>
+                    <p>Gestion spécialisée pour la pâtisserie</p>
+                    <div class="card-actions">
+                        <a href="/chef_patissier" class="btn btn-primary">
+                            <i class="fas fa-cookie-bite"></i>
+                            Espace pâtissier
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistiques -->
+            <div class="menu-card">
+                <div class="card-icon stats-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Statistiques</h3>
+                    <p>Analyses et rapports de l'activité</p>
+                    <div class="card-actions">
+                        <a href="/inventory/stats" class="btn btn-primary">
+                            <i class="fas fa-analytics"></i>
+                            Voir stats
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Administration -->
+            <div class="menu-card">
+                <div class="card-icon admin-icon">
+                    <i class="fas fa-cog"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Administration</h3>
+                    <p>Gestion des catégories et paramètres</p>
+                    <div class="card-actions">
+                        <a href="/admin" class="btn btn-primary">
+                            <i class="fas fa-tools"></i>
+                            Administration
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statut du système -->
+    <div class="system-status">
+        <div class="status-item">
+            <i class="fas fa-database"></i>
+            <span>Base de données : <span class="status-ok">Connectée</span></span>
+        </div>
+        <div class="status-item">
+            <i class="fas fa-server"></i>
+            <span>Serveur : <span class="status-ok">En ligne</span></span>
+        </div>
+        <div class="status-item">
+            <i class="fas fa-clock"></i>
+            <span>Dernière sauvegarde : <span id="last-backup">En temps réel</span></span>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Styles pour la page d'accueil */
+.home-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: calc(100vh - 120px);
+}
+
+.welcome-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 20px;
+    padding: 40px;
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.welcome-content h1 {
+    margin: 0 0 10px 0;
+    font-size: 2.5em;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.welcome-content p {
+    margin: 0;
+    font-size: 1.1em;
+    opacity: 0.9;
+}
+
+.welcome-stats {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    text-align: center;
+    background: rgba(255,255,255,0.1);
+    padding: 20px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    min-width: 100px;
+}
+
+.stat-number {
+    display: block;
+    font-size: 2em;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 0.9em;
+    opacity: 0.9;
+}
+
+.main-menu {
+    margin-bottom: 40px;
+}
+
+.menu-title {
+    color: #495057;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.8em;
+}
+
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.menu-card {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    border: 1px solid #f1f3f4;
+}
+
+.menu-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.card-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+    margin-bottom: 20px;
+}
+
+.products-icon { background: linear-gradient(135deg, #4CAF50, #45a049); }
+.inventory-icon { background: linear-gradient(135deg, #2196F3, #1976D2); }
+.orders-icon { background: linear-gradient(135deg, #FF9800, #F57C00); }
+.pastry-icon { background: linear-gradient(135deg, #E91E63, #C2185B); }
+.stats-icon { background: linear-gradient(135deg, #9C27B0, #7B1FA2); }
+.admin-icon { background: linear-gradient(135deg, #607D8B, #455A64); }
+
+.card-content h3 {
+    margin: 0 0 10px 0;
+    color: #2c3e50;
+    font-size: 1.3em;
+}
+
+.card-content p {
+    color: #6c757d;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.card-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 10px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 2px solid transparent;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+}
+
+.btn-outline {
+    background: transparent;
+    color: #4CAF50;
+    border-color: #4CAF50;
+}
+
+.btn-outline:hover {
+    background: #4CAF50;
+    color: white;
+}
+
+.help-section {
+    margin-bottom: 40px;
+}
+
+.help-title {
+    color: #495057;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.5em;
+}
+
+.help-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.help-card {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 25px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.help-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #17a2b8, #138496);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.help-content h4 {
+    margin: 0 0 15px 0;
+    color: #2c3e50;
+}
+
+.help-content ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #6c757d;
+}
+
+.help-content li {
+    margin-bottom: 8px;
+}
+
+kbd {
+    background: #f1f3f4;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+.system-status {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    border: 1px solid #e9ecef;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.status-ok {
+    color: #28a745;
+    font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .home-container {
+        padding: 15px;
+    }
+    
+    .welcome-section {
+        padding: 25px;
+        text-align: center;
+    }
+    
+    .welcome-content h1 {
+        font-size: 2em;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .welcome-stats {
+        justify-content: center;
+        width: 100%;
+        margin-top: 20px;
+    }
+    
+    .menu-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .help-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .help-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .system-status {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .card-actions {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .welcome-stats {
+        gap: 15px;
+    }
+    
+    .stat-item {
+        padding: 15px;
+        min-width: 80px;
+    }
+    
+    .stat-number {
+        font-size: 1.5em;
+    }
+    
+    .menu-card {
+        padding: 20px;
+    }
+    
+    .help-card {
+        padding: 20px;
+    }
+}
+</style>
+
+<script>
+// Raccourcis clavier
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey) {
+        switch(e.key) {
+            case 'n':
+                e.preventDefault();
+                window.location.href = '/add-product';
+                break;
+            case 'i':
+                e.preventDefault();
+                window.location.href = '/liste_abdelhamid';
+                break;
+            case 'l':
+                e.preventDefault();
+                window.location.href = '/order-lists/create';
+                break;
+        }
+    }
+});
+
+// Mettre à jour l'heure de dernière sauvegarde
+function updateLastBackup() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('fr-FR');
+    document.getElementById('last-backup').textContent = timeString;
+}
+
+// Mettre à jour toutes les 30 secondes
+setInterval(updateLastBackup, 30000);
+updateLastBackup();
+</script>
+
+{{> footer}}

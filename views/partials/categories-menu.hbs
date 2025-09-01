@@ -1,0 +1,272 @@
+<!-- Menu catégories ergonomique -->
+<div class="categories-menu" id="categoriesMenu" style="display: none;">
+    <div class="menu-overlay" onclick="closeCategoriesMenu()"></div>
+    <div class="menu-content">
+        <div class="menu-header">
+            <h3>Choisir une catégorie</h3>
+            <button class="close-btn" onclick="closeCategoriesMenu()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="menu-body">
+            <div class="categories-grid" id="categoriesGrid">
+                <!-- Les catégories seront chargées ici -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Menu catégories ergonomique */
+.categories-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+}
+
+.menu-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.menu-content {
+    position: relative;
+    background: white;
+    border-radius: 20px;
+    max-width: 90vw;
+    max-height: 85vh;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    animation: menuSlideUp 0.3s ease-out;
+}
+
+@keyframes menuSlideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    border-bottom: 1px solid #e9ecef;
+    background: #f8f9fa;
+    border-radius: 20px 20px 0 0;
+}
+
+.menu-header h3 {
+    margin: 0;
+    color: #343a40;
+    font-weight: 600;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+    background: #e9ecef;
+    color: #343a40;
+}
+
+.menu-body {
+    padding: 25px;
+    max-height: calc(85vh - 80px);
+    overflow-y: auto;
+}
+
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 15px;
+}
+
+.category-menu-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 15px;
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: inherit;
+    min-height: 120px;
+    justify-content: center;
+}
+
+.category-menu-item:hover {
+    border-color: #28a745;
+    background: #f8fff9;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.15);
+    text-decoration: none;
+    color: inherit;
+}
+
+.category-icon {
+    font-size: 2.5rem;
+    color: #28a745;
+    margin-bottom: 10px;
+}
+
+.category-name {
+    font-weight: 600;
+    text-align: center;
+    font-size: 0.95rem;
+    color: #343a40;
+}
+
+.category-count {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .menu-content {
+        max-width: 95vw;
+        max-height: 90vh;
+        margin: 10px;
+    }
+    
+    .categories-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 12px;
+    }
+    
+    .category-menu-item {
+        padding: 15px 10px;
+        min-height: 100px;
+    }
+    
+    .category-icon {
+        font-size: 2rem;
+        margin-bottom: 8px;
+    }
+    
+    .category-name {
+        font-size: 0.9rem;
+    }
+    
+    .menu-header {
+        padding: 15px 20px;
+    }
+    
+    .menu-body {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .categories-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+</style>
+
+<script>
+// Fonction pour ouvrir le menu des catégories
+async function openCategoriesMenu() {
+    try {
+        const response = await fetch('/api/categories');
+        const categories = await response.json();
+        
+        const categoriesGrid = document.getElementById('categoriesGrid');
+        categoriesGrid.innerHTML = categories.map(category => `
+            <a href="/category/${category.id}" class="category-menu-item">
+                <div class="category-icon">
+                    <i class="fas ${getCategoryIcon(category.name)}"></i>
+                </div>
+                <div class="category-name">${category.name}</div>
+                <div class="category-count">Voir les produits</div>
+            </a>
+        `).join('');
+        
+        document.getElementById('categoriesMenu').style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // Empêcher le scroll
+        
+    } catch (error) {
+        console.error('Erreur lors du chargement des catégories:', error);
+        alert('Erreur lors du chargement des catégories');
+    }
+}
+
+// Fonction pour fermer le menu des catégories
+function closeCategoriesMenu() {
+    document.getElementById('categoriesMenu').style.display = 'none';
+    document.body.style.overflow = 'auto'; // Réactiver le scroll
+}
+
+// Fonction pour obtenir l'icône selon la catégorie
+function getCategoryIcon(categoryName) {
+    const iconMap = {
+        'farine': 'fa-wheat',
+        'patissier': 'fa-birthday-cake',
+        'patisserie': 'fa-birthday-cake',
+        'sucre': 'fa-cube',
+        'chocolat': 'fa-cookie-bite',
+        'épices': 'fa-pepper-hot',
+        'épice': 'fa-pepper-hot',
+        'fruits': 'fa-apple-alt',
+        'fruit': 'fa-apple-alt',
+        'lait': 'fa-glass-whiskey',
+        'laitier': 'fa-glass-whiskey',
+        'oeufs': 'fa-egg',
+        'oeuf': 'fa-egg',
+        'beurre': 'fa-cheese',
+        'levure': 'fa-magic',
+        'huile': 'fa-tint',
+        'viande': 'fa-drumstick-bite',
+        'poisson': 'fa-fish',
+        'légume': 'fa-carrot',
+        'céréale': 'fa-seedling',
+        'boisson': 'fa-glass',
+        'conserve': 'fa-archive',
+        'surgelé': 'fa-snowflake'
+    };
+    
+    const lowerName = categoryName.toLowerCase();
+    for (const [key, icon] of Object.entries(iconMap)) {
+        if (lowerName.includes(key)) {
+            return icon;
+        }
+    }
+    return 'fa-box'; // Icône par défaut
+}
+
+// Fermer le menu avec Escape
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeCategoriesMenu();
+    }
+});
+</script>
